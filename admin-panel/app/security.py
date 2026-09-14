@@ -1,5 +1,6 @@
 """CSRF protection for browser forms, including server-rendered HTMX fragments."""
 import hmac
+import logging
 import re
 import secrets
 from urllib.parse import parse_qs, urlsplit
@@ -45,6 +46,15 @@ async def csrf_middleware(request: Request, call_next):
                 submitted = str(form.get("csrf_token", ""))
         if (not valid_cookie or not same_origin or not submitted
                 or not hmac.compare_digest(submitted.encode(), token.encode())):
+            # Sabab kodlari operatorga tashxis uchun; token qiymatlari yozilmaydi.
+            reasons = [name for name, failed in (
+                ("cookie_yoq", not valid_cookie), ("origin_mos_emas", not same_origin),
+                ("token_yoq", not submitted), ("token_mos_emas", bool(submitted) and valid_cookie and submitted != token),
+            ) if failed]
+            logging.getLogger("uvicorn.error").warning(
+                "CSRF rad: %s %s sabab=%s origin=%s base=%s content-type=%s",
+                request.method, request.url.path, ",".join(reasons), origin, str(request.base_url).rstrip("/"),
+                request.headers.get("content-type", "")[:40])
             return JSONResponse({"detail": "Shaklning amal qilish muddati tugagan. Sahifani yangilang va qayta yuboring."}, status_code=403)
     response = await call_next(request)
     if not request.url.path.startswith("/static/"):

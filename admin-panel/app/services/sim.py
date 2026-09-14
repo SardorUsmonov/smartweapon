@@ -213,6 +213,20 @@ def heartbeat(db: Session) -> datetime:
     return now
 
 
+def settle_alarms(db: Session, keep: int = 10) -> int:
+    """Avto-rejimda faol signallar soni chegaralanadi: eng eskilari "yechilgan" deb belgilanadi.
+
+    Aks holda bir soatlik avto-rejim xaritani butunlay qizil qiladi. Bu faqat simulyatsiya
+    holati; operator amali emas, shuning uchun jurnalga hodisa yozilmaydi."""
+    open_alarms = db.execute(select(Alarm).where(Alarm.resolved_at.is_(None)).order_by(Alarm.opened_at.asc())).scalars().all()
+    extra = open_alarms[:-keep] if keep > 0 else open_alarms
+    now = datetime.now().replace(microsecond=0)
+    for alarm in extra:
+        alarm.resolved_at = now
+        alarm.resolved_by = "avto-simulyator"
+    return len(extra)
+
+
 def mode_start(db: Session, armory: Armory, kind: str, started_by: str, approver2: str = "", reason: str = "") -> Mode:
     m = Mode(kind=kind, unit_id=armory.unit_id, armory_id=armory.id, started_by=started_by, approver2=approver2,
              started_at=datetime.now().replace(microsecond=0), target_count=len([c for c in armory.cabinets if c.officer_id]),

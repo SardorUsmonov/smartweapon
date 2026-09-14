@@ -88,7 +88,9 @@ async def proxy(request: Request, path: str):
         if key.lower() not in HOP_HEADERS | {"content-encoding"}:
             response.headers.append(key, value)
     response.headers["Cache-Control"] = "no-store"
-    response.headers["Referrer-Policy"] = "no-referrer"
+    # "no-referrer" faqat maxsus havola javobida qoladi: sahifalarga "no-referrer" qo'yilsa
+    # brauzer forma POST'ida Origin: null yuboradi va ilovaning CSRF tekshiruvi rad etadi.
+    response.headers["Referrer-Policy"] = "same-origin"
     response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
     return response
 

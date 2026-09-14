@@ -103,9 +103,11 @@ async def _auto_loop():
     while _auto["running"]:
         db = SessionLocal()
         try:
-            # Obyektlar "tirik": sinxron vaqtlari yangilanadi, keyin tasodifiy hodisa.
+            # Obyektlar "tirik": sinxron vaqtlari yangilanadi, keyin tasodifiy hodisa;
+            # faol signallar soni chegaralanadi, aks holda xarita vaqt o'tib butunlay qizaradi.
             simsvc.heartbeat(db)
-            simsvc.random_step(db); db.commit()
+            simsvc.random_step(db)
+            simsvc.settle_alarms(db, keep=10); db.commit()
         except Exception as e:  # noqa: BLE001
             db.rollback(); print("auto-sim xato:", e)
         finally:
