@@ -8,24 +8,44 @@
   <title>{{ t(title) }} · {{ t(cfg.APP_TITLE) }}</title>
   <link rel="stylesheet" href="/static/css/tokens.css?v=situation-1">
   <link rel="stylesheet" href="/static/css/app.css?v=situation-1">
-  <link rel="stylesheet" href="/static/css/sections/auth.css">
+  <link rel="stylesheet" href="/static/css/sections/auth.css?v=2">
   <link rel="stylesheet" href="/static/css/theme.css?v=1">
-  <link rel="stylesheet" href="/static/css/sections/relief.css?v=1">
+  <link rel="stylesheet" href="/static/css/sections/relief.css?v=2">
   <link rel="icon" href="/static/img/iiv-gerb.jpg">
 </head>
 <body class="auth-body">
 {% from "macros.html" import icon with context %}
-  <main class="auth-shell">
-    <div class="auth-toolbar"><span>{{ t("Qurol saqlash tizimi") }}</span><div class="auth-tools">{% include "partials/theme_toggle.html" %}<a class="lang-switch" href="/til/{{ 'lat' if lang == 'cyr' else 'cyr' }}">{{ 'Ўзб' if lang == 'lat' else "O'zb" }}</a></div></div>
+{% set geo = UZ_GEO %}
+<div class="gate">
+  <aside class="gate-panel">
+    <div class="gate-brand">
+      <img src="/static/img/iiv-gerb.jpg" alt="{{ t('IIV gerbi') }}" width="56" height="56">
+      <span>{{ t(cfg.ORG_NAME) }}</span>
+    </div>
+    <div class="gate-title">
+      <h1>{{ t(cfg.APP_TITLE) }}</h1>
+      <p class="gate-sub">{{ t(cfg.APP_SUBTITLE) }}</p>
+      <p class="gate-lead">{{ t("Respublika bo‘yicha qurol kataklari, smenalar, signallar va jurnal bitta konsolda. Panel qulf ochmaydi: u kuzatadi, tasdiqlaydi va hisobga oladi.") }}</p>
+    </div>
+    <svg class="gate-map" viewBox="-20 -20 840 570" aria-hidden="true" focusable="false">
+      <defs><path id="gm-country" d="{{ geo.regions.values()|map(attribute='d')|join(' ') }}" fill-rule="evenodd"/></defs>
+      <use class="gm-shadow" href="#gm-country"/>
+      {% for dy in [13, 11, 9, 7, 5, 3] %}<use class="gm-side" href="#gm-country" transform="translate(0 {{ dy }})"/>{% endfor %}
+      <g class="gm-top">{% for code, r in geo.regions.items() %}<path d="{{ r.d }}" fill-rule="evenodd"/>{% endfor %}</g>
+      <use class="gm-outline" href="#gm-country"/>
+    </svg>
+    <div class="gate-foot">
+      <span>{{ icon("shield", 14) }} {{ t("Kirishlar va amallar tizim jurnalida qayd etiladi.") }}</span>
+      {% if cfg.DEMO_MODE %}<span class="gate-env">{{ t("Namoyish muhiti") }}</span>{% endif %}
+    </div>
+  </aside>
+  <main class="gate-form">
+    <div class="auth-toolbar">{% include "partials/theme_toggle.html" %}<a class="lang-switch" href="/til/{{ 'lat' if lang == 'cyr' else 'cyr' }}">{{ 'Ўзб' if lang == 'lat' else "O'zb" }}</a></div>
     <section class="auth-card">
-      <header class="auth-brand">
-        <img src="/static/img/iiv-gerb.jpg" alt="{{ t('IIV gerbi') }}" width="76" height="76">
-        <p>{{ t(cfg.ORG_NAME) }}</p>
-        <h1>{{ t(cfg.APP_TITLE) }}</h1>
-      </header>
       {% block auth_content %}{% endblock %}
     </section>
-    <p class="auth-footer">{{ icon("shield", 15) }} {{ t("Kirishlar va amallar tizim jurnalida qayd etiladi.") }}</p>
   </main>
+</div>
+{% block scripts %}{% endblock %}
 </body>
 </html>

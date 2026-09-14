@@ -29,7 +29,9 @@ app.mount("/static", StaticFiles(directory=str(config.BASE_DIR / "static")), nam
 templates = Jinja2Templates(directory=str(config.BASE_DIR / "templates"))
 templates.env.autoescape = True
 from .icons import ICONS  # noqa: E402
+from .services.mapsvg import regions_geo  # noqa: E402
 templates.env.globals["ICONS"] = ICONS
+templates.env.globals["UZ_GEO"] = regions_geo()  # kirish sahifasidagi relyef xarita uchun hudud konturlari
 
 NAV = [
     ("respublika", "Respublika", "/", "dashboard"),

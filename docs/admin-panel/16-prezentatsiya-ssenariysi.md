@@ -13,7 +13,7 @@ python -B -X utf8 scripts\demo_reset.py
 python -B -X utf8 run.py
 ```
 
-4. Brauzerda http://127.0.0.1:8080 → `admin` / `demo` → MFA `123456`.
+4. Brauzerda http://127.0.0.1:8080 → kirish sahifasida "Namoyish hisoblari" qatoridan `admin` ni bosing (foydalanuvchi nomi o'zi to'ladi) → parol `demo` → tasdiqlash kodi `123456`. Kirish sahifasining o'zi ham namoyish elementi: chapda relyef xarita va tizim nomi, o'ngda ikki bosqichli kirish.
 5. Simulyator (chap menyu, eng pastda) → "Avto-rejim" (interval 4 s). Bu obyektlarni "tirik" qiladi: hodisalar oqadi, xarita eskirmaydi.
 6. Ikkinchi brauzer oynasida (yoki maxfiy oynada) `navbatchi` / `demo` / `123456` bilan kirib qo'ying: smena va rejim qadamlari uchun.
 7. Til: yuqori o'ngdagi "Ўзб" tugmasi kirillga o'tkazadi; kerak bo'lsa oldindan tanlang.

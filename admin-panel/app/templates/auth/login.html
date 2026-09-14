@@ -1,23 +1,29 @@
 {% extends "auth/base.html" %}
 {% from "macros.html" import icon with context %}
 {% block auth_content %}
-  <div class="auth-heading"><h2>{{ t("Tizimga kirish") }}</h2><p>{{ t("Hisobingiz va parolingizni kiriting.") }}</p></div>
+  <div class="auth-heading"><span class="auth-step">{{ t("1-bosqich: hisob") }}</span><h2>{{ t("Tizimga kirish") }}</h2><p>{{ t("Foydalanuvchi nomi va parolni kiriting. Keyingi qadamda tasdiqlash kodi so‘raladi.") }}</p></div>
   {% if error %}<div class="notice red" role="alert">{{ icon("alert", 16) }} {{ t(error) }}</div>{% endif %}
   <form method="post" action="/kirish" class="auth-form">
     <input type="hidden" name="next" value="{{ next_path }}">
     <label for="username">{{ t("Foydalanuvchi nomi") }}</label>
-    <input id="username" name="username" value="{{ username }}" required maxlength="40" autocomplete="username" autofocus {% if demo_mode %}list="demo-users"{% endif %}>
-    {% if demo_mode %}<datalist id="demo-users">{% for u in users %}<option value="{{ u.username }}">{{ u.full_name }} · {{ t(role_labels.get(u.role, u.role)) }}</option>{% endfor %}</datalist>{% endif %}
+    <input id="username" name="username" value="{{ username }}" required maxlength="40" autocomplete="username" autocapitalize="off" spellcheck="false" autofocus>
     <label for="password">{{ t("Parol") }}</label>
     <input id="password" name="password" type="password" required maxlength="512" autocomplete="current-password">
     <button class="btn btn-primary" type="submit">{{ t("Davom etish") }} {{ icon("chev", 17) }}</button>
   </form>
   {% if demo_mode %}
-  <details class="auth-demo" open>
-    <summary>{{ t("Demo kirish ma'lumotlari") }}</summary>
-    <p>{{ t("Parol") }}: <code>demo</code> · {{ t("MFA kodi") }}: <code>123456</code></p>
-    <dl><dt><code>admin</code></dt><dd>{{ t("Administrator") }}</dd><dt><code>admin2</code></dt><dd>{{ t("Ikkinchi tasdiqlovchi") }}</dd><dt><code>tekshiruvchi</code></dt><dd>{{ t("Ko'rish va hisobotlar") }}</dd><dt><code>navbatchi</code></dt><dd>{{ t("Smena va signallar") }}</dd><dt><code>masul</code></dt><dd>{{ t("Qurolxona mas'uli") }}</dd></dl>
-    <p class="muted">{{ t("Bu prototipda namunaviy ma'lumotlar va sinov MFA kodi ishlatiladi.") }}</p>
-  </details>
+  <div class="demo-roles">
+    <span>{{ t("Namoyish hisoblari: rolni tanlang, foydalanuvchi nomi o‘zi to‘ladi.") }}</span>
+    <div class="demo-chips">{% for u in users %}<button type="button" class="demo-chip" data-demo-user="{{ u.username }}"><b>{{ u.username }}</b><small>{{ t(role_labels.get(u.role, u.role)) }}{% if u.scope_kind != 'respublika' %} · {{ t(scope_labels.get(u.scope_kind, u.scope_kind)) }}{% endif %}</small></button>{% endfor %}</div>
+    <p class="demo-note">{{ t("Parol") }}: <code>demo</code>. {{ t("Tasdiqlash kodi") }}: <code>123456</code>. {{ t("Namunaviy ma’lumotlar va sinov MFA kodi.") }}</p>
+  </div>
   {% endif %}
 {% endblock %}
+{% block scripts %}{% if demo_mode %}<script>
+document.querySelectorAll('[data-demo-user]').forEach(function (button) {
+  button.addEventListener('click', function () {
+    document.getElementById('username').value = button.dataset.demoUser;
+    document.getElementById('password').focus();
+  });
+});
+</script>{% endif %}{% endblock %}

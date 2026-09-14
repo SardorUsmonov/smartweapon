@@ -1,28 +1,88 @@
-.auth-body { display: flex; min-height: 100vh; height: auto; align-items: center; justify-content: center; padding: 24px 16px; background: radial-gradient(ellipse at 50% 0, #162947 0, var(--bg) 65%); }
-.auth-shell { width: 100%; max-width: 450px; }
-.auth-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; color: var(--muted); font-size: 12px; }
-.auth-card { background: var(--panel); border: 1px solid var(--border-strong); border-radius: 12px; padding: 30px 32px; box-shadow: 0 16px 60px #0005; }
-.auth-brand { text-align: center; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
-.auth-brand img { border-radius: 50%; object-fit: cover; }
-.auth-brand p { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin: 16px 0 8px; }
-.auth-brand h1 { font-size: 24px; text-transform: uppercase; letter-spacing: .05em; margin: 0; }
-.auth-heading { margin: 24px 0 20px; }
-.auth-heading h2 { font-size: 21px; margin: 0 0 6px; }
-.auth-heading p, .auth-help { color: var(--muted); margin: 0; font-size: 13px; }
-.auth-form { display: flex; flex-direction: column; gap: 9px; }
-.auth-form label { color: var(--muted); font-size: 13px; margin-top: 8px; }
-.auth-form input { min-width: 0; width: 100%; min-height: 44px; }
-.auth-form .btn { min-height: 44px; justify-content: center; margin-top: 14px; }
+/* Kirish: qorovul posti. Chapda doimiy qorong'i "darvoza" paneli va relyef xarita, o'ngda forma. */
+.auth-body { display: block; min-height: 100vh; height: auto; margin: 0; padding: 0; background: var(--bg); }
+.gate { display: grid; grid-template-columns: minmax(480px, 56fr) minmax(360px, 44fr); min-height: 100vh; }
+
+/* Darvoza paneli: ikkala rejimda ham po'lat-qorong'i. */
+.gate-panel {
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  padding: 40px 48px 30px; color: #e6ecf1;
+  background: linear-gradient(160deg, #10202d 0%, #0a141d 52%, #070d13 100%);
+}
+.gate-panel::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 72% 82%, rgba(194, 170, 121, .12), transparent 55%); pointer-events: none; }
+.gate-brand { position: relative; z-index: 2; display: flex; align-items: center; gap: 14px; }
+.gate-brand img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 1px #6c6958, 0 10px 20px -10px #000; }
+.gate-brand span { font-size: 13px; line-height: 1.45; color: #c3cdd6; max-width: 300px; }
+.gate-title { position: relative; z-index: 2; max-width: 520px; margin: 46px 0 0; }
+.gate-title h1 { margin: 0; font-size: clamp(34px, 3.4vw, 46px); font-weight: 300; letter-spacing: -.6px; line-height: 1.1; color: #f2f5f7; }
+.gate-sub { margin: 10px 0 0; font-size: 15px; color: #d1bc8b; }
+.gate-lead { margin: 18px 0 0; font-size: 14px; line-height: 1.6; color: #a9b7c3; max-width: 430px; }
+
+/* Relyef xarita: bosh sahifadagi 3D xaritaning aks-sadosi, panel chetidan kesilib chiqadi. */
+.gate-map {
+  position: absolute; right: -13%; bottom: -3%; width: 84%; max-width: 940px; height: auto;
+  transform: perspective(1200px) rotateX(46deg) rotateZ(-9deg); transform-origin: 55% 65%;
+  pointer-events: none; z-index: 1;
+}
+.gm-shadow { fill: #000; opacity: .5; filter: blur(16px); transform: translate(12px, 30px); }
+.gm-side { fill: #0a141d; stroke: #0a141d; stroke-width: .6; }
+.gm-top path { fill: #1c2e3d; stroke: rgba(194, 170, 121, .38); stroke-width: .9; stroke-linejoin: round; }
+.gm-outline { fill: none; stroke: rgba(209, 188, 139, .62); stroke-width: 1.5; stroke-linejoin: round; }
+.gate-foot { position: relative; z-index: 2; margin-top: auto; padding-top: 40px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12px; color: #8fa0ae; }
+.gate-foot > span { display: inline-flex; align-items: center; gap: 6px; }
+.gate-env { color: #d1bc8b; border: 1px solid rgba(209, 188, 139, .45); border-radius: 3px; padding: 3px 8px; font-size: 11px; }
+
+/* Forma tomoni: joriy rejim ranglarida. */
+.gate-form { display: flex; flex-direction: column; min-height: 100vh; padding: 18px 28px 32px; background: var(--bg); border-left: 1px solid var(--border); }
+.auth-toolbar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.auth-card { width: 100%; max-width: 400px; margin: auto; padding: 28px 0 40px; }
+.auth-heading { margin: 0 0 22px; }
+.auth-step { display: inline-block; margin-bottom: 12px; color: var(--accent-text); font-size: 12px; }
+.auth-heading h2 { font-size: 26px; font-weight: 500; letter-spacing: -.3px; margin: 0 0 8px; line-height: 1.25; }
+.auth-heading p, .auth-help { color: var(--muted); margin: 0; font-size: 13px; line-height: 1.55; }
+.auth-heading .mono { font-family: var(--font-mono); color: var(--text); }
+.auth-form { display: flex; flex-direction: column; gap: 8px; }
+.auth-form label { color: var(--text); font-size: 13px; font-weight: 500; margin-top: 10px; }
+.auth-form input { min-width: 0; width: 100%; min-height: 46px; padding: 10px 12px; font-size: 15px; background: var(--panel-2); border: 1px solid var(--border-strong); border-radius: 4px; }
+.auth-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.auth-form .btn { min-height: 46px; justify-content: center; margin-top: 16px; font-size: 14px; }
+.auth-form .auth-help { margin-top: 2px; }
 .auth-card .notice { margin-bottom: 16px; }
-.auth-demo { background: var(--accent-soft); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 12px 14px; margin-top: 22px; font-size: 12px; }
-.auth-demo summary { cursor: pointer; color: var(--accent-text); font-weight: 600; }
-.auth-demo p { margin: 10px 0 0; }
-.auth-demo code { font-family: var(--font-mono); color: var(--text); }
-.auth-demo dl { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 5px 12px; margin: 12px 0; }
-.auth-demo dd { margin: 0; color: var(--muted); }
-.auth-footer { color: var(--muted-2); font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; }
-.auth-step { display: inline-block; margin-bottom: 10px; color: var(--accent-text); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
 .auth-form .auth-code { font-family: var(--font-mono); font-size: 28px; text-align: center; letter-spacing: .35em; padding-left: .7em; }
-.auth-back { text-align: center; margin-top: 18px; }
+.auth-back { margin-top: 18px; }
+
+/* Namoyish hisoblari: rol tanlansa foydalanuvchi nomi to'ladi. */
+.demo-roles { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--border); }
+.demo-roles > span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.demo-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.demo-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; min-height: 44px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); text-align: left; cursor: pointer; font: inherit; }
+.demo-chip b { font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+.demo-chip small { font-size: 11px; color: var(--muted); }
+.demo-chip:hover, .demo-chip:focus-visible { border-color: var(--accent); color: var(--accent-text); outline: none; }
+.demo-note { margin: 12px 0 0; font-size: 12px; color: var(--muted); line-height: 1.55; }
+.demo-note code { font-family: var(--font-mono); color: var(--text); }
+
 .profile-grid .kv dd { overflow-wrap: anywhere; }
-@media (max-width: 500px) { .auth-body { padding: 16px 12px; } .auth-card { padding: 24px 20px; } .auth-demo dl { grid-template-columns: 100px minmax(0, 1fr); } .auth-footer { font-size: 10px; } }
+
+@media (max-width: 1100px) {
+  .gate { grid-template-columns: minmax(400px, 50fr) minmax(340px, 50fr); }
+  .gate-panel { padding: 30px 32px 24px; }
+  .gate-map { width: 96%; right: -22%; bottom: -2%; }
+}
+@media (max-width: 900px) {
+  .gate { grid-template-columns: 1fr; }
+  .gate-panel { min-height: 0; padding: 22px 20px 20px; }
+  .gate-brand img { width: 44px; height: 44px; }
+  .gate-brand span { font-size: 12px; }
+  .gate-title { margin-top: 20px; }
+  .gate-title h1 { font-size: 28px; }
+  .gate-lead { display: none; }
+  .gate-map { width: 92%; right: -34%; bottom: -46%; opacity: .55; }
+  .gate-foot { padding-top: 24px; }
+  .gate-form { min-height: 0; padding: 12px 20px 28px; border-left: 0; }
+  .auth-card { margin: 0 auto; padding: 10px 0 24px; }
+}
+@media (max-width: 480px) {
+  .demo-chips { display: grid; grid-template-columns: 1fr 1fr; }
+  .auth-heading h2 { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) { .gate-map { transition: none; } }
