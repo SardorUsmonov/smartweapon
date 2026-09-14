@@ -1,0 +1,5 @@
+Login, CSRF, MFA, token rotation, profile, POST logout and event audit passed
+Password and MFA lockout after three failures passed
+Challenge/session expiry, forged cookies and external redirect rejection passed
+Non-demo MFA fails closed; demo hints hidden; Cyrillic login passed
+PASS scratch: C:\Users\atsha\AppData\Local\Temp\aq_auth_flow_5lhz6yup

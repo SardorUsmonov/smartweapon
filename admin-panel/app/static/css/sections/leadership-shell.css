@@ -1,0 +1,90 @@
+/* Accepted map concept, shared by all authenticated sections. */
+:root {
+  --font: 'Segoe UI', Arial, sans-serif;
+  --font-mono: Consolas, monospace;
+  --nav-w: 174px;
+  --topbar-h: 68px;
+}
+:root[data-theme="dark"] {
+  --bg: #0b1219; --nav: #0e1821; --panel: #101d28; --panel-2: #14232f;
+  --border: #354653; --border-strong: #637785; --text: #e9eef2;
+  --muted: #afbdc7; --muted-2: #a2b1bd;
+  --accent: #c2aa79; --accent-text: #d1bc8b; --accent-soft: #b8a07619;
+  --green: #8db6a6; --red: #f3a09c; --yellow: #e1c087;
+}
+:root[data-theme="light"] {
+  --bg: #fff; --nav: #fff; --panel: #fff; --panel-2: #f3f5f6;
+  --border: #cbd5dc; --border-strong: #8c9eab; --text: #192f40;
+  --muted: #526777; --muted-2: #5d7180;
+  --accent: #92733c; --accent-text: #745821; --accent-soft: #ac915516;
+  --green: #396b59; --red: #a43b3e; --yellow: #815d20;
+}
+.topbar { min-height: 68px; gap: 16px; padding: 0 22px; }
+.brand { flex-basis: 220px; min-width: 210px; gap: 11px; }
+.brand-title { font-size: 13px; letter-spacing: 1.1px; font-weight: 650; }
+.brand-sub { font-size: 9px; letter-spacing: 1.1px; margin-top: 5px; color: var(--muted); }
+.brand-logo { width: 38px; height: 38px; }
+.nav-caption { font-size: 10px; padding: 22px 18px 12px; letter-spacing: 1.2px; }
+.nav-item { min-height: 46px; padding: 11px 13px 11px 17px; font-size: 12px; gap: 11px; }
+.nav-item .ic { width: 18px; height: 18px; color: var(--muted); }
+.nav-item.active { color: var(--accent-text); background: linear-gradient(90deg,var(--accent-soft),transparent); border-left-color: var(--accent); }
+.nav-item.active .ic { color: inherit; }
+.nav-item:hover { color: var(--text); background: var(--accent-soft); }
+.nav-badge { top: 20px; right: 10px; }
+.sidebar-foot { font-size: 10px; letter-spacing: .4px; }
+.environment-note { font-size: 11px; }
+.main { position: relative; padding: 22px 24px; scroll-padding-top: 18px; }
+body[data-page="respublika"] .main { padding-top: 22px; }
+.page-title { font-family: var(--font); font-size: 25px; font-weight: 500; letter-spacing: -.4px; }
+.page-title small { font-size: 12px; line-height: 1.5; }
+.card-title { font-size: 13px; letter-spacing: .035em; }
+.card { background: var(--panel); border-radius: 4px; }
+.tbl thead th { font-size: 11px; }
+.tbl tbody td { font-size: 13px; }
+.tbl a { color: var(--text); }
+.btn { min-height: 36px; height: auto; padding-top: 7px; padding-bottom: 7px; }
+.btn-sm { min-height: 32px; padding-top: 4px; padding-bottom: 4px; }
+.btn-xs { min-height: 28px; padding-top: 3px; padding-bottom: 3px; }
+.btn:disabled { cursor: not-allowed; opacity: .55; }
+.theme-toggle, .lang-switch { min-width: 38px; min-height: 38px; }
+.lang-switch { display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+.topbar-right { gap: 12px; }
+.topbar .search input { height: 38px; }
+.user-chip { font-size: 12px; }
+.situation-tabs { margin-bottom: 16px; }
+@media (max-width:1400px) {
+  .topbar { gap: 12px; }
+  .brand { flex-basis: 215px; }
+  .topbar-right .search input { width: 166px; }
+  .crumbs { flex-basis: 150px; }
+}
+@media (max-width:1100px) {
+  :root { --nav-w: 156px; }
+  .main { padding: 18px; }
+  .nav-item { padding-left: 13px; font-size: 12px; gap: 8px; }
+  .topbar-center:has(.mode-banner) { order: 3; }
+  .topbar:has(.mode-banner) { min-height: 68px; }
+  body:has(.topbar .mode-banner) { grid-template-rows: auto minmax(0,1fr); }
+}
+@media (max-width:700px) {
+  body { grid-template-rows: auto auto minmax(0,1fr); }
+  body:has(.topbar .mode-banner) { grid-template-rows: auto auto minmax(0,1fr); }
+  .topbar { padding: 10px 13px; gap: 8px; }
+  .brand { min-width: 190px; }
+  .brand-title { font-size: 12px; }
+  .brand-sub { font-size: 8px; }
+  .brand-logo { width: 32px; height: 32px; }
+  .topbar-right { gap: 8px; }
+  .topbar-right .search input { width: 100%; }
+  .topbar-right .user-chip { width: 38px; height: 38px; justify-content: center; padding: 0; }
+  .topbar-right .user-chip span { display: none; }
+  .theme-toggle, .lang-switch { min-width: 38px; min-height: 38px; }
+  .nav-item { min-height: 44px; padding: 10px 11px; }
+  .nav-item.active { border-left: 0; border-bottom-color: var(--accent); }
+  .nav-badge { top: 7px; right: 5px; }
+  .main { padding: 16px 13px; }
+  .page-title { font-size: 22px; }
+  .page-actions .btn { min-height: 40px; }
+  .situation-tabs { flex-wrap: wrap; }
+  .situation-scope { display: none; }
+}

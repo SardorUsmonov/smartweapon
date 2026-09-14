@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, cab_status, empty, level_icon with context %}
+{% from "xodimlar/macros.html" import service_chip, yes_no, armed_chip with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/xodimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title"><span class="xd-title"><span class="xd-avatar">{{ initials }}</span><span>{{ off.full_name }}</span>{{ service_chip(off.service_status, statuses) }}{{ armed_chip(armed) }}</span>
+    <small>{{ t(off.rank) }} · {{ t(off.position) }} · {{ t("tabel") }} {{ off.tabel }} · <a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a> · {{ t(unit.name) }}{% if armory %} · <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a>{% endif %}</small>
+  </h1>
+  <div class="page-actions">
+    {% if cab %}<a class="btn btn-sm" href="/yacheyka/{{ cab.id }}">{{ icon("lock", 14) }} {{ t("Yacheyka") }} {{ cab.label }}</a>{% endif %}
+    <a class="btn btn-ghost btn-sm" href="/jurnal?xodim={{ off.id }}">{{ icon("list", 14) }} {{ t("Jurnal") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/inventar?xodim={{ off.id }}">{{ icon("box", 14) }} {{ t("Jihozlar") }}</a>
+  </div>
+</div>
+{% if xabar %}<div class="notice {{ xabar_tone }} xd-msg">{{ icon("info", 15) }} {{ t(xabar) }}</div>{% endif %}
+{% if off.service_status != 'faol' %}<div class="notice red xd-msg">{{ icon("ban", 15) }} {{ t("Xodim xizmatda emas") }} ({{ t(statuses[off.service_status][0]) if off.service_status in statuses else off.service_status }}) — {{ t("qurol berish avtomatik rad etiladi.") }}</div>
+{% elif not elig_ok %}<div class="notice red xd-msg">{{ icon("alert", 15) }} {{ t("Yaroqlilik shartlaridan biri bajarilmagan — qurol berish rad etiladi.") }}</div>
+{% elif not current_shift %}<div class="notice yellow xd-msg">{{ icon("clock", 15) }} {{ t("Hozir navbat oynasidan tashqarida — qurol berish rad etiladi (navbatchi ruxsatisiz).") }}</div>{% endif %}
+
+<div class="xd-stats">
+  <div class="xd-stat"><span>{{ t("Olishlar · 30 kun") }}</span><b>{{ stats.olish_30 | num }}</b></div>
+  <div class="xd-stat {% if stats.rad_30 %}tone-yellow{% endif %}"><span>{{ t("Rad etishlar · 30 kun") }}</span><b>{{ stats.rad_30 | num }}</b></div>
+  <div class="xd-stat {% if stats.kechikish_30 %}tone-red{% endif %}"><span>{{ t("Kechikishlar · 30 kun") }}</span><b>{{ stats.kechikish_30 | num }}</b></div>
+  <div class="xd-stat {% if stats.farq_30 %}tone-red{% endif %}"><span>{{ t("Nomuvofiq qaytarish · 30 kun") }}</span><b>{{ stats.farq_30 | num }}</b></div>
+</div>
+
+<div class="xd-grid">
+  <section class="card">
+    {% call card_head("Shaxsiy ma'lumot") %}<span class="meta-item muted">ID {{ off.id }}</span>{% endcall %}
+    <dl class="kv">
+      <dt>{{ t("F.I.Sh.") }}</dt><dd><b>{{ off.full_name }}</b></dd>
+      <dt>{{ t("Tabel raqami") }}</dt><dd class="mono">{{ off.tabel }}</dd>
+      <dt>{{ t("Unvon") }}</dt><dd>{{ t(off.rank) }}</dd>
+      <dt>{{ t("Lavozim") }}</dt><dd>{{ t(off.position) }}</dd>
+      <dt>{{ t("Hudud") }}</dt><dd><a href="/hudud/{{ region.id }}">{{ t(region.name) }}</a></dd>
+      <dt>{{ t("Bo'linma") }}</dt><dd>{{ t(unit.name) }}</dd>
+      <dt>{{ t("Qurolxona") }}</dt><dd>{% if armory %}<a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a> {% if armory.online %}<span class="chip chip-green">{{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ t("oflayn") }}</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</dd>
+      <dt>{{ t("Yacheyka") }}</dt><dd>{% if cab %}<a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a> <span class="muted">· {{ cab.serial }} · {{ t("devor") }} {{ cab.wall }}</span> {{ cab_status(cab.status) }}{% else %}<span class="muted">{{ t("Biriktirilmagan") }}</span>{% endif %}</dd>
+      <dt>{{ t("Xizmat holati") }}</dt><dd>{{ service_chip(off.service_status, statuses) }}</dd>
+      <dt>{{ t("Guvohnoma muddati") }}</dt><dd>{% if off.valid_until %}{{ off.valid_until | dt("%d.%m.%Y") }} {% if off.valid_until < now %}<span class="chip chip-red">{{ t("muddati o'tgan") }}</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    {% call card_head("Kredensiallar va ruxsatlar") %}{% if ctx.can("biriktirish") %}<span class="meta-item muted">{{ t("o'zgartirish: qurolxona mas'uli") }}</span>{% endif %}{% endcall %}
+    <dl class="kv">
+      <dt>{{ t("Karta") }}</dt><dd>{% if off.card_uid %}<span class="mono">{{ off.card_uid }}</span> · {% endif %}{{ yes_no(off.card_status == 'faol' and off.card_uid, "faol", off.card_status if off.card_uid else "yo'q") }}</dd>
+      <dt>{{ t("Yuz (Face ID)") }}</dt><dd>{{ yes_no(off.face_enrolled, "ro'yxatdan o'tgan", "ro'yxatdan o'tmagan") }}</dd>
+      <dt>{{ t("Barmoq izi") }}</dt><dd>{{ yes_no(off.finger_enrolled, "ro'yxatdan o'tgan", "ro'yxatdan o'tmagan") }}</dd>
+    </dl>
+    <div class="xd-permits">
+      {% for code, (name, model) in permits.items() %}
+      {% set on = off.permit_ak if code == 'ak' else off.permit_pm %}
+      <div class="xd-permit {% if on %}on{% else %}off{% endif %}">
+        <b>{{ t(name) }} <span class="muted">· {{ model }}</span></b>
+        {{ yes_no(on, "Ruxsat bor", "Ruxsat bekor qilingan") }}
+        {% if ctx.can("biriktirish") %}
+        <details class="xd-act">
+          <summary class="btn btn-xs {% if on %}btn-danger{% else %}btn-primary{% endif %}">{{ t("Bekor qilish") if on else t("Tiklash") }}</summary>
+          <form method="post" action="/xodim/{{ off.id }}/ruxsat" class="xd-form">
+            <input type="hidden" name="tur" value="{{ code }}"><input type="hidden" name="amal" value="{{ 'bekor' if on else 'tiklash' }}">
+            <label>{{ t("Sabab (majburiy)") }}</label>
+            <textarea name="sabab" required minlength="3" placeholder="{{ t('Masalan: rahbar buyrug\'i №… asosida') }}"></textarea>
+            {% if on %}<div class="notice red">{{ t("Bekor qilingandan so'ng bu qurol berish rad etiladi. Hodisa XAVFSIZLIK darajasida jurnalga yoziladi.") }}</div>{% endif %}
+            <label class="xd-check"><input type="checkbox" required> {{ t("Tasdiqlayman") }}</label>
+            <div class="row"><button class="btn btn-sm {% if on %}btn-danger{% else %}btn-primary{% endif %}">{{ icon("shield", 14) }} {{ t("Bekor qilish") if on else t("Tiklash") }}</button></div>
+          </form>
+        </details>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card" id="xd-live" hx-get="/xodim/{{ off.id }}/partials/holat" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+    {% include "xodimlar/holat_partial.html" %}
+  </section>
+</div>
+
+<div class="xd-grid-2">
+  <section class="card">
+    {% call card_head("Yaroqlilik · 5 shart") %}{% if elig_ok %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("Barcha shartlar bajarilgan") }}</span>{% else %}<span class="chip chip-red">{{ icon("alert", 12, 2.4) }} {{ t("Shart bajarilmagan") }}</span>{% endif %}{% endcall %}
+    <table class="tbl">
+      <thead><tr><th>#</th><th class="l">{{ t("Shart") }}</th><th class="l">{{ t("Hujjat") }}</th><th class="l">{{ t("Berilgan") }}</th><th class="l">{{ t("Amal qiladi") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+      <tbody>
+      {% for x in elig %}
+      <tr>
+        <td class="muted">{{ loop.index }}</td>
+        <td class="l">{{ t(x.label) }}</td>
+        <td class="l mono">{{ x.e.doc_ref if x.e else "—" }}</td>
+        <td class="l">{{ x.e.issued | dt("%d.%m.%Y") if x.e else "—" }}</td>
+        <td class="l">{% if x.e and x.e.valid_until %}{{ x.e.valid_until | dt("%d.%m.%Y") }} <span class="xd-days n-{{ x.tone }}">{% if x.days < 0 %}({{ t("o'tgan") }}){% else %}({{ x.days }} {{ t("kun") }}){% endif %}</span>{% else %}—{% endif %}</td>
+        <td class="l">{% if x.tone == 'green' %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("Yaroqli") }}</span>{% elif x.tone == 'yellow' %}<span class="chip chip-yellow">{{ icon("clock", 12, 2.4) }} {{ t("Muddati yaqin") }}</span>{% else %}<span class="chip chip-red">{{ icon("ban", 12, 2.4) }} {{ t("Yaroqsiz") if x.e else t("Yo'q") }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    {% call card_head("Navbat va xizmat holati") %}{% if current_shift %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("Navbatda") }}</span>{% else %}<span class="chip chip-gray">{{ t("Navbatdan tashqarida") }}</span>{% endif %}{% endcall %}
+    {% if current_shift %}
+    <div class="notice green">{{ t("Joriy navbat") }}: <b>{{ current_shift.start | dt("%d.%m.%Y %H:%M") }} — {{ current_shift.end | dt("%H:%M") }}</b> <span class="muted">· {{ t("tasdiqlagan") }}: {{ t(current_shift.confirmed_by) or "—" }}</span></div>
+    {% elif next_shift %}
+    <div class="notice yellow">{{ t("Keyingi navbat") }}: <b>{{ next_shift.start | dt("%d.%m.%Y %H:%M") }} — {{ next_shift.end | dt("%H:%M") }}</b></div>
+    {% else %}
+    <div class="notice yellow">{{ t("Bugungi navbat belgilanmagan (navbatchilik tizimi bilan integratsiya: ulanmagan).") }}</div>
+    {% endif %}
+    {% if shifts %}
+    <table class="tbl xd-shifts">
+      <thead><tr><th class="l">{{ t("Boshlanish") }}</th><th class="l">{{ t("Tugash") }}</th><th class="l">{{ t("Tasdiqlagan") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+      <tbody>
+      {% for s in shifts[:5] %}
+      <tr><td class="l">{{ s.start | dt("%d.%m.%Y %H:%M") }}</td><td class="l">{{ s.end | dt("%d.%m.%Y %H:%M") }}</td><td class="l">{{ t(s.confirmed_by) or "—" }}</td>
+        <td class="l">{% if s.start <= now <= s.end %}<span class="chip chip-green">{{ t("joriy") }}</span>{% elif s.end < now %}<span class="chip chip-gray">{{ t("tugagan") }}</span>{% else %}<span class="chip chip-yellow">{{ t("rejalashtirilgan") }}</span>{% endif %}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if ctx.can("bloklash") %}
+    <details class="xd-act xd-act-status">
+      <summary class="btn btn-sm">{{ icon("user", 14) }} {{ t("Xizmat holatini o'zgartirish") }}</summary>
+      <form method="post" action="/xodim/{{ off.id }}/holat" class="xd-form">
+        <label>{{ t("Yangi holat") }}</label>
+        <select name="holat" required>
+          {% for code, (label, tone) in statuses.items() %}
+          <option value="{{ code }}" {% if code == off.service_status %}disabled{% endif %}>{{ t(label) }}{% if code == off.service_status %} ({{ t("joriy") }}){% endif %}</option>
+          {% endfor %}
+        </select>
+        <label>{{ t("Sabab (majburiy)") }}</label>
+        <textarea name="sabab" required minlength="3" placeholder="{{ t('Masalan: ta\'til buyrug\'i №… / kasallik varaqasi …') }}"></textarea>
+        <div class="notice yellow">{{ t("Faol bo'lmagan holat tanlansa xodim ruxsatlari to'xtatiladi") }}{% if cab %}, {{ t("yacheyka") }} <b>{{ cab.label }}</b> {{ t("bloklanadi") }}{% endif %}. {{ t("Panel qulf ochmaydi; bloklangan yacheyka faqat mas'ul tomonidan holat «Faol» qilinganda ochiladi.") }}</div>
+        <label class="xd-check"><input type="checkbox" required> {{ t("Tasdiqlayman") }}</label>
+        <div class="row"><button class="btn btn-sm btn-danger">{{ icon("shield", 14) }} {{ t("Holatni o'zgartirish") }}</button></div>
+      </form>
+    </details>
+    {% else %}
+    <div class="muted xd-hint">{{ t("Xizmat holatini faqat qurolxona mas'uli o'zgartiradi.") }}</div>
+    {% endif %}
+  </section>
+</div>
+
+<div class="xd-grid-2 xd-grid-wide">
+  <section class="card">
+    {% call card_head("Olish-qaytarish tarixi (custody)") %}<span class="meta-item muted">{{ t("so'nggi") }} {{ custody | length }}</span><a class="btn btn-ghost btn-sm" href="/jurnal?xodim={{ off.id }}&tur=operatsiya">{{ t("Jurnalda") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    {% if custody %}
+    <div class="xd-tblwrap">
+    <table class="tbl">
+      <thead><tr><th class="l">{{ t("Jihoz") }}</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Olindi") }}</th><th class="l">{{ t("Muddat") }}</th><th class="l">{{ t("Qaytarildi") }}</th><th class="l">{{ t("Muvofiqlik") }}</th></tr></thead>
+      <tbody>
+      {% for r in custody %}
+      <tr class="row-link" data-href="/jihoz/{{ r.item.id }}">
+        <td class="l"><a href="/jihoz/{{ r.item.id }}">{{ r.item.model }}</a> <span class="muted mono">{{ r.item.serial }}</span></td>
+        <td class="l"><a href="/yacheyka/{{ r.cab.id }}">{{ r.cab.label }}</a></td>
+        <td class="l">{{ r.c.taken_at | dt("%d.%m.%Y %H:%M") }}</td>
+        <td class="l">{{ r.c.due_at | dt("%d.%m.%Y %H:%M") }}</td>
+        <td class="l">{% if r.c.returned_at %}{{ r.c.returned_at | dt("%d.%m.%Y %H:%M") }}{% else %}<span class="chip chip-yellow">{{ icon("gun", 12, 2.2) }} {{ t("xodimda") }}</span>{% endif %}
+            {% if r.overdue %}<span class="chip chip-red">{{ icon("clock", 12, 2.4) }} {{ t("kechikish") }}</span>{% endif %}</td>
+        <td class="l">{% if r.c.match_ok %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("mos") }}</span>{% else %}<span class="chip chip-red">{{ icon("alert", 12, 2.4) }} {{ t("nomuvofiq") }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+    {{ empty("Olish-qaytarish yozuvlari yo'q") }}
+    {% endif %}
+  </section>
+
+  <section class="card">
+    {% call card_head("Rad etishlar") %}<span class="meta-item muted">{{ t("so'nggi") }} {{ denials | length }}</span><a class="btn btn-ghost btn-sm" href="/jurnal?xodim={{ off.id }}&tur=rad_etildi">{{ t("Barchasi") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    {% if denials %}
+    <div class="feed">
+      {% for e in denials %}
+      <a class="feed-row lv-{{ e.level | lower }}" href="/jurnal/{{ e.id }}">
+        <span class="feed-time">{{ e.ts_server | dt("%d.%m") }}<br>{{ e.ts_server | dt("%H:%M") }}</span>
+        {{ level_icon(e.level) }}
+        <span class="feed-body"><span class="feed-title">{{ t(e.title) }}{% if e.attempts %} · {{ e.attempts }} {{ t("urinish") }}{% endif %}</span>
+          <span class="feed-detail">{{ t(deny_reason.get(e.reason, e.reason)) if e.reason else t(e.detail) }}{% if e.method %} · {{ e.method }}{% endif %}</span></span>
+        <span class="badge {% if e.level == 'CRITICAL' %}b-red{% else %}b-yellow{% endif %}">{{ t("RAD") }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    {{ empty("Rad etishlar qayd etilmagan") }}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

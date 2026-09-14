@@ -1,0 +1,7 @@
+{% from "macros.html" import kpi with context %}
+{{ kpi("Jami qurilmalar", s.jami, "6 tur · " ~ s.ctrl|num ~ " kontroller", "cpu", "", "/qurilmalar" ~ "?" ~ (location_qs | default(""))) }}
+{{ kpi("Onlayn", s.onlayn, "javob beradi", "wifi", "", "/qurilmalar?holat=onlayn" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Oflayn", s.oflayn, s.qurolxona_oflayn|num ~ " qurolxona aloqasiz", "wifi-off", "red" if s.oflayn else "", "/qurilmalar?holat=oflayn" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Ogohlantirish", s.ogohlantirish, "chegara oshgan", "alert", "yellow" if s.ogohlantirish else "", "/qurilmalar?holat=ogohlantirish" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Xizmat rejimida", s.xizmatda, "texnik xizmat", "wrench", "yellow" if s.xizmatda else "", "/qurilmalar?holat=xizmatda" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Kontrollerlar oflayn", s.ctrl_oflayn, s.ctrl|num ~ " yacheyka kontrolleridan", "lock", "red" if s.ctrl_oflayn else "", "/yacheykalar?holat=oflayn" ~ "&" ~ (location_qs | default(""))) }}

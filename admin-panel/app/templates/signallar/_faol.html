@@ -1,0 +1,61 @@
+{# Jonli qism: daraja hisoblagichlari + faol signal kartochkalari (yoki yechilganlar jadvali) #}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% from "signallar/_macros.html" import sig_card, tarix_table, pager with context %}
+<div class="sig-levels">
+  {% for lv in levels %}
+  {% set n = counts.by_level[lv] %}
+  <a class="sig-tile tone-{{ level_tone[lv] }} {% if daraja == lv %}on{% endif %} {% if not n %}zero{% endif %}" href="{{ link(daraja=('' if daraja == lv else lv), page=0) }}">
+    <span class="sig-tile-head">{{ icon(level_icon[lv], 15, 2.2) }} {{ lv }}</span>
+    <span class="sig-tile-val">{{ n | num }}</span>
+    <span class="sig-tile-sub">{{ t(level_name[lv]) }} · {{ t("faol") }}</span>
+  </a>
+  {% endfor %}
+  <a class="sig-tile tone-red {% if holat == 'kutmoqda' %}on{% endif %} {% if not counts.kutmoqda %}zero{% endif %}" href="{{ link(holat=('' if holat == 'kutmoqda' else 'kutmoqda'), page=0) }}">
+    <span class="sig-tile-head">{{ icon("alert", 15, 2.2) }} {{ t("Tasdiq kutmoqda") }}</span>
+    <span class="sig-tile-val">{{ counts.kutmoqda | num }}</span>
+    <span class="sig-tile-sub">{{ t("CRITICAL / SECURITY, tasdiqlanmagan") }}</span>
+  </a>
+  <a class="sig-tile tone-violet {% if not counts.yonaltirilgan %}zero{% endif %}" href="{{ link(daraja='', page=0) }}">
+    <span class="sig-tile-head">{{ icon("shield", 15, 2.2) }} {{ t("Qorovul posti") }}</span>
+    <span class="sig-tile-val">{{ counts.yonaltirilgan | num }}</span>
+    <span class="sig-tile-sub">{{ t("yo'naltirilgan, ochiq") }}</span>
+  </a>
+  <a class="sig-tile tone-green {% if holat == 'yechilgan' %}on{% endif %}" href="{{ link(holat='yechilgan', page=0) }}">
+    <span class="sig-tile-head">{{ icon("check", 15, 2.2) }} {{ t("Bugun yechildi") }}</span>
+    <span class="sig-tile-val">{{ counts.bugun_yechildi | num }}</span>
+    <span class="sig-tile-sub">{{ t("tarixga o'tdi") }}</span>
+  </a>
+</div>
+
+{% if holat == "yechilgan" %}
+<section class="card">
+  {% call card_head("Yechilgan signallar tarixi") %}
+    <span class="meta-item muted">{{ total | num }} {{ t("ta") }}{% if daraja %} · {{ daraja }}{% endif %} · {{ t("yangilandi") }} {{ now | dt("%H:%M:%S") }}</span>
+  {% endcall %}
+  {{ tarix_table(rows) }}
+  {{ pager(page, pages, page_url) }}
+</section>
+{% else %}
+<section class="card">
+  {% call card_head(holat_label[holat] ~ " signallar") %}
+    <span class="meta-item"><span class="dot {% if counts.kutmoqda %}dot-red{% else %}dot-green{% endif %}"></span>{{ total | num }} {{ t("ta") }}{% if daraja %} · {{ daraja }}{% endif %}</span>
+    <span class="meta-item muted">{{ icon("sync", 14) }} {{ t("jonli") }} · {{ now | dt("%H:%M:%S") }}</span>
+  {% endcall %}
+  {% if rows %}
+  <div class="sig-list">
+    {% for r in rows %}{{ sig_card(r, can_ack, next_url, reasons) }}{% endfor %}
+  </div>
+  {{ pager(page, pages, page_url) }}
+  {% else %}
+  {{ empty("Tanlangan filtr bo'yicha faol signal yo'q") }}
+  {% endif %}
+</section>
+{% if recent_resolved %}
+<section class="card sig-recent">
+  {% call card_head("So'nggi yechilgan signallar") %}
+    <a class="btn btn-ghost btn-sm" href="{{ link(holat='yechilgan', page=0) }}">{{ t("Barcha tarix") }} {{ icon("chev", 14, 2.2) }}</a>
+  {% endcall %}
+  {{ tarix_table(recent_resolved, mini=True) }}
+</section>
+{% endif %}
+{% endif %}

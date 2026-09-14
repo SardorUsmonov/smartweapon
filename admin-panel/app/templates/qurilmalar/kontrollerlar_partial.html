@@ -1,0 +1,23 @@
+{% from "macros.html" import icon, empty with context %}
+{% set TS = {"idle": "Kutish", "face": "Yuz tanish", "finger": "Barmoq izi", "ok": "Ruxsat", "open": "Eshik ochiq", "lock": "Qulflangan", "denied": "Rad etildi", "blocked": "Bloklangan"} %}
+{% if cabs %}
+<table class="tbl">
+  <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Devor") }}</th><th class="l">{{ t("Kontroller") }}</th><th class="l">{{ t("Terminal") }}</th><th class="l">{{ t("Quvvat") }}</th><th>{{ t("Batareya") }}</th><th>{{ t("Harorat") }}</th><th>{{ t("So'nggi aloqa") }}</th></tr></thead>
+  <tbody>
+  {% for c in cabs %}
+  <tr class="row-link" data-href="/yacheyka/{{ c.id }}">
+    <td class="l"><a href="/yacheyka/{{ c.id }}">{{ c.label }}</a> <span class="muted">{{ c.serial }}</span></td>
+    <td class="l">{{ c.wall }}-{{ c.position }}</td>
+    <td class="l">{% if c.controller_online %}<span class="chip chip-green">{{ icon("wifi", 12, 2.4) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 12, 2.4) }} {{ t("oflayn") }}</span>{% endif %}</td>
+    <td class="l">{{ t(TS.get(c.terminal_state, c.terminal_state)) }}</td>
+    <td class="l">{% if c.mains_ok %}<span class="chip chip-green">{{ t("tarmoq") }}</span>{% else %}<span class="chip chip-yellow">{{ icon("battery", 12, 2.4) }} {{ t("batareyada") }}</span>{% endif %}</td>
+    <td><span class="{% if c.battery_pct < 20 %}n-red{% elif c.battery_pct < 50 %}n-yellow{% endif %}">{{ c.battery_pct }} %</span></td>
+    <td>{{ "%.1f" | format(c.temp_c) }} °C</td>
+    <td>{% if c.last_seen %}{{ c.last_seen | dt("%d.%m %H:%M") }} <span class="muted">({{ c.last_seen | ago }})</span>{% else %}—{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{{ empty("Bu qurolxonada yacheyka kontrolleri yo'q") }}
+{% endif %}

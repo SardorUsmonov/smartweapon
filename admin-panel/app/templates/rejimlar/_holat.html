@@ -1,0 +1,45 @@
+{# Rejim holati (jonli partial): progress va har yacheyka bo'yicha berish holati #}
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% set m = v.m %}
+{% call card_head("Berish jarayoni · har yacheyka") %}
+  {% if v.active %}<span class="meta-item"><span class="dot dot-red"></span>{{ t("jonli") }} {{ now.strftime('%H:%M:%S') }}</span>{% endif %}
+  <span class="meta-item muted">{{ v.counts.jami }} {{ t("yacheyka qamrovda") }}</span>
+{% endcall %}
+<div class="rj-stats">
+  <div class="rj-stat"><b>{{ m.issued_count | num }} / {{ m.target_count | num }}</b><span>{{ t("berildi / jami") }}</span></div>
+  <div class="rj-stat"><b>{{ m.queue_count | num }}</b><span>{{ t("navbatda") }}</span></div>
+  <div class="rj-stat"><b>{% if m.avg_seconds %}{{ m.avg_seconds }} s{% else %}—{% endif %}</b><span>{{ t("o'rtacha vaqt") }}</span></div>
+  <div class="rj-stat"><b>{{ v.pct }} %</b><span>{{ t("bajarildi") }}</span></div>
+  {% if v.eta_min %}<div class="rj-stat"><b>~{{ v.eta_min }} {{ t("daq") }}</b><span>{{ t("navbat uchun") }}</span></div>{% endif %}
+</div>
+<div class="rj-progress {{ 'done' if v.pct >= 100 else '' }}" title="{{ v.pct }} %"><i style="width: {{ v.pct }}%"></i></div>
+<div class="rj-legend">
+  <span><i class="olindi"></i>{{ t("olindi") }} {{ v.counts.olindi }}</span>
+  {% if v.counts.xodimda %}<span><i class="xodimda"></i>{{ t("xodimda (rejimdan oldin)") }} {{ v.counts.xodimda }}</span>{% endif %}
+  <span><i class="kutmoqda"></i>{{ t("kutmoqda") if v.active else t("berilmadi") }} {{ v.counts.kutmoqda }}</span>
+  <span><i class="bloklangan"></i>{{ t("berilmaydi (bloklangan / nosoz)") }} {{ v.counts.bloklangan }}</span>
+</div>
+{% if v.rows %}
+<div class="rj-tbl-wrap">
+<table class="tbl rj-cabs">
+  <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Yacheyka holati") }}</th><th class="l">{{ t("Rejimda") }}</th><th>{{ t("Vaqt") }}</th><th class="l">{{ t("Qurol") }}</th></tr></thead>
+  <tbody>
+  {% for r in v.rows %}
+  <tr class="row-link rj-row-{{ r.state }}" data-href="/yacheyka/{{ r.cab.id }}">
+    <td class="l"><a href="/yacheyka/{{ r.cab.id }}">{{ r.cab.label }}</a> <span class="muted">{{ r.cab.wall }}{{ r.cab.position }}</span></td>
+    <td class="l">{% if r.officer %}<a href="/xodim/{{ r.officer.id }}">{{ r.officer.full_name }}</a> <span class="muted">{{ t(r.officer.rank) }}</span>{% else %}—{% endif %}</td>
+    <td class="l">{{ cab_status(r.cab.status) }}</td>
+    <td class="l">{% if r.state == 'olindi' %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("Olindi") }}{% if r.returned %} · {{ t("qaytarildi") }}{% endif %}</span>
+      {% elif r.state == 'xodimda' %}<span class="chip rj-chip-blue">{{ icon("gun", 12, 2.2) }} {{ t("Xodimda") }}</span>
+      {% elif r.state == 'bloklangan' %}<span class="chip chip-red">{{ icon("ban", 12, 2.4) }} {{ t("Berilmaydi") }}</span>
+      {% else %}<span class="chip chip-yellow">{{ icon("clock", 12, 2.4) }} {{ t("Kutmoqda") if v.active else t("Berilmadi") }}</span>{% endif %}</td>
+    <td>{% if r.ts %}{{ r.ts | dt("%H:%M:%S") }}{% else %}—{% endif %}</td>
+    <td class="l muted">{{ r.weapon or "—" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+{{ empty("Qamrovda biriktirilgan yacheyka yo'q") }}
+{% endif %}

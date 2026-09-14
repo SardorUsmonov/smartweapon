@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hisobotlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Eksport") }} {{ log.number }}<small>{{ t(spec.title) }} · {{ fmt_label }} · {{ log.ts | dt("%d.%m.%Y %H:%M:%S") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar/eksportlar">{{ icon("chev-left", 14, 2.2) }} {{ t("Eksportlar jurnali") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar/{{ log.report }}{% if filter_qs %}?{{ filter_qs }}{% endif %}">{{ icon("file", 14) }} {{ t("Hisobotni ochish") }}</a>
+    {% if valid and ctx.can("eksport") and file[1] == "Hash mos" %}
+    <a class="btn btn-primary" href="/hisobotlar/eksportlar/{{ log.id }}/fayl">{{ icon("download", 16, 2) }} {{ t("Yuklab olish") }} ({{ fmt_label }})</a>
+    {% endif %}
+  </div>
+</div>
+{% if yangi %}<div class="notice green">{{ icon("check", 15) }} {{ t("Eksport tayyor va jurnalga yozildi") }}: <b class="mono">{{ log.number }}</b>. {{ t("Fayl hash raqami eksportlar jurnalida saqlanadi; faylni amal qilish muddati ichida yuklab olish mumkin.") }}</div>{% endif %}
+{% if not valid %}<div class="notice yellow">{{ icon("clock", 15) }} {{ t("Eksportning amal qilish muddati tugagan: faylni yuklab olish yopilgan. Kerak bo'lsa hisobotni qayta eksport qiling.") }}</div>{% endif %}
+{% if file[1] != "Hash mos" %}<div class="notice red">{{ icon("alert", 15) }} {{ t("Fayl yaxlitligi") }}: {{ t(file[1]) }}. {{ t("Yuklab olish bloklangan.") }}</div>{% endif %}
+<div class="grid-2">
+  <section class="card">
+    {% call card_head("Eksport yozuvi") %}<span class="chip {{ 'chip-green' if valid else 'chip-gray' }}">{{ t("Amalda") if valid else t("Muddati o'tgan") }}</span>{% endcall %}
+    <dl class="kv kv-wide">
+      <dt>{{ t("Raqam") }}</dt><dd class="mono">{{ log.number }}</dd>
+      <dt>{{ t("Hisobot") }}</dt><dd><a href="/hisobotlar/{{ log.report }}">{{ t(spec.title) }}</a></dd>
+      <dt>{{ t("Format") }}</dt><dd>{{ fmt_label }}</dd>
+      <dt>{{ t("Kim") }}</dt><dd>{{ log.username }}</dd>
+      <dt>{{ t("Vaqt") }}</dt><dd>{{ log.ts | dt("%d.%m.%Y %H:%M:%S") }}</dd>
+      <dt>{{ t("Maqsad") }}</dt><dd>{{ log.purpose }}</dd>
+      <dt>{{ t("Amal qilish muddati") }}</dt><dd>{{ log.valid_until | dt("%d.%m.%Y %H:%M") }}{% if valid %} <span class="muted">({{ t("qoldi") }} {{ ((log.valid_until - now).total_seconds() // 3600) | int }} {{ t("soat") }})</span>{% endif %}</dd>
+      <dt>{{ t("Fayl") }}</dt><dd><span class="chip {{ file[0] }}">{{ t(file[1]) }}</span>{% if size %} · {{ (size / 1024) | round(1) }} KB{% endif %}</dd>
+      <dt>{{ t("SHA-256") }}</dt><dd class="mono hash">{{ log.file_hash }}</dd>
+    </dl>
+  </section>
+  <section class="card">
+    {% call card_head("Tarkib va jurnal") %}{% if event %}<a class="btn btn-ghost btn-sm" href="/jurnal/{{ event.id }}">{{ icon("list", 14) }} {{ t("Jurnal hodisasi") }} #{{ event.id }}</a>{% endif %}{% endcall %}
+    {% if payload %}
+    <dl class="kv kv-wide">
+      <dt>{{ t("Qatorlar") }}</dt><dd>{{ payload.rows | num }}{% if payload.total != payload.rows %} <span class="muted">/ {{ payload.total | num }}</span>{% endif %}</dd>
+      <dt>{{ t("Qamrov") }}</dt><dd>{{ t(payload.scope or "Respublika") }}</dd>
+      <dt>{{ t("Davr") }}</dt><dd>{% if filters.dan or filters.gacha %}{{ filters.dan }} – {{ filters.gacha }}{% else %}{{ t("joriy holat") }}{% endif %}</dd>
+      {% if filters.kesim %}<dt>{{ t("Kesim") }}</dt><dd>{{ filters.kesim }}</dd>{% endif %}
+      <dt>{{ t("Hodisa darajasi") }}</dt><dd><span class="badge b-violet">{{ t("XAVFSIZLIK") }}</span> · eksport_qilindi</dd>
+      <dt>{{ t("Hodisa hash") }}</dt><dd class="mono hash">{{ event.hash if event else "—" }}</dd>
+    </dl>
+    {% else %}
+    {{ empty("Jurnal hodisasi topilmadi") }}
+    {% endif %}
+    <div class="notice small" style="margin-top: 10px">{{ t("Fayl yuklab olinishidan oldin uning SHA-256 hash raqami jurnaldagi qiymat bilan solishtiriladi. Mos kelmasa yuklab olish rad etiladi.") }}</div>
+  </section>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% from "macros.html" import icon, card_head, level_badge, level_icon, empty with context %}
+{% call card_head("Signal lentasi · " ~ region.short) %}<a class="btn btn-ghost btn-sm" href="/signallar?hudud={{ region.id }}">{{ t("Hudud signallari") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+<div class="feed">
+  {% for r in feed %}
+  <a class="feed-row lv-{{ r.level | lower }}" href="{% if r.kind == 'alarm' %}/signal/{{ r.id }}{% elif r.cabinet_id %}/yacheyka/{{ r.cabinet_id }}{% else %}/jurnal?hudud={{ region.id }}{% endif %}">
+    <span class="feed-time">{{ r.ts | dt }}</span>
+    {{ level_icon(r.level) }}
+    <span class="feed-body"><span class="feed-title">{{ t(r.title) }}</span><span class="feed-detail">{{ t(r.detail) }}{% if r.requires_ack and not r.acked %} · {{ t("tasdiq kutmoqda") }}{% endif %}</span></span>
+    {{ level_badge(r.badge) }}
+  </a>
+  {% else %}
+  {{ empty("Hududda faol signal yo'q") }}
+  {% endfor %}
+</div>

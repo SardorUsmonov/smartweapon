@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/inventar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Inventarizatsiya") }}<small>{{ t("Qurolxona bo'yicha sessiya: RFID skan (simulyatsiya) · tizim hisobi bilan solishtirish · farqlar · akt") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="/inventar">{{ icon("box", 14, 2) }} {{ t("Inventar ro'yxati") }}</a></div>
+</div>
+{% if xato %}<div class="notice red" style="margin-bottom: 12px">{{ icon("alert", 14, 2.2) }} {{ t(xato) }}</div>{% endif %}
+
+<div class="inv-session-grid">
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Yangi sessiya") %}{% endcall %}
+      {% if ctx.can("inventar") %}
+      <form method="post" action="/inventarizatsiya/boshlash" class="form-grid">
+        <label for="a">{{ t("Qurolxona") }}</label>
+        <select id="a" name="armory_id" required>
+          {% for a in armories %}<option value="{{ a.id }}" {% if a.id == sel %}selected{% endif %} {% if not a.online %}disabled{% endif %}>{{ t(a.unit.region.short) }} · {{ t(a.unit.name) }}{% if not a.online %} ({{ t("oflayn") }}){% endif %}</option>{% endfor %}
+        </select>
+        <label for="m">{{ t("O'tkazuvchi") }}</label>
+        <input id="m" name="masul" value="{{ ctx.user.full_name if ctx.user else '' }}" maxlength="80">
+        <div class="actions"><button class="btn btn-primary">{{ icon("play", 14, 2.2) }} {{ t("Sessiyani boshlash") }}</button></div>
+      </form>
+      <div class="muted" style="font-size: 12px; margin-top: 8px">{{ t("Sessiya davomida yacheykalar ochilmaydi: skan RFID o'quvchilar orqali, panel qulf ochmaydi.") }}</div>
+      {% else %}
+      <div class="notice">{{ icon("info", 14, 2) }} {{ t("Inventarizatsiya sessiyasini faqat qurolxona mas'uli boshlaydi. Siz natijalar va aktlarni ko'rishingiz mumkin.") }}</div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      {% call card_head("Ochiq sessiyalar") %}<span class="muted">{{ sessions | length }}</span>{% endcall %}
+      {% if sessions %}
+      <table class="tbl">
+        <thead><tr><th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("Boshlagan") }}</th><th class="l">{{ t("Bosqich") }}</th><th></th></tr></thead>
+        <tbody>
+        {% for s in sessions %}{% set a = arm_by_id.get(s.armory_id) %}
+        <tr class="row-link" data-href="/inventarizatsiya/{{ s.armory_id }}">
+          <td class="l">{% if a %}{{ t(a.unit.region.short) }} · {{ t(a.unit.name) }}{% else %}#{{ s.armory_id }}{% endif %}</td>
+          <td class="l">{{ s.started_by }}<span class="sub">{{ s.started_at | dt("%d.%m.%Y %H:%M") }}</span></td>
+          <td class="l">{% if s.scanned %}<span class="chip {{ 'chip-yellow' if s.discrepancies else 'chip-green' }}">{{ t("skanlandi") }} · {{ s.discrepancies | length }} {{ t("farq") }}</span>{% else %}<span class="chip chip-gray">{{ t("skan kutilmoqda") }}</span>{% endif %}</td>
+          <td><a class="btn btn-xs" href="/inventarizatsiya/{{ s.armory_id }}">{{ t("Ochish") }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      {{ empty("Ochiq sessiya yo'q") }}
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card">
+    {% call card_head("Inventarizatsiya tarixi · aktlar") %}<span class="muted">{{ t("event: inventarizatsiya") }}</span>{% endcall %}
+    {% if hist %}
+    <table class="tbl">
+      <thead><tr><th>№</th><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("O'tkazdi") }}</th><th class="l">{{ t("Tasdiqladi") }}</th><th>{{ t("Jihozlar") }}</th><th>{{ t("Farqlar") }}</th><th></th></tr></thead>
+      <tbody>
+      {% for e, a in hist %}{% set p = e.payload or {} %}{% set nd = (p.get("discrepancies") or []) | length %}
+      <tr class="row-link" data-href="/inventarizatsiya/akt/{{ e.id }}">
+        <td class="mono">{{ e.id }}</td>
+        <td class="l mono">{{ e.ts_server | dt("%d.%m.%Y %H:%M") }}</td>
+        <td class="l">{% if a %}<a href="/hudud/{{ a.unit.region_id }}">{{ t(a.unit.region.short) }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{% if a %}<a href="/qurolxona/{{ a.id }}">{{ t(a.unit.name) }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{{ e.approver1 or "—" }}</td>
+        <td class="l">{{ e.approver2 or "—" }}</td>
+        <td>{{ (p.get("counts", {}).get("jami", 0)) | num }}</td>
+        <td>{% if nd %}<span class="n-yellow">{{ nd }}</span>{% else %}<span class="n-zero">0</span>{% endif %}</td>
+        <td><a class="btn btn-xs btn-ghost" href="/inventarizatsiya/akt/{{ e.id }}/pdf">{{ icon("file", 12, 2.2) }} PDF</a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    {{ empty("Hali inventarizatsiya o'tkazilmagan") }}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

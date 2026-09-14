@@ -1,0 +1,24 @@
+<figure class="yc-twin">
+  <svg viewBox="0 0 270 585" class="yc-twin-svg" role="img" aria-labelledby="yc-twin-title yc-twin-desc">
+    <title id="yc-twin-title">{{ t("Yacheyka") }} {{ cab.label }} · {{ t("raqamli egizak") }}</title>
+    <desc id="yc-twin-desc">{{ t("Besh zona, jihoz uyalarining mavjudligi va qulflar holati. Batafsil matnli holatlar sxema yonida berilgan.") }}</desc>
+    <path d="M25 30V550M21 30H29M21 550H29" class="yc-dimension"/><text x="14" y="298" transform="rotate(-90 14 298)" class="yc-svg-label">2000 mm</text>
+    <rect x="40" y="30" width="160" height="520" rx="4" class="yc-cabinet yc-tone-{{ twin.outline }}"/>
+    {% for z in twin.zones %}<g class="yc-zone" data-zone="{{ z.key }}"><title>{{ t(z.label) }} · {{ z.y0 }}–{{ z.y1 }} mm · {{ t(z.desc) }}</title><line x1="40" x2="200" y1="{{ z.py1 }}" y2="{{ z.py1 }}" class="yc-shelf"/></g>{% endfor %}
+    {% for slot in twin.slots %}
+    <g class="yc-slot yc-tone-{{ slot.tone }}" data-slot="{{ slot.key }}">
+      <title>{{ t(slot.label) }}: {{ t(slot.state_label) }}{% if slot.lock is not none %} · {{ t("qulflangan") if slot.lock else t("qulf bo'sh") }}{% endif %}{% if slot.hold %} · {{ t("ushlab turish") }}{% endif %}</title>
+      <rect x="{{ slot.x }}" y="{{ slot.y }}" width="{{ slot.w }}" height="{{ slot.h }}" rx="3" class="yc-slot-bg"/>
+      <g class="yc-slot-shape">{{ slot.shape_svg | safe }}</g>
+      <circle cx="{{ slot.x + 5 }}" cy="{{ slot.y + 6 }}" r="2" fill="currentColor"/>
+      {% if slot.lock is not none %}<g transform="translate({{ slot.lx - 4 }},{{ slot.ly - 4 }})" class="yc-svg-lock"><rect x="0" y="3" width="7" height="5" rx="1"/><path d="{{ 'M1 3V1a2.5 2.5 0 0 1 5 0v2' if slot.lock else 'M1 3V1a2.5 2.5 0 0 1 5 0' }}"/></g>{% endif %}
+    </g>{% endfor %}
+    <rect x="210" y="30" width="46" height="520" rx="4" class="yc-electronics"/>
+    <circle cx="233" cy="67" r="4" class="yc-led yc-tone-{{ terminal.tone }}"/>
+    <rect x="215" y="114" width="36" height="66" rx="3" class="yc-terminal-mini"/><path d="M220 126H246M220 132H243M220 138H239M221 161H245" class="yc-dimension"/>
+    <rect x="223" y="204" width="20" height="29" rx="3" class="yc-terminal-mini"/><circle cx="233" cy="216" r="5" class="yc-dimension"/>
+    <path d="M220 485H246M220 493H246M220 501H246" class="yc-dimension"/>
+    <path d="M40 563H200M40 559V567M200 559V567" class="yc-dimension"/><text x="120" y="579" text-anchor="middle" class="yc-svg-label">400 mm</text>
+  </svg>
+  <figcaption>{{ t("Old ko'rinish") }} · {{ twin.dims }}<span>{{ t("Uyalar rangi jihoz holatini bildiradi") }}</span></figcaption>
+</figure>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/rejimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Rejim boshlash") }}<small>{{ t("Yig'ilish yoki trevoga rejimini e'lon qilish: qurolxona, tur, boshlovchi, ikkinchi tasdiqlovchi va sabab") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost" href="/rejimlar">{{ icon("chev-left", 15) }} {{ t("Rejimlar") }}</a></div>
+</div>
+<div class="rj-grid rj-grid-form">
+  <section class="card">
+    {% call card_head("Yangi rejim") %}<span class="meta-item muted">{{ icon("shield", 14) }} {{ t("ikki shaxs tasdig'i") }}</span>{% endcall %}
+    {% if error %}<div class="notice red" style="margin-bottom: 12px">{{ icon("alert", 15, 2.2) }} {{ t(error) }}</div>{% endif %}
+    <form method="post" action="/rejimlar/boshlash" class="rj-form">
+      <div class="rj-field full">
+        <label for="armory_id">{{ t("Qurolxona (qamrov)") }}</label>
+        <select id="armory_id" name="armory_id" required>
+          {% for region, arms in groups %}
+          <optgroup label="{{ t(region) }}">
+            {% for a in arms %}<option value="{{ a.id }}" {% if form.armory_id|string == a.id|string %}selected{% endif %} {% if a.active %}disabled{% endif %}>{{ t(a.unit) }} · {{ t(a.name) }} · {{ a.cabs }} {{ t("yacheyka") }}{% if not a.online %} · {{ t("OFLAYN") }}{% endif %}{% if a.active %} · {{ t("faol rejim bor") }}{% endif %}</option>{% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="rj-field full">
+        <label>{{ t("Rejim turi") }}</label>
+        <div class="rj-kind">
+          <label><input type="radio" name="kind" value="trevoga" {% if form.kind == 'trevoga' %}checked{% endif %}><span><b>TREVOGA</b><small>{{ t(kind_desc.trevoga) }}</small></span></label>
+          <label><input type="radio" name="kind" value="yigilish" {% if form.kind == 'yigilish' %}checked{% endif %}><span><b>{{ t("YIG'ILISH") }}</b><small>{{ t(kind_desc.yigilish) }}</small></span></label>
+        </div>
+      </div>
+      <div class="rj-field"><label for="started_by">{{ t("Boshlovchi (navbatchi)") }}</label><input id="started_by" name="started_by" value="{{ form.started_by }}" maxlength="80" required></div>
+      <div class="rj-field"><label for="approver2">{{ t("Ikkinchi tasdiqlovchi (komandir / navbatchi rahbar)") }}</label><input id="approver2" name="approver2" value="{{ form.approver2 }}" maxlength="80" placeholder="{{ t('F.I.Sh., lavozim') }}" required></div>
+      <div class="rj-field full"><label for="reason">{{ t("Sabab / asos (buyruq raqami, vaziyat)") }}</label><textarea id="reason" name="reason" rows="3" maxlength="200" required placeholder="{{ t("Masalan: IIB boshlig'ining buyrug'i, o'quv trevoga") }}">{{ form.reason }}</textarea></div>
+      <label class="rj-check full"><input type="checkbox" name="confirm" value="1"><span>{{ t("Tasdiqlayman: rejim boshlanishi bilan tanlangan qurolxonaning barcha biriktirilgan yacheykalari navbatsiz berish holatiga o'tadi. Harakat SECURITY darajasida jurnalga yoziladi va qorovul postiga yuboriladi.") }}</span></label>
+      <div class="full form-row" style="margin: 0">
+        <button class="btn btn-danger">{{ icon("siren", 15, 2) }} {{ t("Rejimni boshlash") }}</button>
+        <a class="btn btn-ghost" href="/rejimlar">{{ t("Bekor qilish") }}</a>
+      </div>
+    </form>
+  </section>
+  <div class="stack">
+    <section class="card">
+      {{ card_head("Nima bo'ladi") }}
+      <ol class="rj-steps">
+        <li>{{ t("Nazorat markazi rejimni qurolxona kontrolleriga yuboradi; kontroller terminal ekranlariga rejim belgisini chiqaradi.") }}</li>
+        <li>{{ t("Har xodim o'z yacheykasiga keladi, yuz va barmoq izi orqali autentifikatsiyadan o'tadi — qulfni faqat kontroller ochadi, panel emas.") }}</li>
+        <li>{{ t("Har berish jurnalga yoziladi; progress (berildi/jami, navbat, o'rtacha vaqt) shu bo'limda jonli ko'rinadi.") }}</li>
+        <li>{{ t("Rejim navbatchi tomonidan tugatiladi; qaytarish nazorati odatdagi tartibda davom etadi.") }}</li>
+      </ol>
+    </section>
+    <section class="card">
+      {{ card_head("Cheklovlar") }}
+      <div class="stack">
+        <div class="notice yellow">{{ t("Bir qurolxonada bir vaqtda faqat bitta faol rejim bo'lishi mumkin.") }}</div>
+        <div class="notice">{{ t("Bloklangan, nosoz yoki xizmatdagi yacheykalar rejimda ham berilmaydi.") }}</div>
+        <div class="notice">{{ t("Oflayn qurolxonada rejim kontrollerga aloqa tiklangach yetib boradi (kesh bilan ishlash).") }}</div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

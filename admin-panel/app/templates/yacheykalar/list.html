@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/yacheykalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Yacheykalar") }}<small>{{ t("Biriktirish, jihozlar mavjudligi va telemetriya nazorati") }}</small></h1>
+  <div class="page-actions"><span class="chip chip-gray">{{ icon("layers", 14) }} {{ counts.jami | num }} {{ t("yacheyka") }}</span></div>
+</div>
+<div class="yc-pills" aria-label="{{ t('Holat bo‘yicha tezkor filtr') }}">
+  {% for value, label, count_key in pills %}<a class="pill {% if holat == value %}on{% endif %}" href="/yacheykalar?{% if pill_qs %}{{ pill_qs }}&{% endif %}holat={{ value }}">{{ t(label) }} <b>{{ counts[count_key] | num }}</b></a>{% endfor %}
+</div>
+<section class="card">
+  {% call card_head("Yacheykalar ro'yxati") %}<span class="muted">{{ total | num }} {{ t("natija") }}{% if scope_label is not none %} · {{ scope_label }} {{ t("qurolxona doirasida") }}{% endif %}</span>{% endcall %}
+  <form class="filters yc-filters" method="get" action="/yacheykalar">
+    {% include "partials/location_filters.html" %}
+    <select name="holat" aria-label="{{ t('Holat') }}">{% for value, label in holat_filters.items() %}<option value="{{ value }}" {% if holat == value %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}</select>
+    <input name="q" value="{{ q }}" aria-label="{{ t('Yacheyka yoki xodim qidirish') }}" placeholder="{{ t('Yacheyka, seriya, xodim, tabel…') }}">
+    <button class="btn btn-sm" type="submit">{{ icon("search", 14) }} {{ t("Qidirish") }}</button>
+    {% if hudud or bolinma or qurolxona or holat or q %}<a class="btn btn-ghost btn-sm" href="/yacheykalar">{{ t("Tozalash") }}</a>{% endif %}
+  </form>
+  {% if rows %}
+  <div class="yc-table-wrap"><table class="tbl yc-list">
+    <thead><tr><th>#</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Hudud / qurolxona") }}</th><th class="l">{{ t("Biriktirilgan xodim") }}</th><th class="l">{{ t("Holat") }}</th><th>AK</th><th>PM</th><th class="l">{{ t("Eshik") }}</th><th class="l">{{ t("Kontroller") }}</th><th>{{ t("Batareya") }}</th></tr></thead>
+    <tbody>{% for c, a, u, r, o in rows %}
+      <tr class="row-link" data-href="/yacheyka/{{ c.id }}">
+        <td class="muted">{{ (page - 1) * per_page + loop.index }}</td>
+        <td class="l"><a class="yc-label" href="/yacheyka/{{ c.id }}">{{ c.label }}</a><span class="yc-sub mono">{{ c.serial }}</span><span class="yc-sub">{{ t("Devor") }} {{ c.wall }} · {{ c.position }}</span></td>
+        <td class="l"><a href="/hudud/{{ r.id }}">{{ t(r.short) }}</a><span class="yc-sub"><a href="/qurolxona/{{ a.id }}">{{ t(a.name) }}</a></span><span class="yc-sub">{{ t(u.name) }}</span></td>
+        <td class="l">{% if o %}<a href="/xodim/{{ o.id }}">{{ t(o.full_name) }}</a><span class="yc-sub mono">{{ o.tabel }}</span>{% else %}<span class="muted">{{ t("Biriktirilmagan") }}</span>{% endif %}</td>
+        <td class="l">{{ cab_status(c.status) }}</td>
+        <td><span class="chip chip-{{ 'green' if c.ak_present else 'yellow' }}">{{ t("uyada") if c.ak_present else t("yo'q") }}</span></td>
+        <td><span class="chip chip-{{ 'green' if c.pm_present else 'yellow' }}">{{ t("uyada") if c.pm_present else t("yo'q") }}</span></td>
+        <td class="l"><span class="chip chip-{{ 'yellow' if c.door_open else 'green' }}">{{ icon("door", 12) }} {{ t("ochiq") if c.door_open else t("yopiq") }}</span><span class="yc-sub">{{ t("Qulflangan") if c.door_locked else t("Qulf bo'sh") }}</span></td>
+        <td class="l"><span class="chip chip-{{ 'green' if c.controller_online else 'red' }}">{{ icon("wifi" if c.controller_online else "wifi-off", 12) }} {{ t("onlayn") if c.controller_online else t("oflayn") }}</span><span class="yc-sub mono">{{ c.last_seen | dt("%d.%m %H:%M") or "—" }}</span></td>
+        <td><span class="{% if c.battery_pct < 30 %}n-red{% endif %}">{{ c.battery_pct }} %</span>{% if not c.mains_ok %}<span class="yc-sub n-yellow">{{ t("Tarmoq yo'q") }}</span>{% endif %}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}{{ empty("Filtrga mos yacheyka topilmadi. Filtrlarni o'zgartiring yoki tozalang.") }}{% endif %}
+  <nav class="pager" aria-label="{{ t('Sahifalar') }}"><span>{{ total | num }} {{ t("yacheyka") }} · {{ t("Sahifa") }} {{ page }}/{{ pages }}</span>
+    {% if page > 1 %}<a class="btn btn-ghost btn-xs" href="/yacheykalar?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page - 1 }}">{{ icon("chev-left", 13) }} {{ t("Oldingi") }}</a>{% endif %}
+    {% if page < pages %}<a class="btn btn-ghost btn-xs" href="/yacheykalar?{% if base_qs %}{{ base_qs }}&{% endif %}page={{ page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 13) }}</a>{% endif %}
+  </nav>
+</section>
+{% endblock %}

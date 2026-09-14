@@ -1,0 +1,374 @@
+Smart qurol-aslaha shkafi
+
+Bajarilgan ishlar bo'yicha to'liq hisobot: model tahlili, interaktiv 3D vizual, konstruktiv
+o'zgarishlar, Face ID moduli, oynali eshik va fotorealistik renderlar
+
+Manba: sborka shkaf.SLDASM (SOLIDWORKS 2025, muallif TAKEDA, 2026-08-28 / 2026-09-04)
+Hisobot sanasi: 2026-09-07 · Ishlar 2026-09-04 ... 2026-09-07 oralig'ida bajarildi
+
+Yakuniy konsept: 400 mm bitta askar shkafi, oynali eshik, o'ng tomonda Face ID moduli (Cycles render)
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                   1-sahifa
+1. Qisqacha xulosa
+
+Foydalanuvchi bergan SOLIDWORKS yig'ma fayli (ikki eshikli po'lat qurol shkafi, 1049 × 646 × 2056 mm, 378 kg)
+dasturiy ta'minotsiz o'qib olindi, interaktiv 3D ko'rgich (viewer) sifatida vizuallashtirildi va bosqichma-bosqich bitta
+askarning shaxsiy qurol-aslaha shkafi konseptiga aylantirildi: kenglik 400 mm, o'ng tomonda alohida Face ID +
+barmoq izi elektronika moduli, ichida tik AK-74 uyasi, Makarov PM, dubulg'a, sumka, kishan, magazinlar va o'q-dori
+uchun joylar, so'ngra eshik ikki ko'rish oynasi bilan oynali qilindi. Har bir konstruktiv qaror mustaqil «hakamlar» va
+«raddiyachi» agentlar bilan tekshirildi, topilgan xatolar tuzatildi.
+
+Natijalar:
+· Interaktiv 3D viewer (three.js, bitta HTML): eshik o'z oshiq-moshiqlarida ochiladi (0...100°), portlatish, detallar
+
+   ro'yxati (BOM), Face ID ssenariysi, avtomatni olish animatsiyasi, barcha konsept elementlari ko'rsatmalar bilan.
+   Manzil: https://claude.ai/code/artifact/1423f996-8840-44d7-9c4d-045312a1350e
+
+· Fotorealistik renderlar (Blender 5.2, Cycles GPU, 1600 × 2000): yopiq, ochiq, avtomatni olish holati, Face ID
+   paneli, oynali eshik (old, 3/4, ochiq).
+
+· Tekshirilgan spetsifikatsiya: barcha o'lchamlar (kesish chiziqlari, uya, qisqich, tokchalar, oyna, halqalar,
+   massa) raqamlar bilan; xavfsizlik va me'yorlar bo'yicha halol bayon.
+
+· Fayllar: viewer HTML, Blender sahnalari (.blend), qurish skriptlari, konsept OBJ; loyiha papkasi:
+   D:\\Backups\smartweapon\shkaf_photoreal\
+
+Jarayonda (hozir bajarilmoqda): ichki jihozlarning (AK-74, PM, dubulg'a, kamar/kobura, magazinlar, gaz niqobi
+sumkasi) yuqori aniqlikdagi protsedura-modellari va ular bilan qayta render.
+
+2. Manba model va uni o'qish
+
+Fayl: C:\Users\atsha\Downloads\sborka shkaf.SLDASM. Kompyuterda SOLIDWORKS yoki eDrawings yo'q,
+detal fayllari (1...11.SLDPRT) ham yig'ma bilan birga kelmagan. Shuning uchun yig'ma faylining o'zi teskari
+muhandislik qilindi: SOLIDWORKS 2025 yangi (OLE bo'lmagan) konteyner formati -- yozuvlar, nibbl
+almashtirilgan nomlar, xom DEFLATE siqish, CRC32 tekshiruvi. Ichidan PreviewPNG, COMPINSTANCETREE
+(detal transformatsiyalari) va FaceTessellations (uchburchak tasmalar) oqimlari olindi va butun yig'ma mesh
+sifatida yig'ildi.
+
+Ko'rsatkich                       Qiymat
+Gabarit (SW)
+Detallar                          1049 × 646 × 2056 mm, massa 378,10 kg (po'lat 7800 kg/m³)
+
+Eshiklar                          11 ta: tub (1), tsokol (2), yon devorlar (3 ×2), orqa devor (4), ichki qoplamalar (5 ×2, 6, 8), o'rta
+                                  to'siq (7), tokchalar (9 ×5), ustki qopqoq (10), eshiklar (11 ×2)
+Tokchalar (haqiqiy balandliklar)
+                                  521 × 2006 mm bukilgan 3 mm list, har birida 4 ta oshiq-moshiq (devorda Ø10 shtiftli juft bo'g'in,
+Tessellation qamrovi              eshikda Ø16 o'ram); o'qlar: 11-2 (x -998,4; y 219,8), 11-3 (x 28,55; y 219,8)
+
+                                  9-8 = 774, 9-7 = 1034, 9-4 = 1293, 9-5 = 1553, 9-6 = 1812 mm (raqamlar tartibda emas -- bu
+                                  keyin viewer'dagi xatoni topishga yordam berdi)
+
+                                  2, 4, 9-detallarning katta yuzalari keshda yo'q (gabarit qutisi bilan ko'rsatiladi); 5, 8, 10, 11 -- ikki
+                                  katta yuzadan bittasi (50 %)
+
+                                               SOLIDWORKS faylidagi PreviewPNG -- asl ikki eshikli shkaf (yopiq)  2-sahifa
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07
+3. Interaktiv 3D viewer
+
+Bitta mustaqil HTML fayl (three.js r128), barcha geometriya ichiga joylashtirilgan (base64), tashqi serverga bog'liq
+emas. Chop etilgan manzil o'zgarmaydi -- har yangilanish o'sha URL'da:
+https://claude.ai/code/artifact/1423f996-8840-44d7-9c4d-045312a1350e
+· Ko'rinishlar: izometriya, old, yon, ust, ichki (eshik avtomatik 100° ochiladi); orbit/zoom, detalga bosganda nomi
+
+   va vazifasi.
+· Eshik slayderi 0...100° (to'xtatgich 100°), eshikka bosib ochish/yopish; yopilganda avtomatik qulflanadi.
+· Portlatish (explode), qirralar, gabarit qutisi, eshiklarni yashirish, elektronika modulini yashirish.
+· Spetsifikatsiya jadvali (BOM): detal, soni, o'lchamlari (kesilgan detallar uchun tessellation bo'yicha o'lchangan),
+
+   uchburchaklar soni, kesh qamrovi.
+· «Kirish» tugmasi: Face ID  barmoq izi  qulf ochilish ssenariysi ekranda animatsiya bilan; o'quvchi ekrani
+
+   CanvasTexture orqali chiziladi.
+· AK-74 uyasi: avtomatga bosganda olish animatsiyasi (15 mm ko'tarish, 30 mm tortish, 30° qiyalik) -- faqat eshik
+
+    90° ochiq bo'lsa; eshik yopilishida avtomat avval joyiga qaytadi (interlok).
+· Konsept spetsifikatsiyasi (o'zbek tilida): o'zgarishlar, uya, qisqich, jihozlar, modul, o'quvchi, oynali eshik,
+
+   xavfsizlik, mahkamlash, eshik klirensi.
+
+Interaktiv viewer: yakuniy konsept (izometriya), o'ng panelda gabarit, massa, o'zgarishlar va spetsifikatsiya jadvali
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                                   3-sahifa
+4. Dizayn bosqichlari (xronologiya)
+
+Bosqi  So'rov                            Nima qilindi
+ch
+1      Modelni o'rganish va              SLDASM formati teskari muhandislik qilindi, mesh yig'ildi, viewer va Blender
+       vizuallashtirish                  renderlari; BOM va o'lchamlar
+2      Eshiklar oshiq-moshiqda ochilsin
+                                         Oshiq-moshiq o'qlari geometriyadan topildi (devor/eshik o'qlari 0,03 mm ichida mos),
+3      Face ID + barmoq izi paneli       eshiklar o'z o'qida buriladi; model 2,99° / 1,02° ochiq saqlangani aniqlandi va yopiq
+                                         holat tiklandi
+4      Alohida to'liq balandlikdagi
+                                         Variantlar: eshikda (rad), yon devorda yonga qaragan (rad), eshik yonida oldga
+       elektronika moduli                qaragan (qabul). 3 taklif / 2 hakam paneli; o'quvchi 120 × 260 mm, kamera 11°
+                                         yuqoriga, barmoq beshigi 35°
+5      O'ng bo'limni olib tashlash
+                                         Modul 200 × 623 × 2056 mm yon devor bo'ylab; ichida kontroller, yuz tanish
+6      Tortmalar o'rniga AK-74 uyasi     protsessori, 24 V manba, DC-UPS + LiFePO4 20 A·soat, LTE router; old xizmat
+                                         lyuklari, IP54, tashqi antenna. Qulf drayveri shkaf ichida -- modul faqat signal beradi
+7      Bitta askar uchun torroq shkaf
+                                         Eshik 11-2, devor 3-6, qoplama 5-6 o'chirildi; keng detallar Sutherland-Hodgman usuli
+8      Fotorealistik render, haqiqiy     bilan kesildi; yangi o'ng devor + tirgak; bitta eshik qoldi
+
+       modellar                          Pastki tokchalar olib tashlanib 1113 mm bo'sh balandlik; tik uya, o'q chizig'i y -140
+                                         (magazinsiz), rezina qo'ndoq beshigi, stvol qisqichi + solenoid qulf; qurol ustasi va
+9      Eshik oynali bo'lsin              mexanik tekshiruvi
+
+10     Ichki jihozlar realistik bo'lsin  Kenglik 1049  400 mm (ichki 347 × 574), 1 ta AK-74, PM qutisi, magazinlar,
+                                         dubulg'a, sumka, kishan, o'q-dori; joylashuv tekshiruvi (tokchalar almashtirildi, jihozlar
+                                         eshik/qoplamaga)
+
+                                         Blender 5.2 Cycles: Poly Haven teksturalari, CC0/CC-BY jihoz modellari, ichki LED; 4
+                                         ko'rinish. Viewer'dagi tokcha xatosi (9-4/9-5 o'rniga 9-7/9-8 o'chirilishi kerak edi) topilib
+                                         tuzatildi
+
+                                         3 taklif / 2 hakam  ikki ko'rish oynasi, 44.4 P4A laminat, 15 × 15 × 2 halqalar; 2
+                                         bosqich raddiyachi tekshiruv (6 tekshiruvchi) -- 4 jiddiy xato tuzatildi; ichki LED
+                                         yoritgich; 3 render
+
+                                         Jarayonda: AK-74, PM, 6B47 dubulg'a, kamar/kobura/kishan cho'ntagi, magazinlar,
+                                         gaz niqobi sumkasi, jihozlar qutisi -- protsedura-modellar, vizual hakam, qayta render
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07  4-sahifa
+5. Yakuniy konsept -- spetsifikatsiya
+
+Koordinatalar: +X -- eshik oldida turgan askarning chapi, +Y -- old (eshik), Z -- balandlik, pol z = 104 mm (asl
+model bo'yicha). Barcha o'lchamlar mm.
+
+5.1 Korpus                     Qiymat
+
+Element                        400 × 646 × 2056 (modul bilan kenglik 600); ichki bo'lim 347 × 574; eshik 371 × 2006
+Gabarit
+Kesish chiziqlari              1, 2, 10-detallar x = -359,4; 4 -- x = -356,4; 6, 8, tokchalar 9-4...9-6 -- x = -333,4; eshik 11-3 -- x =
+                               -334,5; 7-to'siq +150 mm ga ko'chirilib o'ng ichki qoplama bo'ldi (x -336,4...-333,4)
+Yangi detallar
+                               O'ng devor 23 mm (3-detal ko'zgu nusxasi, x -359,4...-336,4); qulf ushlagich plankasi 3 mm (x
+Tokchalar                      -336,4...-321, y 208,3...211,3, to'liq balandlik)
+
+Massa (hisobiy)                9-4 (z 1293), 9-5 (1553), 9-6 (1812) saqlanadi; 9-7 (1034) va 9-8 (774) olib tashlanadi (teshiklar
+                               zaklyopka bilan berkitiladi); old qirralari y  200 gacha kesiladi (oynali eshik paketi uchun)
+
+                                223 kg (asl detallar  175 + yangi devor 31 + uya/ilgaklar  9 + oynali eshik +8) + modul 110-150
+                               kg; jihozlar  12 kg. Pol ankerlari (2 × M12) majburiy, devorga M8 (y  192)
+
+5.2 AK-74 uyasi                Qiymat
+
+Element                        Pastki 1113 mm (z 180...1293), avtomat tik, qo'ndoq pastda, stvol yuqorida; markaz x -273 (o'ng
+Uya                            qoplamaga 32 mm), o'q chizig'i y -140; magazinsiz, bo'sh, saqlagichda; stvol uchi z 1158
+                               (tokchagacha 135 mm)
+Qo'ndoq beshigi
+Stvol qisqichi                 Rezina (Shore A 60-70) blok z 180...215, cho'ntak 135 × 55 × 15, tubi 5° qiya; sumkadan 2 mm to'siq
+                               (x -216...-214) bilan ajratilgan
+Olish
+                               U-o'yiqli (22 × 30, poliuretan) kronshteyn z 965...995 ochiq stvolda (gaz kamerasidan 47 mm
+                               yuqorida, old nishon asosidan 83 mm pastda), solenoidli qulf plankasi y -118...-108, z 970...990
+                               (Face ID ruxsati); atrofida tirqishli 1,5 mm C-qalpoq (y -170...-90)
+
+                               Ko'tarish 15 + tortish 30 + qiyalik  25°; faqat eshik  90° ochiq bo'lganda (eshik 80-86° gacha yo'lni
+                               kesib o'tadi); eshik yopilganda avtomat avval joyiga qaytadi
+
+5.3 Jihozlar joylashuvi (1 askar)
+
+Joy                            Jihoz
+Pol (z 180)
+O'ng qoplama (x 13,6), z 1250  AK-74 uyasi (o'ngda); taktik sumka 450 × 300 × 195 (x -200...-5), 2 mm to'siq
+z 1230
+Tokcha 1293                    Ilgak plastinasi: kamar + PM koburasi + kishan cho'ntagi yig'ilgan holda (z 880...1270, y  195)
+
+Tokcha 1553                    Bronjilet ilgich shtangasi Ø20 (x -95, y -330...120)
+
+Tokcha 1812                    Yopiq po'lat o'q-dori qutisi 240 × 200 × 130 (bel balandligida) qulflanadigan 3 × 30 kamar ostida +
+                               2 o'q pachkasi; ostida LED chiziq
+
+                               Makarov PM (161 × 127 × 30) + 2 magazin -- alohida elektron qulfli qutida (200 × 160 × 60,
+                               ichkaridan boltlangan); 4 ta AK magazini qulflanadigan uyada (30 mm qadam); kichik jihozlar
+                               qutisi 160 × 120 × 60
+
+                               Dubulg'a 6B47 (305 × 260 × 175) halqa beshikda oldinda; gaz niqobi sumkasi tik orqada; tepada
+                               LED chiziq
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07  5-sahifa
+5.4 Elektronika moduli va o'quvchi
+
+Element        Qiymat
+Modul
+               200 × 623 × 2056, yangi o'ng devorning tashqi yuzasiga tekis (x -559,4...-359,4), to'liq balandlik, alohida
+Tarkib         korpus; old xizmat eshigi 155 × 1150 (z 150...1300: akkumulyator tortmasi + burilma DIN ramka), yuqori lyuk
+O'quvchi       155 × 200 (z 1650...1850: LTE router); IP54, membranali klapan, tashqi LTE antenna; yon panel
+Ssenariy       payvandlangan -- xizmat faqat olddan
+
+               Kontroller/SBC + yuz tanish protsessori, 24 V manba, DC-UPS + LiFePO4 20 A·soat, eshik datchiklari, DIN
+               reykalar; qulf drayveri va qulf quvvati shkafning himoyalangan hajmi ichida -- modul faqat
+               autentifikatsiyalangan signal beradi
+
+               120 × 260 × 14, modul old plitasiga tekis (x -519...-399, z 1340...1600, orqa yuzi y 220); kamera oynasi 11°
+               yuqoriga (1466 mm), ekran, barmoq izi 35° beshikda 9 mm chuqurlikda (1290 mm), LED chiziq; askar
+               eshik oldida turganda o'ng qo'lida, oldga qaragan
+
+               Yuz tanish  barmoq izi  qulf ochiladi (eshik qo'lda ochiladi, elektr yuritma yo'q)  eshik yopilganda
+               avtomatik qulflanadi; avtomat va PM qutisi uchun ikkita alohida ruxsat
+
+5.5 Oynali eshik (hakamlar paneli + 2 bosqich tekshiruv)
+
+Element        Qiymat
+Oynalar
+Reykalar       Pastki yorug'lik 260 × 695 (x -285...-25, z 240...935) -- avtomat, beshik, sumka; yuqori 260 × 910 (z
+Shisha         1165...2075) -- barcha tokchalar; orasida 230 mm yaxlit belbog' (qulf qutisi x -317...-254, z 980...1120)
+Ushlash
+               Erkin chet 49,5 (halqadan tirgakgacha 4 mm), oshiq tomoni 61,5 (45,5 tekis + Ø16 o'ram; halqadan o'ram
+Massa / oshiq  ildizigacha 13,5), pastda 85,7, tepada 85,3; 19,3 mm qaytarma bukilmalar tegilmaydi; oshiq reykasidagi 3
+Yoritish       mm plastinalar x  10 gacha qisqartiriladi
+
+               44.4 laminat (4 mm HS past-temirli + 1,52 PVB + 4 mm HS) = 9,52 mm, tiniq; EN 356 P4A, EN 12600 1(B)1,
+               GOST 30826-2014 P4A; 284 × 719 va 284 × 934 (yorug'lik + 12 mm tishlash), 0,469 m², 10,1 kg
+
+               Tashqaridan 17 mm list labi; ichkarida 15 × 15 × 2 payvandlangan truba halqalar (yorug'likdan 17 mm
+               tashqarida, y 212,6...227,6; old yuzi 2K epoksi + gorizontal a'zolarda tashqi oyoq tikuv payvand); 3 mm
+               EPDM; jog'langan 2 mm bead, M5 tugma boshli vintlar rivnutlarga -- faqat eshik ochiq holda yechiladi; chet
+               tirqishi 5 mm
+
+               Eshik 21,5   29,4 kg (+7,9); qattiqlashtirilgan Ø10 shtiftlar, pastki bo'g'inda PTFE tayanch shayba ( 290
+               N), o'ram ildizlariga qo'shimcha plastinalar, 100° rezina bufer + gidravlik yopgich, Ø10 sobit «it tishlari» z
+               185...200 va 2115...2150
+
+               Ikki ichki 12 V LED chiziq (bo'lim tepasi z 2140, tokcha 1293 ostida), Face ID / eshik datchigi orqali yonadi
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07  6-sahifa
+6. Xavfsizlik va me'yorlar (halol bayon)
+
+· EN 356 P4A -- tashlash sinfi (3 × 4,11 kg shar 9 m dan): qo'l hujumiga reyting bermaydi (EN 1627 RC2
+   darajasi: 3 daq tornavida/ombur/pona). Bolg'a bilan qo'l teshigi  10-30 s. Shuning uchun oynali eshikda himoya
+   kechiktirish emas, aniqlash: shisha sinishi datchigi + 3 o'qli akselerometr  elektronika moduli  qorovul
+   posti (signal, jurnal, LTE).
+
+· Oynali eshik shkafni GOST R 55148-2012 (= EN 14450) S1-S2 sinflaridan va xizmat qurolini saqlash uchun
+   amaldagi milliy «metall shkaf» talabidan chiqaradi -- u qo'riqlanadigan, signalizatsiyali qurol xonasi ichidagi
+   «tekshiruv shkafi» sifatida hujjatlashtirilishi kerak. Kechiktirish talab qilinsa: P6B shisha-polikarbonat (GCP, 
+   14 mm, RC4 darajasi  10 daq) shu halqalarga sig'adi (massa qayta hisoblanadi).
+
+· Ichki himoya shisha sindirilganda ham saqlanadi: stvol qisqichi solenoid qulf va C-qalpoq ostida (to'g'ridan-to'g'ri
+   urish chizig'ida emas), o'q-dori qutisi qulflanadigan kamar ostida, magazinlar qulflanadigan uyada, PM qutisi
+   ichkaridan boltlangan (korpus  2 mm, yashirin o'qli). Erkin chet reykasi va tirgakda sim-plomba ko'zlari (z 
+   190).
+
+· Ergonomika: eshik to'xtatgichi 100° (barmoq tirqishi  25 mm, ISO 13854), og'ir o'q-dori qutisi bel balandligida,
+   avtomat faqat eshik  90° da olinadi; ochiq eshik o'quvchini to'smaydi.
+
+· Sertifikatlash: shisha va bead tarkibi uchun aynan shu tuzilma bo'yicha sinov hisoboti; qulf drayveri shkaf ichida;
+   hujjatlarda derating yozilishi shart.
+
+7. Tekshiruv usuli va tuzatilgan xatolar
+
+Har bir muhim qaror uchun mustaqil agentlar paneli ishlatildi: bir nechta taklif  hakamlar (qurol ustasi/xavfsizlik,
+mexanika/list metall)  yakuniy spetsifikatsiya; keyin «raddiyachi» agentlar (geometriya/klirens, oynalash
+texnologiyasi, me'yorlar, matn mosligi) har bir raqamni qayta hisoblab rad etishga urindi. Topilgan va tuzatilgan
+asosiy xatolar:
+
+Xato                                                                  Tuzatish
+
+Viewer 9-4/9-5 tokchalarini (1293/1553) o'chirib, 774/1034 dagilarni  Instansiyabalandlik jadvali o'lchandi; 9-7/9-8 o'chiriladi,
+qoldirgan -- tokchalar avtomatni kesib o'tardi                        9-4...9-6 qoladi
+
+Eshikka ulangan kamar/kishan oynada qolardi; kobura eshik listini     Barcha jihozlar eshikdan o'ng qoplamadagi ilgak plastinasiga
+teshib chiqardi                                                       ko'chirildi
+
+Oyna halqasi (20 mm chuqur, y 207,6) bo'lim tekisligi (y 208,3) ichiga Halqa 15 × 15 × 2 (y 212,6...227,6), tokchalar old qirrasi y 
+
+kirib tokchalar bilan to'qnashardi                                    200
+
+Qulf qutisi hem, bukilma va tirgak bilan to'qnashardi; halqa oyog'i   Qulf qutisi x -317...-254; halqa oyoqlari 15 mm (tirgakka 4
+tirgakdan 1 mm                                                        mm)
+
+Shisha chet tirqishi 3 mm -- chidamlilikdan keyin 0 mm                Halqa teshigi = yorug'lik + 17 (tirqish 5 mm)
+
+Eshikning oshiq reykasidagi 3 mm plastinalar halqa va shisha bilan    Plastinalar x  10 gacha qisqartirildi (modelda faqat list
+to'qnashardi                                                          orqasidagi geometriya kesildi)
+
+Qisqich qalpog'i avtomatni olish yo'lini to'sardi (tortishda 0,25 mm  Tirqishli C-qalpoq (x -286...-260 tirqish, old yuzi y -90)
+to'qnashuv)
+
+«P4A  1-2 daq bolg'a» -- asossiz; qisqich «yashirin», o'q-dori qutisi Halol bayon (aniqlash), qalpoq, qulf kamari, qulflanadigan
+
+«qulflangan» -- noto'g'ri                                             magazin uyasi, PM qutisi boltlangan
+
+Shisha massasi PVB'ni shisha kabi hisoblagan; GOST R 51136            21,6 kg/m²  10,1 kg; GOST 30826-2014 P4A; GOST R
+bekor qilingan                                                        55148 (= EN 14450)
+
+Bukilma «26 mm» deb yozilgan -- modelda 19,3 mm; «tirgak» aslida Matn tuzatildi (eshikni uning o'z bukilmasi to'xtatadi)
+qulf ushlagich
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                                             7-sahifa
+8. Fotorealistik renderlar
+
+Blender 5.2.1, Cycles (CUDA, RTX 2060 SUPER), 1600 × 2000, 160 sampl, AgX; Poly Haven (CC0)
+«painted_metal_shutter» va «concrete_floor_worn_001» teksturalari; jihozlar: CC0 «Flat Guns East» / «Flat
+Ammunition» (balandlik bo'yicha qayta bo'yalgan), CC-BY sumka, CC-BY-SA kishan, protsedura dubulg'a. Shisha:
+Principled transmission + soya nurlari uchun Transparent (ichki yoritish saqlanadi). Blender GUI + MCP ikki marta
+qulagani uchun barcha renderlar fon rejimida (blender -b) skript bilan olindi ( 40 s / kadr).
+
+Yopiq shkaf (yaxlit eshik varianti) va modul                          Ochiq eshik: AK-74, sumka, PM, magazinlar, dubulg'a, kishan
+
+               Avtomatni olish holati (15 mm , 30 mm , 25°)           Face ID / barmoq izi paneli (yaqin plan)
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                                                     8-sahifa
+Oynali eshik, old ko'rinish -- ichki LED yoqilgan  Oynali eshik ochiq: halqalar, kamar to'plami qoplamada,
+                                                                                  C-qalpoq
+
+                                                                            Oynali eshik, 3/4 ko'rinish  9-sahifa
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07
+Avvalgi bosqich renderlari (ikki eshikli shkaf + Face ID moduli, 2026-09-04)
+
+          To'liq balandlikdagi elektronika moduli (yopiq)             Eshiklar ochiq, o'quvchi eshik yonida oldga qaragan
+
+9. Fayllar, skriptlar, manbalar
+
+Fayl / manba                                 Tavsif
+
+claude.ai/code/artifact/1423f996-...         Interaktiv viewer (yagona manzil, har yangilanishda o'sha URL)
+
+shkaf_photoreal\shkaf_viewer.html            Viewer nusxasi (brauzerda ochiladi, internet shart emas)
+
+shkaf_photoreal\build_viewer.py,             Viewer qurish: REMOVE/CLIP_X/CLIP_Y/TRANSLATE_X, oyna kesimi (cut_rect),
+viewer_template.html, meshclip.py,           META
+windows.json
+
+shkaf_photoreal\shkaf_photoreal_final.blend Fotoreal sahna (yaxlit eshik)
+
+shkaf_photoreal\shkaf_photoreal_glass.blend Fotoreal sahna (oynali eshik)
+
+shkaf_photoreal\photoreal_final.py,          Render skriptlari (blender -b fayl.blend --python skript.py -- sampl foiz ko'rinishlar)
+photoreal_glass.py
+
+shkaf_photoreal\*.png                        photoreal_closed/open/grab/reader (yaxlit eshik), oynali_eshik_old/yon/ochiq
+
+Scratchpad: sld\extract_mesh.py, hinges.py,  SLDASM o'qish, oshiq-moshiq o'qlari, eshik klirens tekshiruvi
+clearance.py
+
+Assetlar                                     Flat Guns East / Flat Ammunition (CC0), Backpack_Tan (CC-BY 4.0), handcuffs
+                                             (CC-BY-SA 3.0), Poly Haven (CC0). Sketchfab/Poly Pizza API kaliti bo'lsa yuqori
+                                             aniqlikdagi AK-74/PM/dubulg'a modellari qo'shish mumkin
+
+10. Keyingi qadamlar
+
+· Realistik jihozlar (jarayonda): AK-74, PM, 6B47, kamar to'plami, magazinlar, gaz niqobi sumkasi, jihozlar qutisi
+   -- protsedura-modellar, vizual hakam bilan tekshirib, 5 ko'rinishda qayta render.
+
+· SOLIDWORKS'da qo'llash: o'ng bo'lim detallarini o'chirish, 1/2/4/6/8/10-detallarni kesish chiziqlari bo'yicha
+   qisqartirish, 3-detalni o'ng devor sifatida ko'chirish, 9-7/9-8 tokchalarni olib tashlash, tokchalar old qirrasini y 
+   200 ga, eshik oyna kesimi + halqalar + beadlar, modul va o'quvchi korpuslari.
+
+· Prototipdan oldin: shisha yetkazib beruvchining aynan shu tarkib bo'yicha EN 356 / EN 12600 sinov hisoboti;
+   qulf, datchik va signal tizimi sxemasi; ankerlash loyihasi; me'yoriy derating hujjati.
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                                       10-sahifa
+Jarayondagi realistik jihoz modellari (protsedura, birinchi sinov-renderlar -- vizual hakam
+tuzatishlaridan oldin)
+
+AK-74: laminat qo'ndoq va handguard, bakelit magazin                  Makarov PM: bakelit dasta, ko'k po'lat
+
+6B47 dubulg'a, qoplama va yon reykalar                                Jihozlar qutisi, gaz niqobi sumkasi, 4 ta AK magazini
+
+Hisobot avtomatik tayyorlandi (Claude, Anthropic) -- barcha raqamlar loyiha skriptlari va viewer spetsifikatsiyasi bilan mos.
+
+Smart qurol-aslaha shkafi -- bajarilgan ishlar hisoboti · 2026-09-07                                                           11-sahifa
+

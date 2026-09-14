@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon with context %}
+{% block content %}
+<div class="situation">
+  <section id="executive-overview" hx-get="/partials/executive" hx-trigger="live from:body, every 30s" hx-swap="innerHTML" aria-label="{{ t('Rahbariyat ma’lumotnomasi') }}">
+    {% include "partials/executive.html" %}
+  </section>
+  <nav class="situation-tabs" aria-label="{{ t('Respublika tahlili') }}">
+    <a href="/" aria-current="page">{{ icon("layers", 16) }}{{ t("Umumiy holat") }}</a>
+    <a href="/hududlar">{{ t("Hududlar tahlili") }}</a>
+    <a href="/hisobotlar">{{ t("Hisobotlar") }}</a>
+    <span class="situation-scope">{{ icon("shield", 14) }}{{ t("Respublika darajasi") }}</span>
+  </nav>
+  <div class="situation-detail-head"><span>{{ t("Batafsil ko‘rsatkichlar") }}</span><a href="/hisobotlar">{{ t("Hisobotlarni ochish") }} {{ icon("chev", 14) }}</a></div>
+  <section class="situation-secondary-kpis kpi-row" id="kpi-row" hx-get="/partials/kpi" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+    {% include "partials/kpi.html" %}
+  </section>
+  <div class="situation-details">
+    <section class="card" id="regions-card" hx-get="/partials/regions" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+      {% include "partials/regions_table.html" %}
+    </section>
+    <div class="situation-detail-stack">
+      <section class="card card-chart" id="chart-card" hx-get="/partials/chart" hx-trigger="live from:body, every 60s" hx-swap="innerHTML">
+        {% include "partials/chart.html" %}
+      </section>
+      <section class="card card-feed" id="feed-card" hx-get="/partials/feed" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+        {% include "partials/feed.html" %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

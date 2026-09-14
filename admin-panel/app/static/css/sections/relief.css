@@ -1,0 +1,78 @@
+/* Relief: one elevation language for the whole panel, 2026-09-14.
+   Primary surfaces stand on a visible edge; reading planes (tables, lists) stay flat.
+   Only things a person can press lift on hover. Loaded after theme.css. */
+:root {
+  --rl-side: #1c2b37;
+  --rl-side-2: #243543;
+  --rl-shadow: rgba(0, 0, 0, .55);
+  --rl-shadow-soft: rgba(0, 0, 0, .35);
+  --rl-hi: rgba(140, 170, 196, .14);
+  --rl-glow: rgba(194, 170, 121, .25);
+}
+:root[data-theme="light"] {
+  --rl-side: #cfd8df;
+  --rl-side-2: #b9c6d0;
+  --rl-shadow: rgba(25, 47, 64, .16);
+  --rl-shadow-soft: rgba(25, 47, 64, .08);
+  --rl-hi: #ffffff;
+  --rl-glow: rgba(146, 115, 60, .18);
+}
+
+/* Shell: the top bar floats over the page, the sidebar is a recessed rail. */
+[data-theme] .topbar { box-shadow: 0 1px 0 var(--rl-hi) inset, 0 6px 18px -10px var(--rl-shadow); position: relative; z-index: 5; }
+[data-theme] .sidebar { box-shadow: inset -1px 0 0 var(--border), inset -10px 0 18px -14px var(--rl-shadow-soft); }
+[data-theme] .nav-item.active { box-shadow: inset 3px 0 0 var(--accent); border-left-color: transparent; }
+[data-theme] .brand-logo { box-shadow: 0 0 0 1px var(--border-strong), 0 4px 10px -4px var(--rl-shadow); }
+[data-theme] .search input { box-shadow: inset 0 2px 4px -2px var(--rl-shadow-soft); }
+[data-theme] .mode-banner { box-shadow: 0 2px 0 var(--rl-side), 0 8px 16px -8px var(--rl-shadow); }
+
+/* Cards and tiles: a plate with an edge. */
+[data-theme] .card {
+  border-radius: 6px; position: relative;
+  box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side), 0 12px 24px -12px var(--rl-shadow);
+}
+[data-theme] .card-title { border-left-width: 3px; }
+[data-theme] .kpi {
+  border-radius: 6px; border-top: 2px solid var(--accent);
+  background: linear-gradient(160deg, var(--panel-2), var(--panel) 70%);
+  box-shadow: 0 1px 0 var(--rl-hi) inset, 0 3px 0 var(--rl-side), 0 12px 20px -10px var(--rl-shadow);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+[data-theme] .kpi.tone-red { border-top-color: var(--red); }
+[data-theme] .kpi.tone-yellow { border-top-color: var(--yellow); }
+[data-theme] .kpi-ic { width: 30px; height: 30px; border-radius: 7px; background: var(--accent-soft); box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side); }
+[data-theme] .kpi.tone-red .kpi-ic { background: color-mix(in srgb, var(--red) 14%, transparent); }
+[data-theme] .kpi.tone-yellow .kpi-ic { background: color-mix(in srgb, var(--yellow) 16%, transparent); }
+[data-theme] .kpi-val { font-weight: 500; }
+
+/* Interactive rows and chips. */
+[data-theme] .feed-row { box-shadow: 0 1px 0 var(--rl-side); border-radius: 5px; }
+[data-theme] .feed-row:hover { box-shadow: 0 2px 0 var(--rl-side), 0 8px 14px -8px var(--rl-shadow); }
+[data-theme] .notice { box-shadow: 0 1px 0 var(--rl-side); }
+[data-theme] .empty { box-shadow: none; }
+
+/* Buttons: primary actions are physical keys. */
+[data-theme] .btn { box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side); transition: transform .08s ease, box-shadow .08s ease, border-color .12s ease, background .12s ease; }
+[data-theme] .btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--rl-hi) inset, 0 0 0 var(--rl-side); }
+[data-theme] .btn-primary { box-shadow: 0 1px 0 rgba(255, 255, 255, .35) inset, 0 3px 0 #8f7a4d, 0 8px 14px -8px var(--rl-shadow); }
+[data-theme] .btn-primary:active { box-shadow: 0 1px 0 rgba(255, 255, 255, .35) inset, 0 1px 0 #8f7a4d; transform: translateY(2px); }
+[data-theme] .btn-ghost { box-shadow: none; }
+[data-theme] .btn-ghost:active { transform: none; }
+[data-theme] .theme-toggle, [data-theme] .lang-switch, [data-theme] .user-chip { box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side); }
+[data-theme] .pill.on { box-shadow: 0 1px 0 var(--rl-side); }
+
+/* Login card floats above the shell. */
+[data-theme] .auth-card { border-radius: 10px; box-shadow: 0 1px 0 var(--rl-hi) inset, 0 4px 0 var(--rl-side), 0 30px 50px -24px var(--rl-shadow); }
+[data-theme] .auth-brand img { box-shadow: 0 0 0 1px var(--border-strong), 0 8px 18px -8px var(--rl-shadow); }
+
+/* Lift only under a precise pointer, and only for things that open something. */
+@media (hover: hover) and (pointer: fine) {
+  [data-theme] a.kpi:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 1px 0 var(--rl-hi) inset, 0 5px 0 var(--rl-side), 0 18px 26px -10px var(--rl-shadow); }
+}
+@media (max-width: 700px) {
+  [data-theme] .card, [data-theme] .kpi { box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme] .kpi, [data-theme] .btn { transition: none; }
+  [data-theme] a.kpi:hover, [data-theme] .btn:active { transform: none; }
+}

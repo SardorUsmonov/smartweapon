@@ -1,0 +1,40 @@
+{% from "macros.html" import icon, card_head, empty with context %}
+{% call card_head("Yacheykalar rejasi · devor bo'yicha") %}
+  <span class="meta-item"><span class="sw ok"></span>{{ plan.counts.ok }} {{ t("uyada") }}</span>
+  <span class="meta-item"><span class="sw out"></span>{{ plan.counts.out }} {{ t("xodimda") }}</span>
+  {% if plan.counts.bad %}<span class="meta-item n-red"><span class="sw bad"></span>{{ plan.counts.bad }} {{ t("nosoz/blok") }}</span>{% endif %}
+  {% if plan.counts.off %}<span class="meta-item n-red"><span class="sw off"></span>{{ plan.counts.off }} {{ t("oflayn") }}</span>{% endif %}
+  <span class="meta-item muted">{{ now.strftime('%H:%M:%S') }}</span>
+{% endcall %}
+{% if plan.total %}
+<div class="plan">
+  {% for wall, cells in plan.walls %}
+  <div class="plan-wall">
+    <div class="plan-wall-title"><b>{{ wall }} {{ t("devor") }}</b><span>{{ cells | length }} {{ t("yacheyka") }}</span><span class="line"></span></div>
+    <div class="plan-row">
+      {% for c in cells %}
+      <a class="cell c-{{ c.cls }} {% if c.door_open %}c-open{% endif %}" href="/yacheyka/{{ c.id }}" title="{{ t(c.title) }}">
+        {% if c.flags %}<span class="cell-flags">{% for ic, tip in c.flags %}{{ icon(ic, 11, 2.4) }}{% endfor %}</span>{% endif %}
+        {{ c.label }}
+        <small>{% if c.cls == 'free' %}{{ t("zaxira") }}{% elif c.cls == 'bad' %}{{ t(c.state) }}{% elif c.cls == 'svc' %}{{ t("xizmat") }}{% elif c.cls == 'off' %}{{ t("oflayn") }}{% else %}AK {{ '●' if c.ak else '○' }} PM {{ '●' if c.pm else '○' }}{% endif %}</small>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="plan-legend">
+  <span><i class="sw ok"></i>{{ t("qurol uyada") }}</span>
+  <span><i class="sw out"></i>{{ t("qurol xodimda") }}</span>
+  <span><i class="sw free"></i>{{ t("zaxira") }}</span>
+  <span><i class="sw bad"></i>{{ t("nosoz / bloklangan") }}</span>
+  <span><i class="sw svc"></i>{{ t("xizmat rejimi") }}</span>
+  <span><i class="sw off"></i>{{ t("kontroller oflayn") }}</span>
+  <span>{{ icon("door", 12, 2.4) }} {{ t("eshik ochiq") }}</span>
+  <span>{{ icon("clock", 12, 2.4) }} {{ t("qaytarish kechikkan") }}</span>
+  <span>{{ icon("battery", 12, 2.4) }} {{ t("batareya past") }}</span>
+  <span>{{ icon("power", 12, 2.4) }} {{ t("quvvat yo'q") }}</span>
+</div>
+{% else %}
+{{ empty("Bu qurolxonada yacheykalar ro'yxatga olinmagan") }}
+{% endif %}

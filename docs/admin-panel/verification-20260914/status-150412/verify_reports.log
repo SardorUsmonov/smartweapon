@@ -1,0 +1,11 @@
+berish-qaytarish 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+qurollanganlik 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+insidentlar 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+admin-harakatlari 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+texnik-holat 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+kechikishlar 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+inventar-farqlari 6 preview cases; CSV/XLSX/PDF created, audited, hashed and downloaded
+All 18 unit detail pages OK; invalid export submission rejected
+Journal exports shared path, download, detail redirect and list filter passed
+Scope isolation, own export, foreign export, hash mismatch and expiry checks OK
+PASS scratch: C:\Users\atsha\AppData\Local\Temp\aq_reports_flow__a4abn8j

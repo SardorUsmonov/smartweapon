@@ -1,0 +1,31 @@
+# Matn fayllari repozitoriyda LF bilan saqlanadi, tekshirib olishda platforma qatori ishlatiladi
+* text=auto
+
+*.py text
+*.html text
+*.css text
+*.js text
+*.md text
+*.json text
+*.txt text
+*.svg text
+*.geojson text
+*.kml text
+*.cfg text
+*.ini text
+
+# Ikkilik fayllar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.sqlite3 binary
+*.zip binary
+*.exe binary
+*.SLDASM binary
+*.STL binary
+*.stl binary
+*.blend binary

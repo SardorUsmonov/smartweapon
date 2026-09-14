@@ -1,0 +1,24 @@
+{% from "macros.html" import card_head with context %}
+{% call card_head("Sutkalik olish-qaytarish · 7 kun") %}<span class="meta-item muted">{{ t("Jami operatsiyalar, respublika") }}</span>{% endcall %}
+{% set mx = (days | map(attribute="value") | max) or 1 %}
+{% set top = ((mx * 1.25) // 1000 + 1) * 1000 %}
+{% set W, H, L, B = 900, 160, 46, 22 %}
+<div class="chart-wrap">
+<svg class="chart" viewBox="0 0 {{ W }} {{ H }}" preserveAspectRatio="none" aria-label="7 kunlik operatsiyalar">
+  {% for g in range(0, 4) %}
+  {% set y = (H - B) - (H - B - 8) * g / 3 %}
+  <line x1="{{ L }}" y1="{{ y }}" x2="{{ W }}" y2="{{ y }}" stroke="var(--border)" stroke-dasharray="3 4"/>
+  <text x="{{ L - 8 }}" y="{{ y + 4 }}" text-anchor="end" font-size="11" fill="var(--muted)">{{ ((top * g / 3) | int) | num }}</text>
+  {% endfor %}
+  {% set n = days | length %}
+  {% set slot = (W - L) / n %}
+  {% set bw = slot * 0.52 %}
+  {% for d in days %}
+  {% set h = (H - B - 8) * d.value / top %}
+  {% set x = L + loop.index0 * slot + (slot - bw) / 2 %}
+  <rect x="{{ x }}" y="{{ H - B - h }}" width="{{ bw }}" height="{{ h }}" rx="3" fill="{{ 'var(--accent)' if d.today else '#2a6ad0' }}" fill-opacity="{{ '1' if d.today else '0.85' }}"><title>{{ d.date }}: {{ d.value }}</title></rect>
+  <text x="{{ x + bw / 2 }}" y="{{ H - B - h - 6 }}" text-anchor="middle" font-size="{{ 13 if d.today else 12 }}" font-weight="{{ 700 if d.today else 500 }}" fill="var(--text)">{{ d.value | num }}</text>
+  <text x="{{ x + bw / 2 }}" y="{{ H - 6 }}" text-anchor="middle" font-size="12" fill="var(--muted)">{{ t(d.label) }}</text>
+  {% endfor %}
+</svg>
+</div>

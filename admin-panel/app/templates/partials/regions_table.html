@@ -1,0 +1,18 @@
+{% from "macros.html" import icon, card_head, num_cell with context %}
+{% call card_head("Hududlar · KPI") %}<a class="btn btn-ghost btn-sm" href="/hududlar">{{ t("Batafsil tahlil") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+<table class="tbl tbl-regions">
+  <thead><tr><th>#</th><th class="l">{{ t("Hudud") }}</th><th>{{ t("Yacheyka") }}</th><th>{{ t("Berilgan") }}</th><th>{{ t("Kechikish") }}</th><th>{{ t("Signal") }}</th><th>{{ t("Oflayn") }}</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="row-link st-{{ r.status }}" data-href="/hudud/{{ r.id }}">
+    <td class="muted">{{ loop.index }}</td>
+    <td class="l"><a href="/hudud/{{ r.id }}">{{ t(r.short) }}</a></td>
+    <td>{{ r.yacheyka | num }}</td>
+    <td>{{ r.berilgan | num }}</td>
+    <td>{{ num_cell(r.kechikish, "yellow") }}</td>
+    <td>{{ num_cell(r.signal, "red") }}</td>
+    <td>{{ num_cell(r.oflayn, "red") }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="uz" data-theme="light">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Weapon — yangi dizayn namunasi</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="preview-bar"><span><b>Dizayn namunasi</b><span class="preview-note"> · Respublika bosh sahifasi</span></span><div class="theme-controls" aria-label="Ko‘rinish"><button data-theme="light" aria-pressed="true">Och</button><button data-theme="dark" aria-pressed="false">To‘q</button></div><a href="http://127.0.0.1:8080/" target="_blank" rel="noopener">Amaldagi panel ↗</a></div>
+<div class="shell">
+<aside class="sidebar">
+  <a class="brand" href="#overview" aria-label="Smart Weapon bosh sahifa"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span><span>SMART<br>WEAPON<span class="brand-caption">Hisob va nazorat</span></span></a>
+  <div class="workspace"><span class="workspace-mark">UZ</span><span>Markaziy boshqaruv<small>Respublika darajasi</small></span></div>
+  <nav aria-label="Asosiy navigatsiya">
+    <span class="nav-label">Umumiy ko‘rinish</span>
+    <a class="nav-link active" href="#overview"><span>Respublika</span><span class="nav-arrow">↗</span></a>
+    <a class="nav-link" href="#regions">Hududlar <span class="nav-count">14</span></a>
+    <a class="nav-link" href="http://127.0.0.1:8080/qurolxonalar" target="_blank" rel="noopener">Qurolxonalar <span class="nav-count">18</span></a>
+    <span class="nav-label">Hisob yuritish</span>
+    <a class="nav-link" href="http://127.0.0.1:8080/yacheykalar" target="_blank" rel="noopener">Yacheykalar</a>
+    <a class="nav-link" href="http://127.0.0.1:8080/xodimlar" target="_blank" rel="noopener">Xodimlar</a>
+    <a class="nav-link" href="http://127.0.0.1:8080/inventar" target="_blank" rel="noopener">Inventar</a>
+    <span class="nav-label">Tekshiruv va hisobot</span>
+    <a class="nav-link" href="http://127.0.0.1:8080/jurnal" target="_blank" rel="noopener">Hodisalar jurnali</a>
+    <a class="nav-link" href="#attention">Signallar <span class="signal-count">4</span></a>
+    <a class="nav-link" href="http://127.0.0.1:8080/hisobotlar" target="_blank" rel="noopener">Hisobotlar</a>
+  </nav>
+  <div class="sidebar-bottom"><a href="http://127.0.0.1:8080/sozlamalar" target="_blank" rel="noopener">Sozlamalar <span>↗</span></a><div class="user"><span class="avatar">RA</span><span>Administrator<small>Respublika</small></span></div><p>NAZORAT MARKAZI <span>01 / UZ</span></p></div>
+</aside>
+<div class="content">
+  <header class="topbar"><div class="breadcrumb">Markaziy boshqaruv <span>/</span> <b>Respublika</b></div><div class="top-tools"><span class="sample"><i></i> Demo ma’lumot</span><span class="date">12 sentabr, 2026</span><span class="language">O‘Z</span></div></header>
+  <main id="overview">
+    <div class="page-heading"><div><p class="eyebrow">O‘zbekiston Respublikasi</p><h1>Umumiy holat<span>.</span></h1><p class="page-caption">Hududlar, inventar hisobi va e’tibor talab qiladigan qaydlar.</p></div><a class="primary-action" href="http://127.0.0.1:8080/hisobotlar" target="_blank" rel="noopener">Hisobotlar <span>↗</span></a></div>
+    <section class="summary" aria-label="Asosiy ko‘rsatkichlar">
+      <div class="metric"><span class="metric-label">Qurolxonalar</span><div class="metric-value">18<span>obyekt</span></div><span class="metric-note"><i class="dot green"></i> 15 onlayn <span class="divider">/</span> <span class="warning-text">3 oflayn</span></span></div>
+      <div class="metric"><span class="metric-label">Jami yacheykalar</span><div class="metric-value">321</div><span class="metric-note">14 hudud bo‘yicha</span></div>
+      <div class="metric"><span class="metric-label">Xodimlardagi qurollar</span><div class="metric-value">182</div><span class="metric-note">183 ochiq qayd · 1 takror</span></div>
+      <a class="metric metric-alert" href="#attention"><span class="metric-label">Faol signallar <span>↗</span></span><div class="metric-value">04</div><span class="metric-note">Tekshiruv talab qiladi</span></a>
+    </section>
+    <div class="main-grid">
+      <section class="geography" aria-labelledby="coverage-title">
+        <div class="section-head"><div><span class="section-no">01</span><h2 id="coverage-title">Hududiy qamrov</h2></div><span class="quiet-label">14 hudud / 18 qurolxona</span></div>
+        <div class="map-area"><div class="map-label"><span>UZBEKISTAN</span><small>Hududni tanlang</small></div><div id="map" aria-label="Hududlar xaritasi"></div><div class="map-footer"><span><i class="legend-box"></i> Hisobga olingan hudud</span><span><i class="legend-box selected"></i> Tanlangan hudud</span><button id="clear-selection" hidden>Tanlovni bekor qilish ×</button></div></div>
+        <div class="selection" id="selection" aria-live="polite"><div><span class="selection-label">Barcha hududlar</span><strong>Respublika bo‘yicha umumiy ko‘rinish</strong></div><a href="#regions">Hududlar jadvali <span>↓</span></a></div>
+      </section>
+      <aside class="attention" id="attention" aria-labelledby="attention-title">
+        <div class="section-head"><div><span class="section-no">02</span><h2 id="attention-title">E’tibor talab qiladi</h2></div><span class="tiny-count">03</span></div>
+        <div class="attention-item"><div class="attention-meta"><span class="status critical"><i></i> Faol signallar</span><span class="mono">01</span></div><h3>4 ta ochiq signal</h3><p>Toshkent shahri va Qoraqalpog‘iston bo‘yicha qaydlar mavjud.</p><a href="http://127.0.0.1:8080/signallar" target="_blank" rel="noopener">Signallarni ko‘rish <span>↗</span></a></div>
+        <div class="attention-item"><div class="attention-meta"><span class="status amber"><i></i> Ma’lumot yaxlitligi</span><span class="mono">02</span></div><h3>1 ta takroriy berish qaydi</h3><p>182 ta jihozga 183 ta ochiq qayd. Asl yozuvlar saqlangan.</p><a href="http://127.0.0.1:8080/inventar?berilgan=1" target="_blank" rel="noopener">Inventar hisobini ko‘rish <span>↗</span></a></div>
+        <div class="attention-item"><div class="attention-meta"><span class="status neutral"><i></i> Audit tarixi</span><span class="mono">03</span></div><h3>7 ta tarixiy nomuvofiqlik</h3><p>Boshlang‘ich demo ma’lumotlaridagi qaydlar alohida ko‘rsatiladi.</p><a href="http://127.0.0.1:8080/jurnal" target="_blank" rel="noopener">Jurnalni ochish <span>↗</span></a></div>
+      </aside>
+    </div>
+    <section class="regions-section" id="regions" aria-labelledby="regions-title">
+      <div class="section-head"><div><span class="section-no">03</span><h2 id="regions-title">Hududlar kesimida</h2></div><label class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="m12 12 5 5"/></svg><input id="region-search" type="search" placeholder="Hududni qidirish" aria-label="Hududni qidirish"></label></div>
+      <div class="table-scroll"><table><thead><tr><th scope="col">Hudud</th><th scope="col">Qurolxona</th><th scope="col">Yacheyka</th><th scope="col">Xodimlardagi</th><th scope="col">Faol signal</th><th scope="col">Aloqa holati</th><th scope="col"><span class="sr-only">Tafsilot</span></th></tr></thead><tbody id="region-rows"></tbody></table></div>
+      <div class="table-foot"><span id="row-count">14 hudud</span><span>Ma’lumotlar: mahalliy demo bazasi · 12.09.2026</span></div>
+    </section>
+    <footer class="page-footer"><span>SMART WEAPON <span class="footer-separator">/</span> Nazorat markazi</span><span>Vizual namuna · 01</span></footer>
+  </main>
+</div>
+</div>
+<script src="app.js"></script>
+</body></html>

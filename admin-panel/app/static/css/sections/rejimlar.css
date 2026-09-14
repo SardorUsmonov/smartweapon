@@ -1,0 +1,67 @@
+/* Rejimlar bo'limi: faol rejim kartochkalari, progress, yacheyka katakchalari, boshlash formasi */
+.rj-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.rj-grid { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 14px; align-items: start; }
+.rj-grid-form { grid-template-columns: minmax(0, 1fr) 380px; }
+.rj-grid-detail { grid-template-columns: 430px minmax(0, 1fr); }
+
+/* faol rejim kartochkasi */
+.rj-mode { padding: 12px 14px; border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: var(--radius); background: var(--panel-2); }
+.rj-mode.yigilish { border-left-color: var(--yellow); }
+.rj-mode-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rj-mode-title { font-size: 16px; font-weight: 800; letter-spacing: .02em; color: var(--text); }
+.rj-mode-title:hover { color: var(--accent-text); }
+.rj-mode-actions { margin-left: auto; display: flex; gap: 6px; }
+.rj-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px 14px; margin: 12px 0 10px; }
+.rj-stat { min-width: 0; }
+.rj-stat b { display: block; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.rj-stat b.rj-name { font-size: 13.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rj-stat span { display: block; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+/* progress */
+.rj-progress { height: 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; }
+.rj-progress i { display: block; height: 100%; background: linear-gradient(90deg, #1f9d55, var(--green)); transition: width .5s ease; }
+.rj-progress.done i { background: var(--green); }
+.rj-progress-lbl { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-top: 6px; font-weight: 600; }
+
+/* har yacheyka katakchalari */
+.rj-cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 4px; margin-top: 10px; }
+.rj-cell { display: flex; align-items: center; justify-content: center; height: 24px; border-radius: 4px; font: 700 10.5px/1 var(--font-mono); border: 1px solid var(--border); color: var(--muted); background: var(--panel); }
+.rj-cell:hover { filter: brightness(1.3); }
+.rj-cell.olindi, .rj-legend i.olindi { background: rgba(34, 197, 94, .18); border-color: var(--green); color: var(--green); }
+.rj-cell.xodimda, .rj-legend i.xodimda { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+.rj-cell.kutmoqda, .rj-legend i.kutmoqda { border-color: rgba(245, 180, 0, .55); color: var(--yellow); }
+.rj-cell.bloklangan, .rj-legend i.bloklangan { background: rgba(239, 59, 59, .14); border-color: var(--red); color: #ff8a8a; }
+.rj-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin-top: 8px; }
+.rj-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.rj-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); background: var(--panel); }
+.rj-chip-blue { color: var(--accent-text); }
+
+/* yacheykalar jadvali (batafsil sahifa) */
+.rj-tbl-wrap { max-height: 62vh; overflow: auto; margin-top: 10px; }
+.rj-tbl-wrap .tbl th { position: sticky; top: 0; background: var(--panel); z-index: 1; }
+.rj-row-olindi td:first-child { box-shadow: inset 3px 0 0 var(--green); }
+.rj-row-bloklangan td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.rj-reason { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+.rj-feed { max-height: 380px; overflow: auto; }
+
+/* boshlash / tugatish formalari */
+.rj-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+.rj-form .full { grid-column: 1 / -1; }
+.rj-field { display: flex; flex-direction: column; gap: 5px; }
+.rj-field label { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.rj-field select, .rj-field input, .rj-field textarea { width: 100%; }
+.rj-kind { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rj-kind label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); cursor: pointer; font-size: 12.5px; }
+.rj-kind label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.rj-kind input { margin-top: 3px; }
+.rj-kind b { display: block; font-size: 13.5px; letter-spacing: .04em; }
+.rj-kind small { color: var(--muted); line-height: 1.35; }
+.rj-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.4; }
+.rj-check input { margin-top: 3px; }
+.rj-steps { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; }
+.rj-rules .notice b { letter-spacing: .04em; }
+
+@media (max-width: 1400px) {
+  .rj-grid, .rj-grid-form, .rj-grid-detail { grid-template-columns: 1fr; }
+  .rj-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

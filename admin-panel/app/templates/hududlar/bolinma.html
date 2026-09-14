@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, kpi, card_head, status_chip, cab_status, num_cell, level_badge, level_icon, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hududlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t(unit.name) }}<small>{{ t(kind_label) }} · {{ t(region.name) }} · {{ armories | length | num }} {{ t("qurolxona") }} · {{ cab_total | num }} {{ t("yacheyka") }} · {{ officers_total | num }} {{ t("xodim") }}</small></h1>
+  <div class="page-actions">
+    {% if ctx.can("sozlamalar") and ctx.scope_kind != 'qurolxona' %}<a class="btn btn-sm" href="/hudud/{{ region.id }}/bolinma/{{ unit.id }}/tahrir">{{ icon("settings", 14) }} {{ t("Tahrirlash") }}</a>{% endif %}
+    <a class="btn btn-ghost btn-sm" href="/xodimlar?bolinma={{ unit.id }}">{{ icon("users", 14) }} {{ t("Xodimlar") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/yacheykalar?bolinma={{ unit.id }}">{{ icon("lock", 14) }} {{ t("Yacheykalar") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/jurnal?bolinma={{ unit.id }}">{{ icon("list", 14) }} {{ t("Jurnal") }}</a>
+  </div>
+</div>
+<section class="kpi-row">
+  {{ kpi("Jami yacheykalar", k.yacheykalar, k.qurolxonalar | num ~ " qurolxona", "layers", "", "/yacheykalar?bolinma=" ~ unit.id) }}
+  {{ kpi("Berilgan qurollar", k.berilgan, "hozir xodimlarda", "gun", "", "/inventar?berilgan=1&bolinma=" ~ unit.id) }}
+  {{ kpi("Vaqtida qaytarilmagan", k.kechikish, "muddat o'tgan", "clock", "red" if k.kechikish else "", "/inventar?kechikish=1&bolinma=" ~ unit.id) }}
+  {{ kpi("Nosoz yoki bloklangan", k.bloklangan, "yacheyka", "wrench", "yellow" if k.bloklangan else "", "/yacheykalar?holat=muammo&bolinma=" ~ unit.id) }}
+  {{ kpi("Sutkalik olish-qaytarish", k.sutkalik, "bugun, " ~ now.strftime('%H:%M') ~ " gacha", "swap", "", "/jurnal?tur=operatsiya&bolinma=" ~ unit.id) }}
+  {{ kpi("Rad etilgan urinishlar", k.rad_etilgan, "bugun", "ban", "yellow" if k.rad_etilgan else "", "/jurnal?tur=rad_etildi&bolinma=" ~ unit.id) }}
+  {{ kpi("Faol signallar", k.faol_signallar, k.tasdiq_kutmoqda | num ~ " tasdiq kutmoqda", "bell", "red" if k.tasdiq_kutmoqda else ("yellow" if k.faol_signallar else ""), "/signallar?bolinma=" ~ unit.id) }}
+  {{ kpi("Inventar farqlari", k.inventar_farqlari, "30 kun", "clipboard", "yellow" if k.inventar_farqlari else "", "/inventar?farq=1&bolinma=" ~ unit.id) }}
+  {{ kpi("Oflayn qurolxonalar", k.qurolxona_oflayn, k.qurolxonalar | num ~ " dan", "wifi-off", "red" if k.qurolxona_oflayn else "", "/qurolxonalar?holat=oflayn&bolinma=" ~ unit.id) }}
+</section>
+<div class="hud-detail">
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Qurolxonalar") %}<span class="meta-item muted">{{ t("bosilsa qurolxona sahifasi") }}</span>{% endcall %}
+      {% if not armories %}
+        {{ empty("Bo'linmada qurolxona ro'yxatga olinmagan") }}
+      {% else %}
+      <table class="tbl tbl-hud">
+        <thead><tr>
+          <th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("Manzil") }}</th><th class="l">{{ t("Aloqa") }}</th><th>{{ t("Yacheyka") }}</th><th>{{ t("Biriktirilgan") }}</th><th>{{ t("Berilgan") }}</th>
+          <th>{{ t("Kechikish") }}</th><th>{{ t("Signal") }}</th><th>UPS</th><th>{{ t("Sinxron") }}</th><th>{{ t("Tasdiqlovchilar") }}</th>
+        </tr></thead>
+        <tbody>
+        {% for r in armories %}
+        <tr class="row-link st-{{ r.status }}" data-href="/qurolxona/{{ r.a.id }}">
+          <td class="l"><a href="/qurolxona/{{ r.a.id }}">{{ t(r.a.name) }}</a></td>
+          <td class="l muted">{{ t(r.a.address) }}</td>
+          <td class="l">{% if r.a.online %}<span class="chip chip-green">{{ icon("wifi", 12, 2.4) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 12, 2.4) }} {{ t("oflayn") }}</span>{% endif %}</td>
+          <td>{{ r.s.yacheyka | num }}</td>
+          <td>{{ r.s.biriktirilgan | num }}</td>
+          <td>{{ r.s.berilgan | num }}</td>
+          <td>{{ num_cell(r.s.kechikish, "yellow") }}</td>
+          <td>{{ num_cell(r.s.signal, "red") }}</td>
+          <td class="{% if r.a.ups_on_battery %}n-yellow{% endif %}">{{ r.a.ups_battery_pct }} %</td>
+          <td class="{% if not r.a.online %}n-red{% endif %}">{% if r.a.last_sync %}{{ r.a.last_sync | ago }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{{ r.a.approvers_required }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+    <section class="card">
+      {% call card_head("Hodisalar jurnali · bo'linma") %}<span class="meta-item muted">{{ total | num }} {{ t("ta yozuv") }}</span><a class="btn btn-ghost btn-sm" href="/jurnal?bolinma={{ unit.id }}">{{ t("To'liq jurnal") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      {% if not events %}
+        {{ empty("Bo'linma bo'yicha hodisa yo'q") }}
+      {% else %}
+      <table class="tbl tbl-hud">
+        <thead><tr><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Hodisa") }}</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Usul") }}</th><th class="l">{{ t("Natija") }}</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+        <tr class="row-link" data-href="/jurnal/{{ e.id }}">
+          <td class="l feed-time">{{ e.ts_server | dt("%d.%m.%Y %H:%M") }}{% if e.offline %} <span class="badge b-yellow" title="{{ t('oflayn keshdan') }}">OFL</span>{% endif %}</td>
+          <td class="l">{{ level_badge(level_label.get(e.level, "AXBOROT")) }}</td>
+          <td class="l"><a href="/jurnal/{{ e.id }}">{{ t(e.title) }}</a>{% if e.detail %} <span class="muted">· {{ t(e.detail) }}</span>{% endif %}</td>
+          <td class="l">{% if e.cabinet_id %}<a href="/yacheyka/{{ e.cabinet_id }}">{{ cab_labels.get(e.cabinet_id, "#" ~ e.cabinet_id) }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="l">{% if e.officer_id %}<a href="/xodim/{{ e.officer_id }}">{{ off_names.get(e.officer_id, "#" ~ e.officer_id) }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="l muted">{{ e.method or "—" }}</td>
+          <td class="l">{% if e.result == "ok" %}<span class="chip chip-green">ok</span>{% elif e.result == "rad" %}<span class="chip chip-yellow">{{ t("rad") }}</span>{% else %}<span class="chip chip-red">{{ t(e.result) }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+      {% include "hududlar/_pager.html" %}
+    </section>
+  </div>
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Xodimlar") %}<a class="btn btn-ghost btn-sm" href="/xodimlar?bolinma={{ unit.id }}">{{ t("Ro'yxat") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      {% if not officers %}{{ empty("Bo'linmada xodim ro'yxatga olinmagan") }}{% else %}
+      <dl class="kv">
+        <dt>{{ t("Jami") }}</dt><dd><b>{{ officers_total | num }}</b></dd>
+        {% for label, n in officers %}<dt>{{ t(label) }}</dt><dd>{{ n | num }}</dd>{% endfor %}
+      </dl>
+      {% endif %}
+    </section>
+    <section class="card">
+      {% call card_head("Yacheykalar holati") %}<a class="btn btn-ghost btn-sm" href="/yacheykalar?bolinma={{ unit.id }}">{{ t("Ro'yxat") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      {% if not cab_total %}{{ empty("Yacheyka yo'q") }}{% else %}
+      <dl class="kv">
+        <dt>{{ t("Jami") }}</dt><dd><b>{{ cab_total | num }}</b></dd>
+        {% for s, n in cabinet_status_rows %}<dt>{{ cab_status(s) }}</dt><dd>{{ n | num }}</dd>{% endfor %}
+      </dl>
+      {% endif %}
+    </section>
+    <section class="card card-feed">
+      {% call card_head("Faol signallar") %}<a class="btn btn-ghost btn-sm" href="/signallar?bolinma={{ unit.id }}">{{ t("Signal markazi") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      <div class="feed">
+        {% for a in alarms %}
+        <a class="feed-row lv-{{ a.level | lower }}" href="/signal/{{ a.id }}">
+          <span class="feed-time">{{ a.opened_at | dt }}</span>
+          {{ level_icon(a.level) }}
+          <span class="feed-body"><span class="feed-title">{{ t(a.title) }}</span><span class="feed-detail">{{ t(a.detail) }}{% if a.requires_ack and not a.acked_at %} · {{ t("tasdiq kutmoqda") }}{% endif %}</span></span>
+          {{ level_badge(alarm_badge.get(a.type, "OGOHLANTIRISH" if a.level == "WARNING" else "SIGNAL")) }}
+        </a>
+        {% else %}
+        {{ empty("Bo'linmada faol signal yo'q") }}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+/* Yacheykalar: existing dashboard tokens, read-only digital twin and detail forms. */
+.yc-pills { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.yc-filters select { max-width:280px; }
+.yc-filters input { min-width:200px; flex:1; }
+.yc-table-wrap { overflow-x:auto; max-width:100%; }
+.yc-list { min-width:990px; }
+.yc-sub { display:block; color:var(--muted); font-size:11.5px; line-height:1.55; margin-top:2px; overflow-wrap:anywhere; }
+.yc-label { font-size:15px; font-weight:700; }
+.yc-live-grid { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(310px,1fr); gap:14px; }
+.yc-detail-grid { display:grid; grid-template-columns:minmax(0,1.65fr) minmax(310px,1fr); gap:14px; }
+.yc-twin-layout { display:grid; grid-template-columns:minmax(190px,.85fr) minmax(260px,1fr); gap:16px; align-items:start; }
+.yc-twin { margin:0; padding:10px 0; position:sticky; top:12px; }
+.yc-twin-svg { display:block; width:100%; max-height:590px; }
+.yc-twin figcaption { color:var(--muted); font-size:11px; text-align:center; }
+.yc-twin figcaption span { display:block; margin-top:4px; }
+.yc-cabinet { stroke:currentColor; stroke-width:2; fill:var(--bg); }
+.yc-electronics { fill:var(--panel-2); stroke:var(--border-strong); stroke-width:1.5; }
+.yc-shelf { stroke:var(--border-strong); stroke-width:1.5; }
+.yc-dimension { stroke:var(--muted-2); stroke-width:1; fill:none; }
+.yc-svg-label { fill:var(--muted); font-size:10px; font-family:var(--font-mono); }
+.yc-slot-bg { fill:currentColor; fill-opacity:.075; stroke:currentColor; stroke-opacity:.45; stroke-width:1; }
+.yc-slot-shape { fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.yc-svg-lock { fill:none; stroke:currentColor; stroke-width:1.1; }
+.yc-led { fill:currentColor; }
+.yc-terminal-mini { fill:var(--bg); stroke:var(--border-strong); }
+.yc-tone-green { color:var(--green); }
+.yc-tone-yellow { color:var(--yellow); }
+.yc-tone-red { color:var(--red); }
+.yc-tone-blue { color:var(--accent-text); }
+.yc-tone-gray { color:var(--muted); }
+.yc-zone-list { padding:4px 0; }
+.yc-zone-row { padding:11px 0; border-bottom:1px solid var(--border); }
+.yc-zone-row:last-child { border-bottom:0; }
+.yc-zone-row h3 { font-size:12px; font-weight:700; margin:0 0 8px; }
+.yc-zone-row h3 small { display:block; color:var(--muted-2); font-family:var(--font-mono); font-size:10px; margin-top:4px; }
+.yc-zone-row p { font-size:12px; margin:0; }
+.yc-slot-row { display:flex; justify-content:space-between; gap:10px; margin-top:8px; font-size:12px; }
+.yc-slot-row > div { min-width:0; }
+.yc-state { font-size:11px; font-weight:600; text-align:right; flex-shrink:0; }
+.yc-terminal { background:var(--bg); border:1px solid var(--border-strong); border-radius:9px; padding:16px; position:relative; }
+.yc-terminal-heading { display:block; color:var(--muted); font-family:var(--font-mono); font-size:12px; }
+.yc-terminal-led { position:absolute; top:18px; right:18px; width:8px; height:8px; background:currentColor; border-radius:50%; box-shadow:0 0 9px currentColor; }
+.yc-terminal-screen { border:1px solid var(--border); background:#101f24; border-radius:4px; padding:18px 10px; margin:14px 0 9px; font-family:var(--font-mono); text-align:center; overflow-wrap:anywhere; }
+.yc-terminal-screen strong { display:block; font-size:14px; line-height:1.6; }
+.yc-terminal-screen > span { display:block; color:var(--muted); font-size:11px; margin-top:8px; }
+.yc-telemetry { row-gap:10px; }
+.yc-telemetry dd { min-width:0; overflow-wrap:anywhere; }
+.yc-telemetry meter { display:block; width:100%; max-width:145px; height:7px; margin-top:4px; accent-color:var(--green); }
+.yc-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+.yc-stats > div { border:1px solid var(--border); border-radius:6px; padding:12px; }
+.yc-stats b { display:block; font-family:var(--font-mono); font-size:24px; margin-bottom:4px; }
+.yc-stats span { color:var(--muted); font-size:11px; }
+.yc-custody-row { padding:9px 0; border-top:1px solid var(--border); font-size:12px; }
+.yc-custody-row .chip { margin-top:6px; }
+.yc-alarm-list { display:grid; gap:8px; margin-top:10px; }
+.yc-alarm-list a { display:block; }
+.yc-officer { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:14px 0; }
+.yc-avatar { display:grid; place-items:center; width:44px; height:44px; border-radius:8px; background:var(--accent-soft); color:var(--accent-text); }
+.yc-officer > div { flex:1; min-width:160px; }
+.yc-actions { align-self:start; }
+.yc-actions > p { font-size:12px; line-height:1.6; }
+.yc-actions details { border-top:1px solid var(--border); padding:12px 0; }
+.yc-actions summary { cursor:pointer; width:100%; justify-content:flex-start; }
+.yc-actions details > .notice { margin-top:12px; }
+.yc-form { display:grid; gap:10px; margin-top:14px; }
+.yc-form > label { color:var(--muted); font-size:12px; }
+.yc-form textarea, .yc-form select { width:100%; max-width:100%; box-sizing:border-box; }
+.yc-form textarea { resize:vertical; }
+.yc-form .btn { justify-self:start; }
+.yc-check { display:flex; gap:8px; align-items:center; }
+.yc-form p { font-size:12px; margin:0; line-height:1.6; }
+.yc-events { max-height:720px; overflow-y:auto; }
+.yc-events .feed-row { grid-template-columns:65px 28px minmax(0,1fr) auto; }
+.yc-events .feed-title, .yc-events .feed-detail { white-space:normal; overflow-wrap:anywhere; }
+.yc-event-meta { text-align:right; }
+@media (max-width:1200px) {
+  .yc-live-grid, .yc-detail-grid { grid-template-columns:minmax(0,1fr); }
+  .yc-live-grid > .stack { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+  .yc-live-grid > .stack > :last-child { grid-column:1/-1; }
+  .yc-twin-layout { grid-template-columns:minmax(230px,.8fr) minmax(280px,1fr); }
+}
+@media (max-width:650px) {
+  .yc-live-grid > .stack { display:flex; }
+  .yc-twin-layout { grid-template-columns:minmax(0,1fr); }
+  .yc-twin { position:static; }
+  .yc-twin-svg { max-height:510px; }
+  .yc-filters select, .yc-filters input { width:100%; max-width:none; min-width:0; }
+  .yc-events .feed-row { grid-template-columns:58px 22px minmax(0,1fr); gap:6px; }
+  .yc-event-meta { grid-column:3; text-align:left; }
+  .yc-telemetry { grid-template-columns:1fr 1.2fr; }
+  .yc-pills .pill { font-size:11px; }
+}

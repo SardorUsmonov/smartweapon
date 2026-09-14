@@ -1,0 +1,5 @@
+PASS: actual unit2 Berilgan 8 link opens exactly 8 items; source-state conflicts stay visible
+PASS: distinct counts, duplicate source records, overdue duplicates, 100-row history and scope intersections
+PASS: all original rows across 19 baseline tables survive unchanged; baseline file hash unchanged
+PASS: newly seeded 210 open-custody items have matching state; audit chain valid
+TempDB: C:\Users\atsha\AppData\Local\Temp\aq_inventory_consistency_i3mr8csh\test.sqlite3

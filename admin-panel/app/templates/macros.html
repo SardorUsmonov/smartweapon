@@ -1,0 +1,49 @@
+{# Umumiy komponentlar #}
+{% macro icon(name, size=18, sw=1.8, cls="") -%}
+<svg class="ic {{ cls }}" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{ sw }}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ ICONS[name] | safe }}</svg>
+{%- endmacro %}
+
+{% macro kpi(label, value, sub, iconname, tone="", href="") -%}
+<a class="kpi tone-{{ tone }}" {% if href %}href="{{ href }}"{% endif %}>
+  <div class="kpi-head"><span class="kpi-ic">{{ icon(iconname, 20, 1.9) }}</span><span class="kpi-label">{{ t(label) }}</span></div>
+  <div class="kpi-val">{{ value | num }}</div>
+  <div class="kpi-sub">{{ t(sub) }}</div>
+</a>
+{%- endmacro %}
+
+{% macro card_head(title) -%}
+<div class="card-head"><h2 class="card-title">{{ t(title) }}</h2><div class="card-meta">{% if caller %}{{ caller() }}{% endif %}</div></div>
+{%- endmacro %}
+
+{% macro level_badge(badge) -%}
+{% set cls = {"TREVOGA": "b-red-fill", "FAVQULODDA": "b-red-fill", "SIGNAL": "b-red", "OFLAYN": "b-red", "MEXANIK": "b-red", "OGOHLANTIRISH": "b-yellow", "KECHIKISH": "b-yellow", "AXBOROT": "b-blue", "XAVFSIZLIK": "b-violet"}.get(badge, "b-blue") -%}
+<span class="badge {{ cls }}">{{ t(badge) }}</span>
+{%- endmacro %}
+
+{% macro level_icon(level) -%}
+{% if level == "CRITICAL" %}<span class="lv lv-red">{{ icon("alert", 15, 2.2) }}</span>
+{% elif level == "WARNING" %}<span class="lv lv-yellow">{{ icon("clock", 15, 2.2) }}</span>
+{% elif level == "SECURITY" %}<span class="lv lv-violet">{{ icon("shield", 15, 2.2) }}</span>
+{% else %}<span class="lv lv-blue">{{ icon("info", 15, 2.2) }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro status_chip(status) -%}
+{% if status == "critical" %}<span class="chip chip-red">{{ icon("alert", 12, 2.4) }} {{ t("Signal") }}</span>
+{% elif status == "warning" %}<span class="chip chip-yellow">{{ icon("clock", 12, 2.4) }} {{ t("Kechikish") }}</span>
+{% elif status == "nodata" %}<span class="chip chip-gray">{{ t("Ma'lumot yo'q") }}</span>
+{% else %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("Me'yorda") }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro cab_status(status) -%}
+{% set m = {"biriktirilgan": ("chip-green", "Biriktirilgan"), "zaxira": ("chip-gray", "Zaxira"), "bloklangan": ("chip-red", "Bloklangan"), "nosoz": ("chip-red", "Nosoz"), "xizmatda": ("chip-yellow", "Xizmatda")} -%}
+{% set c = m.get(status, ("chip-gray", status)) -%}
+<span class="chip {{ c[0] }}">{{ t(c[1]) }}</span>
+{%- endmacro %}
+
+{% macro num_cell(v, tone) -%}
+{% if v %}<span class="n-{{ tone }}">{{ v }}</span>{% else %}<span class="n-zero">0</span>{% endif %}
+{%- endmacro %}
+
+{% macro empty(text) -%}
+<div class="empty">{{ t(text) }}</div>
+{%- endmacro %}

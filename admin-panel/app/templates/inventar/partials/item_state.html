@@ -1,0 +1,7 @@
+{% set recorded = STATE.get(item.state, ("chip-gray", item.state)) %}
+<span class="sub">{{ t("Inventar qaydi") }}: <span class="chip {{ recorded[0] }}">{{ t(recorded[1]) }}</span></span>
+<span class="sub">{{ t("Berish qaydi") }}: {% if open_count %}<span class="chip chip-yellow">{{ t("Ochiq") }} · {{ open_count | num }}</span>{% else %}{{ t("Vakolat doirasida ochiq qayd yo'q") }}{% endif %}</span>
+{% if (open_count and item.state != "yo'q") or (not open_count and item.state == "yo'q") %}
+<span class="badge b-yellow" data-inventory-mismatch="{{ item.id }}">{{ t("Ma'lumot nomuvofiq") }}</span>
+{% endif %}
+{% if open_count > 1 %}<span class="sub n-yellow" data-custody-duplicate="{{ item.id }}">{{ open_count | num }} {{ t("ochiq qayd · 1 jihoz") }}</span>{% endif %}

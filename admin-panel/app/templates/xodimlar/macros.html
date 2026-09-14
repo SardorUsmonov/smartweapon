@@ -1,0 +1,25 @@
+{# Xodimlar bo'limi makrolari #}
+{% from "macros.html" import icon with context %}
+
+{% macro service_chip(status, statuses) -%}
+{% set c = statuses.get(status, (status, "gray")) -%}
+<span class="chip chip-{{ c[1] }}">{% if c[1] == "green" %}{{ icon("check", 12, 2.4) }}{% elif c[1] == "red" %}{{ icon("ban", 12, 2.4) }}{% else %}{{ icon("clock", 12, 2.4) }}{% endif %} {{ t(c[0]) }}</span>
+{%- endmacro %}
+
+{% macro yes_no(v, yes="Ha", no="Yo'q") -%}
+{% if v %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t(yes) }}</span>{% else %}<span class="chip chip-red">{{ icon("ban", 12, 2.4) }} {{ t(no) }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro armed_chip(n) -%}
+{% if n %}<span class="chip chip-yellow">{{ icon("gun", 12, 2.2) }} {{ t("Qurollangan") }}{% if n > 1 %} ({{ n }}){% endif %}</span>{% else %}<span class="chip chip-gray">{{ t("Yo'q") }}</span>{% endif %}
+{%- endmacro %}
+
+{% macro pager(page, pages, total, per_page, base_qs) -%}
+{% set sep = "&" if base_qs else "" %}
+<div class="pager">
+  <span>{{ ((page - 1) * per_page + 1) if total else 0 }}–{{ [page * per_page, total] | min }} / {{ total | num }}</span>
+  {% if page > 1 %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}{{ sep }}page={{ page - 1 }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+  <span class="pill on">{{ page }} / {{ pages }}</span>
+  {% if page < pages %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}{{ sep }}page={{ page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a>{% endif %}
+</div>
+{%- endmacro %}

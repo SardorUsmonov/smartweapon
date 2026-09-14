@@ -1,0 +1,33 @@
+{% from "macros.html" import icon, card_head, status_chip, num_cell, empty with context %}
+{% call card_head("Bo'linmalar · " ~ region.short) %}
+  <span class="meta-item muted">{{ total | num }} {{ t("bo'linma") }} · {{ now.strftime('%H:%M:%S') }}</span>
+  {% if ctx.can("sozlamalar") and ctx.scope_kind in ('respublika', 'hudud') %}<a class="btn btn-primary btn-sm" href="/hudud/{{ region.id }}/bolinma/yangi">{{ icon("plus", 14, 2.4) }} {{ t("Bo'linma qo'shish") }}</a>{% endif %}
+{% endcall %}
+{% if not units %}
+  {{ empty("Hududda bo'linma ro'yxatga olinmagan") }}
+{% else %}
+<table class="tbl tbl-hud">
+  <thead><tr>
+    <th class="l">{{ t("Bo'linma") }}</th><th class="l">{{ t("Turi") }}</th><th>{{ t("Qurolxona") }}</th><th>{{ t("Yacheyka") }}</th><th>{{ t("Biriktirilgan") }}</th>
+    <th>{{ t("Berilgan") }}</th><th>{{ t("Kechikish") }}</th><th>{{ t("Rad (bugun)") }}</th><th>{{ t("Signal") }}</th><th>{{ t("Oflayn") }}</th><th class="l">{{ t("Holat") }}</th>
+  </tr></thead>
+  <tbody>
+  {% for u in units %}
+  <tr class="row-link st-{{ u.status }}" data-href="/hudud/{{ region.id }}/bolinma/{{ u.id }}">
+    <td class="l"><a href="/hudud/{{ region.id }}/bolinma/{{ u.id }}">{{ t(u.name) }}</a></td>
+    <td class="l muted">{{ t(u.kind_label) }}</td>
+    <td>{% if u.armory_id %}<a href="/qurolxona/{{ u.armory_id }}">{{ u.qurolxona | num }}</a>{% else %}<span class="n-zero">0</span>{% endif %}</td>
+    <td>{{ u.yacheyka | num }}</td>
+    <td>{{ u.biriktirilgan | num }}</td>
+    <td>{{ u.berilgan | num }}</td>
+    <td>{{ num_cell(u.kechikish, "yellow") }}</td>
+    <td>{{ num_cell(u.rad, "yellow") }}</td>
+    <td>{{ num_cell(u.signal, "red") }}{% if u.signal_all > u.signal %} <span class="muted">+{{ u.signal_all - u.signal }}</span>{% endif %}</td>
+    <td>{{ num_cell(u.oflayn, "red") }}</td>
+    <td class="l">{{ status_chip(u.status) }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% include "hududlar/_pager.html" %}

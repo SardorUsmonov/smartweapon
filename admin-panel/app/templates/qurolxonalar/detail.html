@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, kpi, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurolxonalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t(a.name) }}<small>{{ t(a.unit.region.name) }} · {{ t(a.unit.name) }} · {{ t(a.address) }}</small></h1>
+  <div class="page-actions">
+    <div class="qx-head-chips">
+      {% if a.online %}<span class="chip chip-green">{{ icon("wifi", 14) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 14) }} {{ t("oflayn") }} · {{ a.pending_events }} {{ t("hodisa kutmoqda") }}</span>{% endif %}
+      {% if a.ups_on_battery %}<span class="chip chip-yellow">{{ icon("battery", 14) }} UPS {{ a.ups_battery_pct }} % · {{ t("batareyada") }}</span>{% endif %}
+      {% if shift %}<span class="chip chip-green">{{ icon("check", 14) }} {{ t("Smena ochiq") }} · {{ shift.opened_at | dt }}</span>{% else %}<span class="chip chip-gray">{{ icon("clock", 14) }} {{ t("Smena yopiq") }}</span>{% endif %}
+    </div>
+    {% if ctx.can("smena") %}
+      {% if shift %}<a class="btn btn-danger" href="/qurolxona/{{ a.id }}/smena/yopish">{{ icon("stop", 14, 2.2) }} {{ t("Smenani yopish") }}</a>
+      {% else %}<a class="btn btn-primary" href="/qurolxona/{{ a.id }}/smena/ochish">{{ icon("play", 14, 2.2) }} {{ t("Smena ochish") }}</a>{% endif %}
+    {% endif %}
+    <a class="btn btn-ghost" href="/simulyator?armory_id={{ a.id }}">{{ icon("play", 14, 2.2) }} {{ t("Simulyator") }}</a>
+  </div>
+</div>
+
+<div class="stack">
+  <section class="kpi-row">
+    {{ kpi("Yacheykalar", k.yacheykalar, assigned|num ~ " biriktirilgan", "layers", "", "#reja") }}
+    {{ kpi("Berilgan qurollar", k.berilgan, "hozir xodimlarda", "gun", "", "/inventar?berilgan=1&qurolxona=" ~ a.id) }}
+    {{ kpi("Vaqtida qaytarilmagan", k.kechikish, "muddat o'tgan", "clock", "red" if k.kechikish else "", "/inventar?kechikish=1&qurolxona=" ~ a.id) }}
+    {{ kpi("Nosoz yoki bloklangan", k.bloklangan, "yacheyka", "wrench", "yellow" if k.bloklangan else "", "/yacheykalar?holat=muammo&qurolxona=" ~ a.id) }}
+    {{ kpi("Sutkalik olish-qaytarish", k.sutkalik, "bugun, " ~ now.strftime('%H:%M') ~ " gacha", "swap", "", "/jurnal?tur=operatsiya&qurolxona=" ~ a.id) }}
+    {{ kpi("Rad etilgan urinishlar", k.rad_etilgan, "bugun", "ban", "yellow" if k.rad_etilgan else "", "/jurnal?tur=rad_etildi&qurolxona=" ~ a.id) }}
+    {{ kpi("Favqulodda ochilishlar", k.favqulodda, "30 kun", "siren", "red" if k.favqulodda else "", "/jurnal?tur=favqulodda&qurolxona=" ~ a.id) }}
+    {{ kpi("Faol signallar", k.faol_signallar, k.tasdiq_kutmoqda|num ~ " tasdiq kutmoqda", "bell", "red" if k.faol_signallar else "", "/signallar?qurolxona=" ~ a.id) }}
+    {{ kpi("Qurollar uyada", k.qurollar_mavjud, k.qurollar_jami|num ~ " dan", "lock", "", "/inventar?qurolxona=" ~ a.id) }}
+  </section>
+
+  <div class="qx-grid">
+    <div class="stack">
+      <section class="card" id="reja" hx-get="/qurolxona/{{ a.id }}/partials/reja" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+        {% include "qurolxonalar/_reja.html" %}
+      </section>
+
+      <section class="card">
+        {% call card_head("Joriy smena") %}
+          {% if history_total %}<a class="btn btn-ghost btn-sm" href="/qurolxona/{{ a.id }}/smenalar">{{ t("Smenalar tarixi") }} ({{ history_total }}) {{ icon("chev", 14, 2.2) }}</a>{% endif %}
+        {% endcall %}
+        {% if shift %}
+        <div class="qx-info">
+          <dl class="kv"><dt>{{ t("Ochilgan") }}</dt><dd>{{ shift.opened_at | dt("%d.%m.%Y %H:%M") }}</dd><dt>{{ t("Ochgan") }}</dt><dd>{{ t(shift.opened_by) }}</dd></dl>
+          <dl class="kv"><dt>{{ t("O'z-tekshiruv") }}</dt><dd><span class="check-dots">{% for key, ok in shift.selfcheck.items() %}<span class="dot {{ 'dot-green' if ok else 'dot-red' }}" title="{{ t(selfcheck_label.get(key, key)) }}"></span>{% endfor %}</span> {{ shift.selfcheck.values() | select | list | length }}/{{ shift.selfcheck | length }}</dd>
+            <dt>{{ t("Solishtiruv") }}</dt><dd>{{ shift.reconcile.get("mos", 0) }}/{{ shift.reconcile.get("yacheyka", k.yacheykalar) }} {{ t("mos") }}{% if shift.reconcile.get("nomuvofiq") %} · <span class="n-yellow">{{ shift.reconcile.nomuvofiq }} {{ t("farq") }}</span>{% endif %}</dd></dl>
+          <dl class="kv"><dt>{{ t("Ruxsat ro'yxati") }}</dt><dd>{% if shift.permits_confirmed %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("tasdiqlangan") }}</span>{% else %}<span class="chip chip-yellow">{{ t("tasdiqlanmagan") }}</span>{% endif %}</dd>
+            <dt>{{ t("Davomiyligi") }}</dt><dd>{{ shift.opened_at | ago }}</dd></dl>
+          <dl class="kv"><dt>{{ t("Mas'ul") }}</dt><dd>{{ t(responsible.full_name) if responsible else t("Qurolxona mas'uli") }}</dd><dt>{{ t("Tasdiqlovchilar") }}</dt><dd>{{ a.approvers_required }} {{ t("kishi (favqulodda)") }}</dd></dl>
+        </div>
+        <div class="shift-box">
+          <div class="shift-stat"><b>{{ shift_stats.operatsiya | num }}</b><span>{{ t("olish-qaytarish") }} · {{ shift_stats.olindi }}/{{ shift_stats.qaytarildi }}</span></div>
+          <div class="shift-stat {% if shift_stats.rad %}tone-yellow{% endif %}"><b>{{ shift_stats.rad | num }}</b><span>{{ t("rad etilgan urinish") }}</span></div>
+          <div class="shift-stat {% if shift_stats.signal %}tone-red{% endif %}"><b>{{ shift_stats.signal | num }}</b><span>{{ t("signal (smena davomida)") }}</span></div>
+          <div class="shift-stat {% if shift_stats.favqulodda %}tone-red{% endif %}"><b>{{ shift_stats.favqulodda | num }}</b><span>{{ t("favqulodda / mexanik") }}</span></div>
+        </div>
+        {% else %}
+        <div class="notice yellow">{{ t("Bu qurolxonada ochiq smena yo'q. Qurol berish smena ochilgach boshlanadi (TZ §7.1).") }}
+          {% if ctx.can("smena") %} <a href="/qurolxona/{{ a.id }}/smena/ochish">{{ t("Smena ochish vizardi") }} →</a>{% endif %}</div>
+        {% if history %}
+        <table class="tbl tbl-compact" style="margin-top: 10px">
+          <thead><tr><th class="l">{{ t("Hisobot") }}</th><th class="l">{{ t("Ochilgan") }}</th><th class="l">{{ t("Yopilgan") }}</th><th class="l">{{ t("Ochgan / yopgan") }}</th><th>{{ t("Qaytarilmagan") }}</th></tr></thead>
+          <tbody>
+          {% for s in history %}
+          <tr class="row-link" data-href="/qurolxona/{{ a.id }}/smena/{{ s.id }}">
+            <td class="l"><a href="/qurolxona/{{ a.id }}/smena/{{ s.id }}" class="mono">{{ s.report_ref or ("#" ~ s.id) }}</a></td>
+            <td class="l">{{ s.opened_at | dt("%d.%m.%Y %H:%M") }}</td>
+            <td class="l">{{ s.closed_at | dt("%d.%m.%Y %H:%M") }}</td>
+            <td class="l">{{ t(s.opened_by) }}{% if s.closed_by %} / {{ t(s.closed_by) }}{% endif %}</td>
+            <td>{{ (s.reconcile.get("yopish", {}).get("qaytarilmagan", []) | length) if s.reconcile else 0 }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+        {% endif %}
+      </section>
+
+      <section class="card">
+        {% call card_head("Qurolxona ma'lumotlari") %}<span class="meta-item muted">{{ t("lokal kontroller · role=armory") }}</span>{% endcall %}
+        <div class="qx-info">
+          <dl class="kv"><dt>{{ t("Hudud") }}</dt><dd><a href="/hudud/{{ a.unit.region_id }}">{{ t(a.unit.region.name) }}</a></dd><dt>{{ t("Bo'linma") }}</dt><dd>{{ t(a.unit.name) }}</dd></dl>
+          <dl class="kv"><dt>{{ t("Manzil") }}</dt><dd>{{ t(a.address) }}</dd><dt>{{ t("Mas'ul") }}</dt><dd>{% if responsible %}<a href="/xodim/{{ responsible.id }}">{{ t(responsible.full_name) }}</a>{% else %}<span class="muted">{{ t("tayinlanmagan") }}</span>{% endif %}</dd></dl>
+          <dl class="kv"><dt>{{ t("Oxirgi sinxron") }}</dt><dd class="mono">{{ a.last_sync | dt("%d.%m.%Y %H:%M:%S") }}</dd><dt>WAN</dt><dd>{% if a.wan_ok %}<span class="chip chip-green">{{ t("ulangan") }}</span>{% else %}<span class="chip chip-red">{{ t("uzilgan") }}</span> · {{ a.pending_events }} {{ t("hodisa navbatda") }}{% endif %}</dd></dl>
+          <dl class="kv"><dt>UPS</dt><dd>{{ a.ups_battery_pct }} %{% if a.ups_on_battery %} · <span class="n-yellow">{{ t("batareyada") }}</span>{% else %} · {{ t("tarmoqda") }}{% endif %}</dd><dt>{{ t("Favqulodda tasdiq") }}</dt><dd>{{ a.approvers_required }} {{ t("tasdiqlovchi") }}</dd></dl>
+        </div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card" id="qurilmalar" hx-get="/qurolxona/{{ a.id }}/partials/qurilmalar" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+        {% include "qurolxonalar/_qurilmalar.html" %}
+      </section>
+      <section class="card" id="hodisalar" hx-get="/qurolxona/{{ a.id }}/partials/hodisalar" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+        {% include "qurolxonalar/_hodisalar.html" %}
+      </section>
+    </div>
+  </div>
+  <div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+</div>
+{% endblock %}

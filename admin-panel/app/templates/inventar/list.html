@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/inventar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Inventar") }}<small>{{ t("Qurol, magazin, o'q-dori va jihozlar hisobi · har bir jihoz uchun chain of custody") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary" href="/inventarizatsiya">{{ icon("clipboard", 15, 2) }} {{ t("Inventarizatsiya") }}</a>
+  </div>
+</div>
+
+<section class="inv-kpis" id="inv-kpis" hx-get="/inventar/partials/kpi?{{ location_qs }}" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+  {% include "inventar/partials/kpi.html" %}
+</section>
+
+<section class="card">
+  <div class="tabs">
+    {% for key, label, cnt in tabs %}
+    <a class="tab {% if tur == key %}on{% endif %}" href="/inventar?{{ qs(tur=key, page=1) }}">{{ t(label) }} <span class="cnt">{{ cnt | num }}</span></a>
+    {% endfor %}
+  </div>
+
+  <form class="filters" method="get" action="/inventar">
+    <input type="hidden" name="tur" value="{{ tur }}">
+    {% if p.xodim %}<input type="hidden" name="xodim" value="{{ p.xodim }}"><span class="chip chip-gray">{{ t("Xodim") }}: {{ t(selected_officer.full_name) if selected_officer else ('#' ~ p.xodim) }}</span>{% endif %}
+    <input name="q" value="{{ p.q }}" placeholder="{{ t('Seriya, RFID, model…') }}" style="width: 210px" autocomplete="off">
+    <select name="holat">
+      <option value="">{{ t("Holat: barchasi") }}</option>
+      {% for key, (cls, label) in STATE.items() if key != "yo'q" %}<option value="{{ key }}" {% if p.holat == key %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}
+    </select>
+    <select name="korik">
+      <option value="">{{ t("Ko'rik: barchasi") }}</option>
+      {% for key, (cls, label) in INSP.items() %}<option value="{{ key }}" {% if p.korik == key %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}
+    </select>
+    {% include "partials/location_filters.html" %}
+    <label class="pill {% if p.berilgan %}on{% endif %}"><input type="checkbox" name="berilgan" value="1" {% if p.berilgan %}checked{% endif %}>{{ t("Xodimda · ochiq berish qaydi") }}</label>
+    <label class="pill {% if p.kechikish %}on{% endif %}"><input type="checkbox" name="kechikish" value="1" {% if p.kechikish %}checked{% endif %}>{{ t("Kechikish") }}</label>
+    <label class="pill {% if p.farq %}on{% endif %}"><input type="checkbox" name="farq" value="1" {% if p.farq %}checked{% endif %}>{{ t("Farqlar") }}</label>
+    <label class="pill {% if p.hold %}on{% endif %}"><input type="checkbox" name="hold" value="1" {% if p.hold %}checked{% endif %}>{{ t("Ushlab turilgan") }}</label>
+    <button class="btn btn-sm btn-primary">{{ icon("search", 14, 2.2) }} {{ t("Filtrlash") }}</button>
+    <a class="btn btn-sm btn-ghost" href="/inventar?tur={{ tur }}">{{ t("Tozalash") }}</a>
+    <span class="muted spacer">{{ data.total | num }} {{ t("ta yozuv") }}{% if data.pages > 1 %} · {{ t("sahifa") }} {{ data.page }}/{{ data.pages }}{% endif %}</span>
+  </form>
+  <div class="notice">{{ t("Xodimda — vakolat doirasida ochiq berish qaydi bor jihozlar. Uyada — inventar qaydi mavjud va ochiq berish qaydi yo'q. Bu hisob berishga ruxsat yoki tayyorlikni tasdiqlamaydi. Saqlangan holat bilan farqlar alohida belgilanadi.") }}</div>
+
+  {% set show_due = tur in ("qurol", "") %}
+  {% if data.rows %}
+  <div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr>
+      <th>#</th>
+      {% if not tur %}<th class="l">{{ t("Tur") }}</th>{% endif %}
+      <th class="l">{{ t("Model") }}</th>
+      <th class="l">{{ t("Seriya") }}</th>
+      <th class="l">RFID</th>
+      <th class="l">{{ t("Hudud") }}</th>
+      <th class="l">{{ t("Qurolxona") }}</th>
+      <th class="l">{{ t("Yacheyka") }}</th>
+      <th class="l">{{ t("Xodim") }}</th>
+      {% if tur in ("magazin", "oq_dori", "") %}<th>{{ t("Miqdor") }}</th>{% endif %}
+      <th class="l">{{ t("Holat") }}</th>
+      <th class="l">{{ t("Ko'rik holati") }}</th>
+      {% if show_due %}<th class="l">{{ t("Berilgan · muddat") }}</th>{% endif %}
+      {% if p.farq %}<th class="l">{{ t("Oxirgi farq") }}</th>{% endif %}
+    </tr></thead>
+    <tbody>
+    {% for item, cab, arm, unit, reg, off in data.rows %}
+    {% set oc = data.open.get(item.id) %}
+    {% set overdue = oc and oc.due_at < data.now %}
+    {% set st = STATE.get(item.state, ("chip-gray", item.state)) %}
+    {% set ins = INSP.get(item.inspection_state, ("chip-gray", item.inspection_state)) %}
+    <tr class="row-link {% if overdue or item.hold %}hl-red{% elif oc %}hl-yellow{% endif %}" data-href="/jihoz/{{ item.id }}">
+      <td class="muted">{{ (data.page - 1) * per_page + loop.index }}</td>
+      {% if not tur %}<td class="l">{{ t(KIND.get(item.kind, item.kind)) }}</td>{% endif %}
+      <td class="l"><a href="/jihoz/{{ item.id }}">{{ item.model or "—" }}</a><span class="sub">{{ t(item.category) }}</span></td>
+      <td class="l mono">{{ item.serial }}</td>
+      <td class="l mono muted">{{ item.rfid or "—" }}</td>
+      <td class="l">{% if reg %}<a href="/hudud/{{ reg.id }}">{{ t(reg.short) }}</a>{% else %}—{% endif %}</td>
+      <td class="l">{% if arm %}<a href="/qurolxona/{{ arm.id }}">{{ t(unit.name) }}</a>{% if not arm.online %} <span class="chip chip-red">{{ icon("wifi-off", 12, 2.2) }}</span>{% endif %}{% else %}—{% endif %}</td>
+      <td class="l">{% if cab %}<a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a> <span class="muted">{{ cab.wall }}</span>{% else %}—{% endif %}</td>
+      <td class="l">{% if off %}<a href="/xodim/{{ off.id }}">{{ off.full_name }}</a>{% else %}<span class="muted">{{ t("biriktirilmagan") }}</span>{% endif %}</td>
+      {% if tur in ("magazin", "oq_dori", "") %}<td>{{ item.qty | num }}</td>{% endif %}
+      <td class="l">{% with open_count=data.open_counts.get(item.id, 0) %}{% include "inventar/partials/item_state.html" %}{% endwith %}{% if item.hold %} <span class="badge b-red">{{ t("HOLD") }}</span>{% endif %}</td>
+      <td class="l"><span class="chip {{ ins[0] }}">{{ t(ins[1]) }}</span>{% if item.next_inspection %}<span class="sub">{{ t("keyingi") }} {{ item.next_inspection | dt("%d.%m.%Y") }}</span>{% endif %}</td>
+      {% if show_due %}<td class="l">{% if oc %}{{ oc.taken_at | dt("%d.%m %H:%M") }} → {% if overdue %}<span class="n-red">{{ oc.due_at | dt("%d.%m %H:%M") }} · {{ oc.due_at | ago }}</span>{% else %}{{ oc.due_at | dt("%d.%m %H:%M") }}{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>{% endif %}
+      {% if p.farq %}{% set fc = data.farq.get(item.id) %}<td class="l">{% if fc %}<span class="n-yellow">{{ fc.returned_at | dt("%d.%m.%Y %H:%M") }}</span> <span class="muted">{{ t("RFID mos emas") }}</span>{% else %}—{% endif %}</td>{% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% if data.pages > 1 %}
+  <div class="pager">
+    {% if data.page > 1 %}<a href="/inventar?{{ qs(page=data.page - 1) }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+    <span class="cur">{{ data.page }}</span> / {{ data.pages }}
+    {% if data.page < data.pages %}<a href="/inventar?{{ qs(page=data.page + 1) }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a>{% endif %}
+  </div>
+  {% endif %}
+  {% else %}
+  {{ empty("Tanlangan filtrlar bo'yicha jihoz topilmadi") }}
+  {% endif %}
+</section>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

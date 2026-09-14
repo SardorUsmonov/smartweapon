@@ -1,0 +1,5 @@
+Fresh 30-day demo audit chain, append and tamper detection passed
+45 page/API views, Cyrillic and cross-origin CSRF checks passed
+Scoped map and live messages, anonymous and revoked WebSocket denial passed
+Syntax/template compilation passed
+INTEGRATION_DB C:\Users\atsha\AppData\Local\Temp\aq_integration_n50u480w\test.sqlite3

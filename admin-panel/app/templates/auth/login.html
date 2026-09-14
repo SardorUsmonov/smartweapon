@@ -1,0 +1,23 @@
+{% extends "auth/base.html" %}
+{% from "macros.html" import icon with context %}
+{% block auth_content %}
+  <div class="auth-heading"><h2>{{ t("Tizimga kirish") }}</h2><p>{{ t("Hisobingiz va parolingizni kiriting.") }}</p></div>
+  {% if error %}<div class="notice red" role="alert">{{ icon("alert", 16) }} {{ t(error) }}</div>{% endif %}
+  <form method="post" action="/kirish" class="auth-form">
+    <input type="hidden" name="next" value="{{ next_path }}">
+    <label for="username">{{ t("Foydalanuvchi nomi") }}</label>
+    <input id="username" name="username" value="{{ username }}" required maxlength="40" autocomplete="username" autofocus {% if demo_mode %}list="demo-users"{% endif %}>
+    {% if demo_mode %}<datalist id="demo-users">{% for u in users %}<option value="{{ u.username }}">{{ u.full_name }} · {{ t(role_labels.get(u.role, u.role)) }}</option>{% endfor %}</datalist>{% endif %}
+    <label for="password">{{ t("Parol") }}</label>
+    <input id="password" name="password" type="password" required maxlength="512" autocomplete="current-password">
+    <button class="btn btn-primary" type="submit">{{ t("Davom etish") }} {{ icon("chev", 17) }}</button>
+  </form>
+  {% if demo_mode %}
+  <details class="auth-demo" open>
+    <summary>{{ t("Demo kirish ma'lumotlari") }}</summary>
+    <p>{{ t("Parol") }}: <code>demo</code> · {{ t("MFA kodi") }}: <code>123456</code></p>
+    <dl><dt><code>admin</code></dt><dd>{{ t("Administrator") }}</dd><dt><code>admin2</code></dt><dd>{{ t("Ikkinchi tasdiqlovchi") }}</dd><dt><code>tekshiruvchi</code></dt><dd>{{ t("Ko'rish va hisobotlar") }}</dd><dt><code>navbatchi</code></dt><dd>{{ t("Smena va signallar") }}</dd><dt><code>masul</code></dt><dd>{{ t("Qurolxona mas'uli") }}</dd></dl>
+    <p class="muted">{{ t("Bu prototipda namunaviy ma'lumotlar va sinov MFA kodi ishlatiladi.") }}</p>
+  </details>
+  {% endif %}
+{% endblock %}

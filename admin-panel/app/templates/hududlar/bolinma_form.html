@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hududlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Bo'linmani tahrirlash") if unit else t("Yangi bo'linma") }}<small>{{ t(region.name) }}{% if unit %} · {{ t(unit.name) }}{% endif %} · {{ t("administrator harakati, jurnalga (XAVFSIZLIK) va sozlamalar auditiga yoziladi") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="{% if unit %}/hudud/{{ region.id }}/bolinma/{{ unit.id }}{% else %}/hudud/{{ region.id }}{% endif %}">{{ icon("chev-left", 14, 2.2) }} {{ t("Orqaga") }}</a></div>
+</div>
+<section class="card hud-form">
+  {% call card_head("Bo'linma ma'lumotlari") %}<span class="meta-item muted">{{ t("Tuzilma o'zgarishi") }} · {{ ctx.user.full_name if ctx.user else t("Mehmon") }}</span>{% endcall %}
+  {% if error %}<div class="notice red hud-notice">{{ t(error) }}</div>{% endif %}
+  <form method="post" class="stack" action="{% if unit %}/hudud/{{ region.id }}/bolinma/{{ unit.id }}/tahrir{% else %}/hudud/{{ region.id }}/bolinma/yangi{% endif %}">
+    <label class="hud-field"><span>{{ t("Bo'linma nomi") }}</span><input name="nom" value="{{ form.nom }}" required minlength="3" maxlength="120" placeholder="{{ t('masalan: Yunusobod tumani IIB') }}" autocomplete="off"></label>
+    <label class="hud-field"><span>{{ t("Turi") }}</span>
+      <select name="turi">{% for key, label in unit_kinds.items() %}<option value="{{ key }}" {% if form.turi == key %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}</select>
+    </label>
+    {% if not unit %}
+    <label class="hud-field hud-check"><input type="checkbox" name="qurolxona_yaratish" value="1" {% if form.qurolxona_yaratish %}checked{% endif %}><span>{{ t("Bo'linma qurolxonasini ham ro'yxatga olish (kontroller ulanmaguncha oflayn)") }}</span></label>
+    <div class="grid-2">
+      <label class="hud-field"><span>{{ t("Qurolxona nomi") }}</span><input name="qurolxona_nomi" value="{{ form.qurolxona_nomi }}" maxlength="120" placeholder="{{ t('bo\'sh qoldirilsa: «<bo\'linma> qurolxonasi»') }}" autocomplete="off"></label>
+      <label class="hud-field"><span>{{ t("Manzil") }}</span><input name="manzil" value="{{ form.manzil }}" maxlength="200" placeholder="{{ t(region.short) }}, …" autocomplete="off"></label>
+    </div>
+    {% endif %}
+    <label class="hud-field"><span>{{ t("Asos (buyruq yoki xat raqami)") }}</span><input name="asos" value="{{ form.asos }}" required minlength="3" maxlength="60" placeholder="{{ t('masalan: IIV buyrug\'i №123, 01.09.2026') }}" autocomplete="off"></label>
+    <div class="notice yellow">{{ icon("shield", 14, 2) }} {{ t("Tasdiqlaganingizdan so'ng o'zgarish bekor qilinmaydi: jurnalga «sozlama o'zgardi» hodisasi, sozlamalar auditiga eski/yangi qiymat yoziladi.") }}</div>
+    <div class="form-row" style="margin: 0">
+      <button class="btn btn-primary" onclick="return confirm('{{ t('Tuzilma o\'zgarishini tasdiqlaysizmi?') }}')">{{ icon("check", 14, 2.4) }} {{ t("Saqlash va tasdiqlash") }}</button>
+      <a class="btn btn-ghost" href="{% if unit %}/hudud/{{ region.id }}/bolinma/{{ unit.id }}{% else %}/hudud/{{ region.id }}{% endif %}">{{ t("Bekor qilish") }}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

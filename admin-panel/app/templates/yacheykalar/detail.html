@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/yacheykalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Yacheyka") }} {{ cab.label }}<small><span class="mono">{{ cab.serial }}</span> · {{ t(cab.armory.unit.region.short) }} · <a href="/qurolxona/{{ cab.armory_id }}">{{ t(cab.armory.name) }}</a> · {{ t(cab.armory.unit.name) }} · {{ t("Devor") }} {{ cab.wall }}, {{ t("o'rin") }} {{ cab.position }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="/yacheykalar?qurolxona={{ cab.armory_id }}">{{ icon("chev-left", 14) }} {{ t("Yacheykalar") }}</a><a class="btn btn-ghost btn-sm" href="/jurnal?yacheyka={{ cab.id }}">{{ icon("list", 14) }} {{ t("Jurnal") }}</a></div>
+</div>
+<div class="stack">
+  {% if ok in msg_ok %}<div class="notice green" role="status">{{ icon("check", 15) }} {{ t(msg_ok[ok]) }}</div>{% endif %}
+  {% if xato in msg_xato %}<div class="notice red" role="alert">{{ icon("alert", 15) }} {{ t(msg_xato[xato]) }}</div>{% endif %}
+  <div id="yc-live" hx-get="/yacheyka/{{ cab.id }}/partials/holat" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">{% include "yacheykalar/_holat.html" %}</div>
+  <div class="yc-detail-grid">
+    <div class="stack">
+      <section class="card">
+        {% call card_head("Biriktirilgan xodim") %}{% if cab.officer %}<a class="btn btn-ghost btn-xs" href="/xodim/{{ cab.officer_id }}">{{ t("Xodim kartasi") }} {{ icon("chev", 13) }}</a>{% endif %}{% endcall %}
+        {% if cab.officer %}{% set o = cab.officer %}<div class="yc-officer"><span class="yc-avatar">{{ icon("user", 26) }}</span><div><a class="yc-label" href="/xodim/{{ o.id }}">{{ t(o.full_name) }}</a><span class="yc-sub">{{ t(o.rank) }} · {{ t(o.position) }} · {{ o.tabel }}</span></div><span class="chip chip-{{ 'green' if o.service_status == 'faol' else 'red' }}">{{ t(o.service_status) }}</span></div>
+        <dl class="kv"><dt>{{ t("Yaroqlilik") }}</dt><dd><span class="chip chip-{{ 'green' if elig_ok >= 5 and elig_ok == elig_total else 'red' }}">{{ elig_ok }}/{{ elig_total }} {{ t("shart bajarilgan") }}</span></dd><dt>{{ t("Ruxsatlar") }}</dt><dd>AK: {{ t("bor") if o.permit_ak else t("yo'q") }} · PM: {{ t("bor") if o.permit_pm else t("yo'q") }}</dd></dl>
+        {% else %}{{ empty("Xodim biriktirilmagan. Yacheyka zaxirada yoki xizmat holatida.") }}{% endif %}
+      </section>
+      <section class="card">
+        {% call card_head("Jihozlar ro'yxati") %}<span class="muted">{{ items | length }} {{ t("yozuv") }}</span>{% endcall %}
+        {% if items %}<div class="yc-table-wrap"><table class="tbl"><thead><tr><th class="l">{{ t("Jihoz") }}</th><th class="l">{{ t("Seriya / RFID") }}</th><th>{{ t("Soni") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Ko'rik") }}</th></tr></thead><tbody>{% for it in items %}<tr class="row-link" data-href="/jihoz/{{ it.id }}"><td class="l"><a href="/jihoz/{{ it.id }}">{{ t(it.model or it.category) }}</a><span class="yc-sub">{{ t(it.category) }}</span></td><td class="l mono">{{ it.serial or "—" }}<span class="yc-sub mono">{{ it.rfid or "—" }}</span></td><td>{{ it.qty }}</td><td class="l"><span class="chip chip-{{ {'mavjud': 'green', "yo'q": 'yellow', 'nosoz': 'red', 'xizmatda': 'gray'}.get(it.state, 'gray') }}">{{ t(it.state) }}</span>{% if it.hold %}<span class="yc-sub n-red">{{ t("Ushlab turilgan") }}</span>{% endif %}</td><td class="l">{{ t(it.inspection_state | replace('_', ' ')) }}<span class="yc-sub">{{ it.next_inspection | dt("%d.%m.%Y") or "—" }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}{{ empty("Yacheykaga jihozlar biriktirilmagan.") }}{% endif %}
+      </section>
+      {% if custody_hist %}<section class="card">{% call card_head("So'nggi qaytarishlar") %}<a class="btn btn-ghost btn-xs" href="/jurnal?yacheyka={{ cab.id }}&tur=operatsiya">{{ t("Barchasi") }} {{ icon("chev", 13) }}</a>{% endcall %}<div class="yc-table-wrap"><table class="tbl"><thead><tr><th class="l">{{ t("Jihoz / xodim") }}</th><th class="l">{{ t("Olindi") }}</th><th class="l">{{ t("Qaytarildi") }}</th><th class="l">{{ t("Muvofiqlik") }}</th></tr></thead><tbody>{% for c, it in custody_hist %}<tr><td class="l"><a href="/jihoz/{{ it.id }}">{{ it.model }} · {{ it.serial }}</a><span class="yc-sub">{{ t(officer_names.get(c.officer_id, "Xodim")) }}</span></td><td class="l">{{ c.taken_at | dt("%d.%m %H:%M") }}</td><td class="l">{{ c.returned_at | dt("%d.%m %H:%M") }}</td><td class="l"><span class="chip chip-{{ 'green' if c.match_ok else 'red' }}">{{ t("Mos") if c.match_ok else t("Nomuvofiq") }}</span></td></tr>{% endfor %}</tbody></table></div></section>{% endif %}
+    </div>
+    <section class="card yc-actions" id="harakatlar">
+      {% call card_head("Ma'muriy harakatlar") %}{% endcall %}
+      <p class="muted">{{ t("Paneldagi harakatlar jurnalga yoziladi. Qulfni masofadan ochish funksiyasi mavjud emas.") }}</p>
+      {% if ctx.can("bloklash") %}
+      {% set blocked = cab.status == 'bloklangan' %}
+      <details><summary class="btn btn-sm {{ 'btn-ghost' if blocked else 'btn-danger' }}">{{ icon("shield", 14) }} {{ t("Blokdan chiqarish") if blocked else t("Yacheykani bloklash") }}</summary>
+        <form class="yc-form" method="post" action="/yacheyka/{{ cab.id }}/{{ 'blokdan-chiqarish' if blocked else 'bloklash' }}"><label for="yc-block-reason">{{ t("Sabab (kamida 5 belgi)") }}</label><textarea id="yc-block-reason" name="sabab" required minlength="5" maxlength="1000" rows="3"></textarea><label class="yc-check"><input type="checkbox" name="tasdiq" value="1" required> {{ t("Harakatni tasdiqlayman") }}</label><button class="btn btn-sm {{ 'btn-primary' if blocked else 'btn-danger' }}" type="submit">{{ t("Blokdan chiqarish") if blocked else t("Bloklash") }}</button></form>
+      </details>
+      {% if not blocked %}<details><summary class="btn btn-sm">{{ icon("wrench", 14) }} {{ t("Xizmat rejimini tugatish") if cab.status == 'xizmatda' else t("Xizmat rejimini yoqish") }}</summary><form class="yc-form" method="post" action="/yacheyka/{{ cab.id }}/xizmat"><input type="hidden" name="rejim" value="{{ 'off' if cab.status == 'xizmatda' else 'on' }}"><label for="yc-service-reason">{{ t("Sabab (kamida 5 belgi)") }}</label><textarea id="yc-service-reason" name="sabab" required minlength="5" maxlength="1000" rows="3"></textarea><button class="btn btn-sm" type="submit">{{ t("Xizmat rejimini tugatish") if cab.status == 'xizmatda' else t("Xizmat rejimini yoqish") }}</button></form></details>{% endif %}
+      {% endif %}
+      {% if ctx.can("biriktirish") %}
+        {% if cab.officer_id %}<details><summary class="btn btn-sm btn-danger">{{ icon("users", 14) }} {{ t("Xodimni ajratish") }}</summary>{% if open_custody %}<div class="notice yellow">{{ t("Ajratishdan oldin xodimdagi barcha jihozlar qaytarilishi kerak.") }}</div>{% else %}<form class="yc-form" method="post" action="/yacheyka/{{ cab.id }}/ajratish"><label for="yc-unassign-reason">{{ t("Ajratish sababi (kamida 5 belgi)") }}</label><textarea id="yc-unassign-reason" name="sabab" required minlength="5" maxlength="1000" rows="3"></textarea><label class="yc-check"><input type="checkbox" name="tasdiq" value="1" required> {{ t("Xodimni ajratishni tasdiqlayman") }}</label><button class="btn btn-danger btn-sm" type="submit">{{ t("Ajratish") }}</button></form>{% endif %}</details>
+        {% elif cab.status == 'zaxira' %}<details><summary class="btn btn-primary btn-sm">{{ icon("users", 14) }} {{ t("Xodim biriktirish") }}</summary>{% if free_officers %}<form class="yc-form" method="post" action="/yacheyka/{{ cab.id }}/biriktirish"><label for="yc-officer">{{ t("Bo'linmaning bo'sh xodimi") }}</label><select id="yc-officer" name="officer_id" required><option value="">{{ t("Xodimni tanlang") }}</option>{% for o in free_officers %}<option value="{{ o.id }}">{{ t(o.full_name) }} · {{ o.tabel }}</option>{% endfor %}</select><label for="yc-assign-reason">{{ t("Biriktirish asosi") }}</label><textarea id="yc-assign-reason" name="sabab" required minlength="5" maxlength="1000" rows="3"></textarea><p class="muted">{{ t("Biriktirishda xodimning xizmat holati, bo'linmasi va 5 ta yaroqlilik sharti tekshiriladi.") }}</p><button class="btn btn-primary btn-sm" type="submit">{{ t("Biriktirish") }}</button></form>{% else %}<div class="notice yellow">{{ t("Bu bo'linmada biriktirilmagan faol xodim yo'q.") }}</div>{% endif %}</details>{% endif %}
+      {% endif %}
+      {% if not ctx.can("bloklash") and not ctx.can("biriktirish") %}<div class="notice">{{ t("Joriy rol") }}: {{ t(role_label) }}. {{ t("Ma'muriy harakatlar qurolxona mas'uli uchun mavjud.") }}</div>{% endif %}
+    </section>
+  </div>
+  <section class="card" id="yc-events" hx-get="/yacheyka/{{ cab.id }}/partials/hodisalar" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">{% include "yacheykalar/_hodisalar.html" %}</section>
+  <div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+</div>
+{% endblock %}

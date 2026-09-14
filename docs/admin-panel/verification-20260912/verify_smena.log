@@ -1,0 +1,3 @@
+Authenticated clean open→close→history/report, checklist, role/scope/CSRF and duplicate/stale transitions OK
+Device/inventory approvals, 52 discrepancies and 106 alarms fully retained, outstanding custody, sealed report and immutable audit OK
+PASS scratch: C:\Users\atsha\AppData\Local\Temp\aq_smena_flow_37t0xreg

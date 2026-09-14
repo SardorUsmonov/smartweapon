@@ -1,0 +1,5 @@
+PASS: scope+role direct/partial/POST restrictions, all 4 lists scoped, regional filter scoped, permitted local admin action; GET failures: []
+PASS: foreign officer history hidden from scoped detail+partial and present centrally; central backup GET+admin POST.
+Test DB: C:\Users\atsha\AppData\Local\Temp\aq_yacheykalar_verify_qzq23vpn\test.sqlite3
+PASS: yacheyka lifecycle, 6 audit records, fault/service restriction restoration, unchanged physical lock telemetry, all 11 filters, 15 status/partial views, Cyrillic and rejected invalid actions
+PASS: inventory hold/scan/act/PDF, signal acknowledge/forward/resolve and safe return URL, existing mode start/stop, foreign and role denials, scoped historical item records

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurilmalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t('Zaxira nusxalash') }}<small>{{ t('Mahalliy SQLite nusxalari va alohida faylda tiklash sinovlari') }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="/qurilmalar">{{ t('Qurilmalar') }}</a>
+  {% if ctx.can('qurilmalar') %}
+    {% for kind, label in [('kunlik','Kunlik nusxa olish'),('haftalik','Haftalik nusxa olish')] %}
+    <form method="post" action="/qurilmalar/zaxira/nusxa"><input type="hidden" name="tur" value="{{ kind }}"><button class="btn btn-sm">{{ t(label) }}</button></form>
+    {% endfor %}
+  {% endif %}</div>
+</div>
+{% if error %}<div class="notice red qz-notice" role="alert">{{ t(error) }}</div>{% endif %}
+{% if msg %}<div class="notice {{ msg[0] }} qz-notice" role="status">{{ t(msg[1]) }}</div>{% endif %}
+<p class="notice">{{ t('Nusxalar shu kompyuterda saqlanadi. Kunlik va haftalik — qo‘lda olinadigan to‘liq nusxa toifalari. Avtomatik jadval va NAS ga uzatish ulanmagan. Nusxalarda foydalanuvchi ma’lumotlari ham bor; fayllarni himoyalangan joyda saqlang.') }}</p>
+
+<div class="bk-cards">
+{% for kind in ['kunlik','haftalik','tiklash_sinovi'] %}
+{% set b = ov.last[kind] %}{% set artifact = ov.artifacts[kind] %}{% set st = ov.stat30.get(kind, {'ok':0,'warning':0}) %}
+<section class="card bk-card">
+{% call card_head(KIND[kind]) %}
+{% if artifact %}<span class="chip {{ 'chip-yellow' if artifact.manifest.audit.broken else 'chip-green' }}">{{ t('Audit ogohlantirishi') if artifact.manifest.audit.broken else t('Tekshirilgan') }}</span>
+{% else %}<span class="chip chip-gray">{{ t('Haqiqiy nusxa yo‘q') }}</span>{% endif %}
+{% endcall %}
+<div class="big">{{ b.ts|dt('%d.%m.%Y %H:%M') if b else '—' }}</div>
+<dl class="kv">
+<dt>{{ t('Hajm') }}</dt><dd>{{ ((artifact.size_bytes / 1048576)|round(2)) if artifact else '—' }} {% if artifact %}MB{% endif %}</dd>
+<dt>{{ t('SQLite') }}</dt><dd>{{ 'OK' if artifact else '—' }}</dd>
+<dt>{{ t('Audit') }}</dt><dd>{% if artifact %}{{ artifact.manifest.audit.checked|num }} {{ t('yozuv') }} · {{ artifact.manifest.audit.broken }} {{ t('nomuvofiqlik') }}{% else %}—{% endif %}</dd>
+<dt>{{ t('30 kun') }}</dt><dd>{{ st.ok }} {{ t('toza') }} · {{ st.warning }} {{ t('ogohlantirishli') }}</dd>
+</dl>
+<p class="muted">{{ t('Holat fayl yaratilgan paytdagi tekshiruvni bildiradi. Tiklashdan oldin hash yana tekshiriladi.') }}</p>
+</section>
+{% endfor %}
+</div>
+
+<section class="card" style="margin-top:14px">
+{% call card_head('Tiklash sinovi') %}{% endcall %}
+<p class="muted">{{ t('Tanlangan nusxa yangi test fayliga tiklanadi; SQLite yaxlitligi va butun audit zanjiri tekshiriladi. Asosiy baza almashtirilmaydi. Tarixiy audit nomuvofiqliklari yashirilmaydi.') }}</p>
+{% if ctx.can('qurilmalar') and available %}
+<form class="form-stack" method="post" action="/qurilmalar/zaxira/tiklash-sinovi">
+<label for="backup-id">{{ t('Tekshiriladigan nusxa') }}</label>
+<select id="backup-id" name="backup_id" required>{% for b, artifact in available %}<option value="{{ b.id }}">#{{ b.id }} · {{ b.ts|dt('%d.%m.%Y %H:%M') }} · {{ t(KIND[b.kind]) }} · {{ artifact.manifest.audit.broken }} {{ t('audit nomuvofiqligi') }}</option>{% endfor %}</select>
+<label for="backup-note">{{ t('Izoh (ixtiyoriy)') }}</label><input id="backup-note" name="izoh" maxlength="300">
+<button class="btn btn-primary">{{ t('Alohida faylda tiklashni tekshirish') }}</button>
+</form>
+{% elif not available %}{{ empty('Avval haqiqiy mahalliy nusxa oling') }}
+{% else %}<p class="notice">{{ t('Nusxa olish va tiklash sinovi markaziy administrator uchun.') }}</p>{% endif %}
+</section>
+
+<section class="card" style="margin-top:14px">
+{% call card_head('Nusxalar tarixi') %}<span class="pills"><a class="pill {{ 'on' if not tur else '' }}" href="/qurilmalar/zaxira">{{ t('Barchasi') }}</a>{% for k,label in KIND.items() %}<a class="pill {{ 'on' if tur == k else '' }}" href="/qurilmalar/zaxira?tur={{ k }}">{{ t(label) }}</a>{% endfor %}</span>{% endcall %}
+{% if ov.legacy_count %}<p class="notice">{{ ov.legacy_count|num }} {{ t('ta eski demo yozuviga haqiqiy fayl biriktirilmagan. Ular ishlaydigan nusxa yoki tiklash natijasi sifatida hisoblanmaydi.') }}</p>{% endif %}
+<div style="overflow-x:auto"><table class="tbl"><thead><tr><th class="l">{{ t('Vaqt / tur') }}</th><th>{{ t('Hajm') }}</th><th class="l">{{ t('Tekshiruv') }}</th><th class="l">{{ t('Fayl va hash') }}</th></tr></thead><tbody>
+{% for b in pg.rows %}{% set artifact = artifacts.get(b.id) %}<tr>
+<td class="l">#{{ b.id }} · {{ b.ts|dt('%d.%m.%Y %H:%M') }}<br>{{ t(KIND.get(b.kind,b.kind)) }}</td>
+<td>{{ (artifact.size_bytes / 1048576)|round(2) if artifact else '—' }} {% if artifact %}MB{% endif %}</td>
+<td class="l" style="white-space:normal">{% if artifact %}<span class="chip {{ 'chip-yellow' if artifact.manifest.audit.broken else 'chip-green' }}">SQLite: OK</span><br>{{ t('Audit') }}: {{ artifact.manifest.audit.broken }} {{ t('nomuvofiqlik') }} / {{ artifact.manifest.audit.checked|num }}<br>{% if artifact.manifest.audit.first_broken %}{{ t('Birinchi hodisa') }}: #{{ artifact.manifest.audit.first_broken }}<br>{% endif %}<span class="muted">{{ b.note }}</span>
+{% else %}<span class="chip chip-gray">{{ t('Eski demo · tekshirilmagan') }}</span>{% endif %}</td>
+<td class="l" style="white-space:normal;max-width:420px;overflow-wrap:anywhere">{% if artifact %}<details><summary>{{ t('Fayl tafsilotlari') }}</summary><p>{{ artifact.relative_path }}</p><p>SHA-256: <code>{{ artifact.sha256 }}</code></p><p>{{ t('Manifest') }}: <code>{{ artifact.manifest_sha256 }}</code></p>{% if artifact.source_backup_id %}<p>{{ t('Manba nusxa') }}: #{{ artifact.source_backup_id }}</p>{% endif %}</details>{% else %}—{% endif %}</td>
+</tr>{% else %}<tr><td colspan="4">{{ empty('Zaxira nusxa yozuvi yo‘q') }}</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="pager"><span>{{ pg.total|num }} {{ t('ta yozuv') }} · {{ pg.page }} / {{ pg.pages }}</span>{% if pg.page > 1 %}<a class="btn btn-ghost btn-sm" href="/qurilmalar/zaxira?{{ qs }}&page={{ pg.page-1 }}">{{ t('Oldingi') }}</a>{% endif %}{% if pg.page < pg.pages %}<a class="btn btn-ghost btn-sm" href="/qurilmalar/zaxira?{{ qs }}&page={{ pg.page+1 }}">{{ t('Keyingi') }}</a>{% endif %}</div>
+</section>
+{% endblock %}

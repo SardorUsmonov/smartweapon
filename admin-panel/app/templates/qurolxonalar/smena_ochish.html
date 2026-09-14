@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, level_icon, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurolxonalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Smena ochish") }}<small>{{ t(a.name) }} · {{ t(a.unit.region.short) }} · {{ t("TZ §7.1: o'z-tekshiruv → yacheyka va inventar solishtiruvi → ruxsat ro'yxati → smena") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost" href="/qurolxona/{{ a.id }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Qurolxona sahifasi") }}</a></div>
+</div>
+
+{% if shift %}
+<div class="notice green" style="margin-bottom: 14px">{{ t("Bu qurolxonada smena allaqachon ochiq") }}: {{ shift.opened_at | dt("%d.%m.%Y %H:%M") }}, {{ t(shift.opened_by) }}.
+  {% if ctx.can("smena") %}<a href="/qurolxona/{{ a.id }}/smena/yopish">{{ t("Smenani yopish") }} →</a>{% endif %}</div>
+{% endif %}
+{% if not can_open %}
+<div class="notice yellow" style="margin-bottom: 14px">{{ icon("shield", 14) }} {{ t("Sizning rolingiz smena ochishga ruxsat bermaydi (faqat navbatchi yoki qurolxona mas'uli). Sahifa faqat ko'rish uchun.") }}</div>
+{% endif %}
+{% if error %}<div class="notice red" style="margin-bottom: 14px">{{ icon("alert", 14) }} {{ t(error) }}</div>{% endif %}
+
+<form method="post" action="/qurolxona/{{ a.id }}/smena/ochish" class="wiz" id="smena-form">
+  <div class="wiz-steps">
+    <div class="wiz-step {{ 'ok' if chk.ok else 'bad' }}"><span class="n">1</span><span><b>{{ t("O'z-tekshiruv") }}</b>{{ chk.passed }}/{{ chk.total }} {{ t("komponent") }}</span></div>
+    <div class="wiz-step {{ 'ok' if not rec.nomuvofiq else 'warn' }}"><span class="n">2</span><span><b>{{ t("Yacheyka va inventar") }}</b>{{ rec.mos }}/{{ rec.yacheyka }} {{ t("mos") }}</span></div>
+    <div class="wiz-step {{ 'ok' if not perm.issue_count else 'warn' }}"><span class="n">3</span><span><b>{{ t("Ruxsat ro'yxati") }}</b>{{ perm.ok_count }}/{{ perm.total }} {{ t("xodim") }}</span></div>
+    <div class="wiz-step"><span class="n">4</span><span><b>{{ t("Smenani ochish") }}</b>{{ t("tasdiq va yozuv") }}</span></div>
+  </div>
+
+  <div class="grid-2">
+    <section class="card">
+      {% call card_head("1 · O'z-tekshiruv natijalari") %}
+        {% if chk.ok %}<span class="chip chip-green">{{ icon("check", 13, 2.4) }} {{ t("barcha komponentlar tayyor") }}</span>{% else %}<span class="chip chip-red">{{ icon("alert", 13, 2.4) }} {{ chk.failed | length }} {{ t("xato") }}</span>{% endif %}
+      {% endcall %}
+      <div class="check-list">
+        {% for i in chk['items'] %}
+        <div class="check-row {{ 'ok' if i.ok else 'bad' }}">
+          {% if i.ok %}<span class="lv lv-blue" style="background: rgba(34,197,94,.18); color: var(--green)">{{ icon("check", 14, 2.4) }}</span>{% else %}{{ level_icon("CRITICAL") }}{% endif %}
+          <b>{{ t(i.label) }}</b>
+          <span class="d" title="{{ t(i.detail) }}">{{ t(i.detail) }}</span>
+          {% if i.ok %}<span class="chip chip-green">OK</span>{% else %}<span class="chip chip-red">{{ t("XATO") }}</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% if not chk.ok %}
+      <div class="notice red" style="margin-top: 10px">{{ t("O'z-tekshiruv xatolar bilan yakunlandi. Smenani ochish uchun sabab kiritiladi; jurnalga «oz_tekshiruv_xato» (SIGNAL) yoziladi va signal markazida tasdiq talab qilinadi.") }}</div>
+      <div class="field" style="margin-top: 10px"><label>{{ t("Sabab (majburiy)") }}</label><input name="reason" value="{{ form.reason or '' }}" placeholder="{{ t('Masalan: kamera ta’mirda, qo‘riqlash posti kuzatuvda') }}" {% if not can_open %}disabled{% endif %}></div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      {% call card_head("2 · Yacheyka va inventar solishtiruvi") %}
+        <span class="meta-item">{{ icon("layers", 14) }} {{ rec.yacheyka }} {{ t("yacheyka") }}</span>
+        <span class="meta-item">{{ icon("gun", 14) }} {{ rec.qurollar }} {{ t("qurol") }}</span>
+        <span class="meta-item {% if rec.berilgan %}n-yellow{% endif %}">{{ rec.berilgan }} {{ t("xodimda") }}</span>
+      {% endcall %}
+      <div class="shift-box" style="margin-top: 0; grid-template-columns: repeat(3, minmax(0, 1fr))">
+        <div class="shift-stat"><b>{{ rec.mos | num }}</b><span>{{ t("mos yacheyka") }}</span></div>
+        <div class="shift-stat {% if rec.nomuvofiq %}tone-yellow{% endif %}"><b>{{ rec.nomuvofiq | num }}</b><span>{{ t("farq (datchik ≠ inventar)") }}</span></div>
+        <div class="shift-stat"><b>{{ rec.berilgan | num }}</b><span>{{ t("ochiq berish (oldingi smena)") }}</span></div>
+      </div>
+      {% if rec.farqlar %}
+      <table class="tbl tbl-compact" style="margin-top: 10px">
+        <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Farq") }}</th></tr></thead>
+        <tbody>
+        {% for f in rec.farqlar[:25] %}
+        <tr class="row-link" data-href="/yacheyka/{{ f.cabinet_id }}"><td class="l"><a href="/yacheyka/{{ f.cabinet_id }}">{{ f.label }}</a> <span class="muted">{{ f.wall }}</span></td><td class="l">{{ t(f.officer) }}</td><td class="l issues">{{ t(f.detail) }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% if rec.farqlar | length > 25 %}<div class="muted" style="font-size: 12px; margin-top: 6px">{{ t("yana") }} {{ rec.farqlar | length - 25 }} {{ t("ta farq") }}</div>{% endif %}
+      <label class="confirm" style="margin-top: 10px"><input type="checkbox" name="reconcile_confirmed" value="1" {% if form.reconcile_confirmed == '1' %}checked{% endif %} {% if not can_open %}disabled{% endif %}><span>{{ t("Farqlar bilan tanishdim; ular inventarizatsiya orqali hal qilinadi") }}<small>{{ t("Farqli yacheykalar smena davomida signal markazida kuzatiladi") }}</small></span></label>
+      {% else %}
+      <div class="notice green" style="margin-top: 10px">{{ icon("check", 14) }} {{ t("Barcha yacheykalar datchik ko'rsatkichlari inventar yozuvlariga mos.") }}</div>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card">
+    {% call card_head("3 · Ruxsat ro'yxatini tasdiqlash") %}
+      <span class="meta-item">{{ icon("users", 14) }} {{ perm.total }} {{ t("biriktirilgan xodim") }}</span>
+      {% if perm.issue_count %}<span class="meta-item n-yellow">{{ icon("alert", 14) }} {{ perm.issue_count }} {{ t("ruxsati cheklangan") }}</span>{% else %}<span class="meta-item"><span class="dot dot-green"></span>{{ t("barchasi yaroqli") }}</span>{% endif %}
+    {% endcall %}
+    {% if perm.rows %}
+    <table class="tbl tbl-compact">
+      <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("F.I.Sh.") }}</th><th class="l">{{ t("Tabel") }}</th><th class="l">{{ t("Lavozim") }}</th><th class="l">{{ t("Xizmat holati") }}</th><th>{{ t("Yaroqlilik") }}</th><th class="l">AK / PM</th><th class="l">{{ t("Kredensial") }}</th><th class="l">{{ t("Cheklov") }}</th></tr></thead>
+      <tbody>
+      {% for r in perm.rows[:60] %}
+      <tr class="row-link" data-href="/xodim/{{ r.officer.id }}">
+        <td class="l"><a href="/yacheyka/{{ r.cabinet.id }}">{{ r.cabinet.label }}</a></td>
+        <td class="l"><a href="/xodim/{{ r.officer.id }}">{{ t(r.officer.full_name) }}</a></td>
+        <td class="l mono">{{ r.officer.tabel }}</td>
+        <td class="l">{{ t(r.officer.position) }}</td>
+        <td class="l">{% if r.officer.service_status == 'faol' %}<span class="chip chip-green">{{ t("faol") }}</span>{% else %}<span class="chip chip-yellow">{{ t(r.officer.service_status | replace("_", " ")) }}</span>{% endif %}</td>
+        <td>{{ r.elig_ok }}/{{ r.elig_total }}</td>
+        <td class="l">{{ '●' if r.officer.permit_ak else '○' }} / {{ '●' if r.officer.permit_pm else '○' }}</td>
+        <td class="l muted">{{ t("karta") }}{% if r.officer.face_enrolled %} · {{ t("yuz") }}{% endif %}{% if r.officer.finger_enrolled %} · {{ t("barmoq") }}{% endif %}</td>
+        <td class="l issues">{% if r.ok %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("ruxsat") }}</span>{% else %}{{ t(r.issues | join("; ")) }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if perm.rows | length > 60 %}<div class="muted" style="font-size: 12px; margin-top: 6px">{{ t("ro'yxatda yana") }} {{ perm.rows | length - 60 }} {{ t("xodim; to'liq ro'yxat Xodimlar bo'limida") }}</div>{% endif %}
+    {% else %}
+    {{ empty("Bu qurolxonada biriktirilgan xodim yo'q") }}
+    {% endif %}
+    <label class="confirm" style="margin-top: 10px"><input type="checkbox" name="permits_confirmed" value="1" required {% if form.permits_confirmed == '1' %}checked{% endif %} {% if not can_open %}disabled{% endif %}><span>{{ t("Ruxsat ro'yxatini tasdiqlayman: cheklovli xodimlarga qurol berilmaydi, ro'yxat lokal kontrollerga yuklanadi") }}<small>{{ t("Tasdiq smena yozuvi va jurnal hodisasi (smena_ochildi) tarkibida saqlanadi") }}</small></span></label>
+  </section>
+
+  <section class="card">
+    {{ card_head("4 · Smenani ochish") }}
+    <div class="form-grid">
+      <div><label>{{ t("Smenani ochuvchi (navbatchi)") }}</label><input name="opened_by" value="{{ opened_by }}" readonly></div>
+      <div><label>{{ t("Vaqt") }}</label><input value="{{ now.strftime('%d.%m.%Y %H:%M') }}" disabled></div>
+      <div class="full"><label>{{ t("Izoh (ixtiyoriy)") }}</label><input name="note" value="{{ form.note or '' }}" placeholder="{{ t('Smena bo‘yicha qayd') }}" {% if not can_open %}disabled{% endif %}></div>
+    </div>
+    <div class="wiz-actions" style="margin-top: 12px">
+      <span class="muted" style="font-size: 12px">{{ t("Panel qulf ochmaydi: smena ochilgach qurol berish faqat yacheyka terminalida biometrik tasdiq bilan bajariladi.") }}</span>
+      <a class="btn btn-ghost" href="/qurolxona/{{ a.id }}">{{ t("Bekor qilish") }}</a>
+      {% if can_open and not shift %}<button class="btn btn-primary" type="submit">{{ icon("play", 14, 2.2) }} {{ t("Smenani ochish") }}</button>{% endif %}
+    </div>
+  </section>
+</form>
+{% endblock %}

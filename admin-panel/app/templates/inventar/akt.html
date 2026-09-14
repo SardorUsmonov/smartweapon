@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/inventar.css">{% endblock %}
+{% block content %}
+{% set c = p.get("counts", {}) %}
+{% set disc = p.get("discrepancies", []) %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Inventarizatsiya akti") }} №{{ ev.id }}<small>{% if arm %}{{ t(arm.unit.region.name) }} · {{ t(arm.unit.name) }} · {{ t(arm.name) }}{% endif %} · {{ ev.ts_server | dt("%d.%m.%Y %H:%M") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-primary btn-sm" href="/inventarizatsiya/akt/{{ ev.id }}/pdf" target="_blank">{{ icon("download", 14, 2) }} {{ t("PDF akt") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/jurnal/{{ ev.id }}">{{ icon("list", 14, 2) }} {{ t("Jurnal yozuvi") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/inventarizatsiya">{{ icon("chev-left", 14, 2) }} {{ t("Inventarizatsiya") }}</a>
+  </div>
+</div>
+
+<div class="notice {{ 'yellow' if disc else 'green' }}" style="margin-bottom: 12px">
+  {% if disc %}{{ icon("alert", 14, 2.2) }} <b>{{ disc | length }} {{ t("farq") }}</b> — {{ t("farqli jihozlar ro'yxati quyida; hold qo'yilgan") }}: {{ (p.get("hold_qoyildi") or []) | length }}{% else %}{{ icon("check", 14, 2.2) }} <b>{{ t("Farqlar aniqlanmadi") }}</b> — {{ t("inventar tizim hisobiga mos") }}{% endif %}
+</div>
+
+<div class="stack">
+  <section class="card">
+    {% call card_head("Akt ma'lumotlari") %}<span class="muted">{{ t("event: inventarizatsiya") }} · #{{ ev.id }}</span>{% endcall %}
+    <div class="act-head">
+      <dl class="kv"><dt>{{ t("Boshlangan") }}</dt><dd>{{ p.get("started_at") | dt("%d.%m.%Y %H:%M") }}</dd><dt>{{ t("Skan") }}</dt><dd>{{ p.get("scanned_at") | dt("%d.%m.%Y %H:%M") }}</dd><dt>{{ t("Yakunlangan") }}</dt><dd>{{ p.get("finished_at") | dt("%d.%m.%Y %H:%M") }}</dd></dl>
+      <dl class="kv"><dt>{{ t("O'tkazdi") }}</dt><dd>{{ ev.approver1 or "—" }}</dd><dt>{{ t("Tasdiqladi") }}</dt><dd>{{ ev.approver2 or "—" }}</dd><dt>{{ t("Izoh") }}</dt><dd>{{ p.get("izoh") or "—" }}</dd></dl>
+      <dl class="kv"><dt>{{ t("Jami jihozlar") }}</dt><dd>{{ c.get("jami", 0) | num }}</dd><dt>{{ t("RFID skanlandi") }}</dt><dd>{{ c.get("rfid", 0) | num }}</dd><dt>{{ t("Uyada, mos") }}</dt><dd>{{ c.get("topildi", 0) | num }}</dd><dt>{{ t("Xodimda") }}</dt><dd>{{ c.get("xodimda", 0) | num }}</dd></dl>
+      <dl class="kv"><dt>{{ t("Topilmadi") }}</dt><dd class="{{ 'n-red' if c.get('topilmadi') else '' }}">{{ c.get("topilmadi", 0) }}</dd><dt>{{ t("Kutilmagan") }}</dt><dd class="{{ 'n-red' if c.get('kutilmagan') else '' }}">{{ c.get("kutilmagan", 0) }}</dd><dt>{{ t("RFID mos emas") }}</dt><dd class="{{ 'n-red' if c.get('rfid_mos_emas') else '' }}">{{ c.get("rfid_mos_emas", 0) }}</dd><dt>{{ t("Miqdor farqi") }}</dt><dd class="{{ 'n-yellow' if c.get('miqdor_farqi') else '' }}">{{ c.get("miqdor_farqi", 0) }}</dd></dl>
+    </div>
+    <div class="hash">hash {{ ev.hash }} · prev {{ ev.prev_hash or "—" }}</div>
+  </section>
+
+  <section class="card">
+    {% call card_head("Farqlar ro'yxati") %}{% if disc %}<span class="badge b-red">{{ disc | length }} {{ t("FARQ") }}</span>{% endif %}{% endcall %}
+    {% if disc %}
+    <table class="tbl">
+      <thead><tr><th>#</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Model · seriya") }}</th><th class="l">RFID</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Tizimda") }}</th><th class="l">{{ t("Natija") }}</th><th class="l">{{ t("Izoh") }}</th><th class="l">Hold</th></tr></thead>
+      <tbody>
+      {% for d in disc %}{% set sc = SCAN.get(d.code, ("chip-gray", d.code)) %}{% set st = STATE.get(d.tizimda, ("chip-gray", d.tizimda)) %}
+      <tr class="row-link" data-href="/jihoz/{{ d.item_id }}">
+        <td class="muted">{{ loop.index }}</td>
+        <td class="l"><a href="/yacheyka/{{ d.cabinet_id }}">{{ d.cabinet }}</a></td>
+        <td class="l">{{ t(KIND.get(d.kind, d.kind)) }}</td>
+        <td class="l"><a href="/jihoz/{{ d.item_id }}">{{ d.model }}</a> <span class="mono muted">{{ d.serial }}</span></td>
+        <td class="l mono muted">{{ d.rfid or "—" }}</td>
+        <td class="l">{% if d.officer_id %}<a href="/xodim/{{ d.officer_id }}">{{ d.officer }}</a>{% else %}—{% endif %}</td>
+        <td class="l"><span class="chip {{ st[0] }}">{{ t(st[1]) }}</span></td>
+        <td class="l"><span class="chip {{ sc[0] }}">{{ t(sc[1]) }}</span></td>
+        <td class="l muted">{{ t(d.note) }}</td>
+        <td class="l">{% if d.item_id in (p.get("hold_qoyildi") or []) %}<span class="badge b-red">HOLD</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    {{ empty("Farqlar yo'q") }}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

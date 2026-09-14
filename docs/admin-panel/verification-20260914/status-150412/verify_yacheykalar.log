@@ -1,0 +1,8 @@
+PASS: scope+role direct/partial/POST restrictions, all 4 lists scoped, regional filter scoped, permitted local admin action; GET failures: []
+Traceback (most recent call last):
+PASS: foreign officer history hidden from scoped detail+partial and present centrally; central backup GET+admin POST.
+Test DB: C:\Users\atsha\AppData\Local\Temp\aq_yacheykalar_verify_ds_j11vo\test.sqlite3
+  File "D:\Сардоррр\Smart Weapon\admin-panel\tests\verify_yacheykalar.py", line 152, in <module>
+    assert "Ячейкалар" in c.get("/yacheykalar").text
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

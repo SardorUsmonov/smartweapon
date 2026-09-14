@@ -1,0 +1,8 @@
+{% from "macros.html" import icon with context %}
+{% if pages > 1 %}
+<div class="pager">
+  <span>{{ total | num }} {{ t("ta yozuv") }} · {{ t("sahifa") }} {{ page }}/{{ pages }}</span>
+  {% if page > 1 %}<a class="btn btn-ghost btn-xs" href="{{ request.url.include_query_params(page=page - 1) }}">{{ icon("chev-left", 12, 2.4) }} {{ t("Oldingi") }}</a>{% endif %}
+  {% if page < pages %}<a class="btn btn-ghost btn-xs" href="{{ request.url.include_query_params(page=page + 1) }}">{{ t("Keyingi") }} {{ icon("chev", 12, 2.4) }}</a>{% endif %}
+</div>
+{% endif %}

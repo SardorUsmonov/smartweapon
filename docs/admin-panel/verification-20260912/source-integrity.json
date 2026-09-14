@@ -1,0 +1,34 @@
+{
+  "sqlite_integrity": "ok",
+  "table_counts": {
+    "alarm": 9,
+    "armory": 18,
+    "armory_shift": 1,
+    "auth_credential": 7,
+    "auth_session": 1,
+    "backup": 3,
+    "backup_artifact": 0,
+    "cabinet": 321,
+    "custody": 6169,
+    "device": 126,
+    "eligibility": 1475,
+    "event": 24428,
+    "export_log": 0,
+    "item": 2065,
+    "mode": 1,
+    "officer": 295,
+    "region": 14,
+    "setting": 16,
+    "settings_audit": 0,
+    "shift": 176,
+    "unit": 18,
+    "user": 7,
+    "user_change": 0
+  },
+  "audit": {
+    "checked": 24428,
+    "broken": 7,
+    "first_broken": 24412,
+    "ok": false
+  }
+}

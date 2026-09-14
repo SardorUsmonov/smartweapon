@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% from "xodimlar/macros.html" import service_chip, armed_chip with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/xodimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Qidiruv") }}<small>{% if q %}«{{ q }}» {{ t("bo'yicha") }}: {{ counts.xodim | num }} {{ t("xodim") }}, {{ counts.yacheyka | num }} {{ t("yacheyka") }}, {{ counts.jihoz | num }} {{ t("jihoz") }}{% else %}{{ t("Xodim, yacheyka yoki jihoz seriya raqami bo'yicha umumiy qidiruv") }}{% endif %}</small></h1>
+  <div class="page-actions">
+    <form method="get" action="/qidiruv" class="filters" style="margin: 0">
+      <input name="q" value="{{ q }}" placeholder="{{ t('F.I.Sh., tabel, Y-017, SHK-2026-…, seriya, RFID…') }}" style="width: 320px" autofocus>
+      <button class="btn btn-primary btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qidirish") }}</button>
+    </form>
+  </div>
+</div>
+
+{% if not q %}
+<div class="notice">{{ t("Qidiruv maydonlari: xodim — F.I.Sh., tabel raqami, karta UID; yacheyka — label (Y-017) yoki seriya (SHK-2026-000123); jihoz — seriya raqami, RFID, model (AK-74, PM).") }}</div>
+{% elif not total %}
+{{ empty("Hech narsa topilmadi. Boshqa so'z yoki raqam bilan urinib ko'ring.") }}
+{% else %}
+<div class="stack xd-results">
+  {% if officers %}
+  <section class="card">
+    {% call card_head("Xodimlar") %}<span class="meta-item muted">{{ officers | length }} / {{ counts.xodim | num }}</span><a class="btn btn-ghost btn-sm" href="/xodimlar?q={{ q | urlencode }}">{{ t("Ro'yxatda ochish") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    <table class="tbl">
+      <thead><tr><th class="l">{{ t("F.I.Sh.") }}</th><th class="l">{{ t("Tabel") }}</th><th class="l">{{ t("Lavozim") }}</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma · qurolxona") }}</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Qurollangan") }}</th></tr></thead>
+      <tbody>
+      {% for off, unit, region, armory, cab, armed in officers %}
+      <tr class="row-link" data-href="/xodim/{{ off.id }}">
+        <td class="l"><a href="/xodim/{{ off.id }}">{{ off.full_name }}</a></td>
+        <td class="l mono">{{ off.tabel }}</td>
+        <td class="l">{{ t(off.rank) }} · {{ t(off.position) }}</td>
+        <td class="l"><a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a></td>
+        <td class="l">{{ t(unit.name) }}{% if armory %} <span class="muted">· <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a></span>{% endif %}</td>
+        <td class="l">{% if cab %}<a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{{ service_chip(off.service_status, statuses) }}</td>
+        <td class="l">{{ armed_chip(armed) }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if cabinets %}
+  <section class="card">
+    {% call card_head("Yacheykalar") %}<span class="meta-item muted">{{ cabinets | length }} / {{ counts.yacheyka | num }}</span><a class="btn btn-ghost btn-sm" href="/yacheykalar?q={{ q | urlencode }}">{{ t("Ro'yxatda ochish") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    <table class="tbl">
+      <thead><tr><th class="l">{{ t("Label") }}</th><th class="l">{{ t("Seriya") }}</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma · qurolxona") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">AK / PM</th><th class="l">{{ t("Eshik") }}</th></tr></thead>
+      <tbody>
+      {% for cab, armory, unit, region, off in cabinets %}
+      <tr class="row-link" data-href="/yacheyka/{{ cab.id }}">
+        <td class="l"><a href="/yacheyka/{{ cab.id }}"><b>{{ cab.label }}</b></a> <span class="muted">· {{ t("devor") }} {{ cab.wall }}</span></td>
+        <td class="l mono">{{ cab.serial }}</td>
+        <td class="l"><a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a></td>
+        <td class="l">{{ t(unit.name) }} <span class="muted">· <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a></span></td>
+        <td class="l">{% if off %}<a href="/xodim/{{ off.id }}">{{ off.full_name }}</a>{% else %}<span class="muted">{{ t("biriktirilmagan") }}</span>{% endif %}</td>
+        <td class="l">{{ cab_status(cab.status) }}{% if not cab.controller_online %} <span class="chip chip-red">{{ icon("wifi-off", 12, 2.2) }}</span>{% endif %}</td>
+        <td class="l">{{ t("uyada") if cab.ak_present else t("xodimda") }} / {{ t("uyada") if cab.pm_present else t("xodimda") }}</td>
+        <td class="l">{{ t("ochiq") if cab.door_open else t("yopiq") }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if items %}
+  <section class="card">
+    {% call card_head("Jihozlar va qurollar") %}<span class="meta-item muted">{{ items | length }} / {{ counts.jihoz | num }}</span><a class="btn btn-ghost btn-sm" href="/inventar?q={{ q | urlencode }}">{{ t("Inventarda ochish") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    <table class="tbl">
+      <thead><tr><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Model") }}</th><th class="l">{{ t("Seriya") }}</th><th class="l">RFID</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma · qurolxona") }}</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+      <tbody>
+      {% for it, cab, armory, unit, region, off in items %}
+      <tr class="row-link" data-href="/jihoz/{{ it.id }}">
+        <td class="l">{{ t(it.kind) }} <span class="muted">· {{ t(it.category) }}</span></td>
+        <td class="l"><a href="/jihoz/{{ it.id }}">{{ it.model }}</a></td>
+        <td class="l mono">{{ it.serial }}</td>
+        <td class="l mono muted">{{ it.rfid or "—" }}</td>
+        <td class="l">{% if region %}<a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{% if unit %}{{ t(unit.name) }}{% if armory %} <span class="muted">· <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a></span>{% endif %}{% else %}—{% endif %}</td>
+        <td class="l">{% if cab %}<a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{% if off %}<a href="/xodim/{{ off.id }}">{{ off.full_name }}</a>{% else %}—{% endif %}</td>
+        <td class="l">{% if it.state == 'mavjud' %}<span class="chip chip-green">{{ t("uyada") }}</span>{% elif it.state == "yo'q" %}<span class="chip chip-yellow">{{ icon("gun", 12, 2.2) }} {{ t("xodimda") }}</span>{% else %}<span class="chip chip-red">{{ t(it.state) }}</span>{% endif %}{% if it.hold %} <span class="chip chip-red">{{ t("ushlab turilgan") }}</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

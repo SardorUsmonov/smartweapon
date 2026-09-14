@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="emblem.jpg">
+  <title>Rahbariyat ma’lumotnomasi · Nazorat markazi</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Asosiy ma’lumotga o‘tish</a>
+  <aside class="sidebar" aria-label="Asosiy navigatsiya">
+    <a class="brand" href="#summary"><img src="emblem.jpg" alt="IIV ramzi" width="46" height="46"><span>NAZORAT<br>MARKAZI<small>Qurol saqlash tizimi</small></span></a>
+    <div class="nav-context">MARKAZIY BOSHQARUV</div>
+    <nav>
+      <a class="nav-link active" href="#summary" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z"/></svg>Umumiy holat</a>
+      <a class="nav-link" href="#geography"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zm6-2v16m6-14v16"/></svg>Hududiy ko‘rinish</a>
+      <a class="nav-link" href="#regions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v16H3zm0 5h18M9 9v11"/></svg>Hududlar taqqoslovi</a>
+      <a class="nav-link" href="#attention"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 18H2zM12 9v5m0 3v1"/></svg>Signal / aloqa uzilishi<span class="nav-count" id="attention-count">—</span></a>
+    </nav>
+    <div class="nav-context second">BATAFSIL MA’LUMOT</div>
+    <nav class="secondary-nav">
+      <a href="http://127.0.0.1:8080/qurolxonalar" target="_blank" rel="noopener">Qurolxonalar<span>↗</span></a>
+      <a href="http://127.0.0.1:8080/inventar" target="_blank" rel="noopener">Inventar hisobi<span>↗</span></a>
+      <a href="http://127.0.0.1:8080/jurnal" target="_blank" rel="noopener">Hodisalar jurnali<span>↗</span></a>
+      <a href="http://127.0.0.1:8080/hisobotlar" target="_blank" rel="noopener">Hisobotlar<span>↗</span></a>
+    </nav>
+    <div class="sidebar-foot"><span class="foot-rule"></span><strong>Smart Weapon</strong><span>Rahbariyat uchun ko‘rinish</span><a href="http://127.0.0.1:8080/hududlar" target="_blank" rel="noopener">Operator paneli <span>↗</span></a></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div><span class="topbar-label">O‘ZBEKISTON RESPUBLIKASI</span><span class="topbar-separator"></span><span class="topbar-sub">Rahbariyat ma’lumotnomasi</span></div><a href="#source" class="demo-label"><span></span>Demo ma’lumotlari</a></header>
+    <main id="main">
+      <section id="summary" class="overview">
+        <div class="page-heading"><div><p class="eyebrow">RESPUBLIKA DARAJASI</p><h1>Hisob va nazorat holati</h1><p class="intro">Hududlar, hisob ko‘rsatkichlari va e’tibor talab qiladigan holatlar.</p></div><div class="report-meta"><time id="snapshot-date">Ma’lumot yuklanmoqda</time><span id="snapshot-time">Holat nusxasi</span><button id="print-report" class="button" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8V3h12v5M6 17H3V8h18v9h-3M6 14h12v7H6zm11-3h1"/></svg>Chop etish</button></div></div>
+        <div class="executive-summary"><span class="summary-symbol" aria-hidden="true">!</span><div><strong id="summary-headline">Respublika bo‘yicha ma’lumotlar tayyorlanmoqda.</strong><p id="summary-detail">Hududiy qamrov va ochiq holatlar ushbu nusxa bo‘yicha ko‘rsatiladi.</p></div><a href="#attention">Holatlarni ko‘rish <span>↓</span></a></div>
+        <dl class="metrics">
+          <div><dt>Qamrovdagi hududlar</dt><dd><strong id="metric-regions">—</strong><span>hudud</span></dd><p><span id="metric-armories">—</span> qurolxona hisobga olingan</p></div>
+          <div><dt>Qayd bo‘yicha aloqada</dt><dd><strong id="metric-online">—</strong><span id="metric-online-denom">/ —</span></dd><p><span class="small-status amber" id="metric-offline">— ta aloqa uzilgan</span><span class="metric-sync" id="metric-sync">Sinxronlashuv sanasi</span></p></div>
+          <div><dt>Faol signallar</dt><dd><strong id="metric-signals">—</strong><span>ta</span></dd><p><span class="small-status red" id="metric-serious">— ta jiddiy</span><span class="metric-separator">·</span><span id="metric-warning">— ta ogohlantirish</span></p></div>
+          <div><dt>Qaytarish muddati o‘tgan</dt><dd><strong id="metric-overdue">—</strong><span>qurol</span></dd><p><span id="metric-issued">—</span> ta berilgan qurol ichida</p></div>
+        </dl>
+      </section>
+      <div class="geography-grid">
+        <section id="geography" class="geography panel">
+          <div class="section-heading"><div><p class="eyebrow">HUDUDIY KO‘RINISH</p><h2>Respublika xaritasi</h2></div><button type="button" class="text-button" id="clear-selection" hidden>Tanlovni bekor qilish ×</button></div>
+          <div class="map-wrap"><div class="map-caption"><strong>14</strong><span>hudud bo‘yicha<br>hisob ma’lumotlari</span></div><div id="map" class="map" aria-label="Hududni tanlash uchun xarita"><p class="loading">Xarita yuklanmoqda…</p></div></div>
+          <ul class="legend" aria-label="Xarita ranglari"><li><i class="legend-critical"></i>Jiddiy signal</li><li><i class="legend-offline"></i>Aloqa uzilgan</li><li><i class="legend-warning"></i>Ogohlantirish</li><li><i class="legend-neutral"></i>Ushbu belgilar yo‘q</li></ul>
+          <div id="region-detail" class="region-detail" aria-live="polite" tabindex="-1" aria-label="Tanlangan hudud tafsiloti"><div><span class="detail-kicker">TANLANGAN QAMROV</span><h3 id="selected-name">Respublika bo‘yicha</h3><p id="selected-description">Hudud nomini xarita yoki jadvaldan tanlang.</p></div><a id="selected-link" href="http://127.0.0.1:8080/hududlar" target="_blank" rel="noopener">Batafsil ko‘rish <span>↗</span></a></div>
+        </section>
+        <section id="attention" class="attention panel">
+          <div class="section-heading"><div><p class="eyebrow">KO‘RIB CHIQISH UCHUN</p><h2>Signal va aloqa holatlari</h2></div><span class="section-total" id="priority-total">—</span></div>
+          <p class="section-description">Faol signal yoki aloqa uzilishi qayd etilgan hududlar.</p>
+          <div id="priority-list" class="priority-list"><p class="loading">Holatlar yuklanmoqda…</p></div>
+          <div class="attention-foot"><span><strong id="ack-count">—</strong> ta signal tasdiq kutmoqda</span><a href="http://127.0.0.1:8080/signallar" target="_blank" rel="noopener">Signal markazi ↗</a></div>
+        </section>
+      </div>
+      <section id="regions" class="regions panel">
+        <div class="section-heading"><div><p class="eyebrow">SOLISHTIRMA MA’LUMOT</p><h2>Hududlar bo‘yicha taqqoslash</h2></div><a class="section-link" href="http://127.0.0.1:8080/hududlar" target="_blank" rel="noopener">To‘liq hudud kartalari ↗</a></div>
+        <div class="table-toolbar"><div class="table-tabs" aria-label="Hududlarni filtrlash"><button type="button" class="active" data-filter="all" aria-pressed="true">Barcha hududlar <span id="all-count">14</span></button><button type="button" data-filter="attention" aria-pressed="false">Signal / aloqa uzilishi <span id="filter-attention-count">—</span></button></div><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input type="search" id="region-search" placeholder="Hudud nomi bo‘yicha qidirish" aria-label="Hudud nomi bo‘yicha qidirish"></label></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Hududlar jadvali"><table><caption class="visually-hidden">Hududlar kesimida hisob, aloqa va faol signal ko‘rsatkichlari. Sarlavhadagi tugmalar bilan saralash mumkin.</caption><thead><tr><th scope="col" class="region-col"><button type="button" data-sort="name">Hudud <span>↕</span></button></th><th scope="col"><button type="button" data-sort="armories">Qurolxona <span>↕</span></button></th><th scope="col"><button type="button" data-sort="cabinets">Yacheyka <span>↕</span></button></th><th scope="col"><button type="button" data-sort="issued">Berilgan <span>↕</span></button></th><th scope="col"><button type="button" data-sort="overdue">Muddati o‘tgan <span>↕</span></button></th><th scope="col"><button type="button" data-sort="active_alarms">Faol signal <span>↕</span></button></th><th scope="col">Aloqa holati</th><th scope="col"><span class="visually-hidden">Tafsilot</span></th></tr></thead><tbody id="region-rows"><tr><td colspan="8">Ma’lumotlar yuklanmoqda…</td></tr></tbody></table></div>
+        <div class="table-footer"><span id="row-count" role="status">14 hudud</span><span>Berilgan va muddati o‘tgan — takrorlanmagan qurollar soni.</span></div>
+      </section>
+      <div class="lower-grid">
+        <section class="panel movement"><div class="section-heading"><div><p class="eyebrow">HISOB HARAKATI</p><h2>So‘nggi 7 kundagi qaydlar</h2></div><span class="subtle">Berish va qaytarish</span></div><div id="activity-chart" class="activity-chart" role="img" aria-label="Oxirgi yetti kunlik berish va qaytarish qaydlari"></div><div class="chart-foot"><strong id="ops-total">—</strong><span>ta qayd · Hodisalar jurnali asosida</span><a href="http://127.0.0.1:8080/jurnal" target="_blank" rel="noopener">Jurnalni ko‘rish ↗</a></div></section>
+        <section id="source" class="panel source"><div class="section-heading"><div><p class="eyebrow">MA’LUMOT ASOSI</p><h2>Nusxa haqida</h2></div><span class="source-tag">DEMO</span></div><dl><div><dt>Manba</dt><dd>Mahalliy demo bazasi</dd></div><div><dt>Nusxa olingan vaqt</dt><dd id="source-captured">—</dd></div><div><dt>So‘nggi hodisa</dt><dd id="source-event">—</dd></div><div><dt>Eng so‘nggi sinxronlashuv</dt><dd id="source-sync">—</dd></div></dl><p class="source-note">Bu saqlangan holat nusxasi. Ko‘rsatkichlar avtomatik yangilanmaydi.</p><details><summary>Hisob bo‘yicha izohlar</summary><ul id="source-notes"></ul></details></section>
+      </div>
+      <footer class="page-foot"><span>Nazorat markazi <span class="foot-dot">·</span> Rahbariyat ma’lumotnomasi</span><span>Dizayn konsepsiyasi <span class="foot-dot">·</span> 01</span></footer>
+      <div id="load-error" class="load-error" role="alert" hidden>Ma’lumot yuklanmadi. Lokal server ishlayotganini tekshirib, sahifani yangilang.</div>
+    </main>
+  </div>
+</body>
+</html>

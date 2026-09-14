@@ -1,0 +1,121 @@
+{# Signallar bo'limi makroslari: kamera kadri, signal kartochkasi, tarix jadvali, sahifalash #}
+{% from "macros.html" import icon, level_icon, level_badge, empty with context %}
+
+{% macro cam_frame(r, big=False) -%}
+<div class="cam-frame {% if big %}big{% endif %}" aria-label="{{ t('Kamera kadri (simulyatsiya)') }}">
+  <div class="cam-grid"></div>
+  <span class="cam-corner tl"></span><span class="cam-corner tr"></span><span class="cam-corner bl"></span><span class="cam-corner br"></span>
+  <div class="cam-top"><span class="cam-rec"><span class="dot dot-red"></span>REC</span><span>CAM-{{ '%02d' % ((r.a.cabinet_id or r.a.armory_id or 0) % 8 + 1) }} · {{ r.a.level }}</span></div>
+  <div class="cam-mid">{{ icon("camera", 40 if big else 26, 1.5) }}<span>{{ t("Kamera kadri · simulyatsiya") }}</span>{% if big %}<small>{{ t("Prototipda foto/video havola o'rnida; ishlab chiqarishda NAS dagi yozuvga havola") }}</small>{% endif %}</div>
+  <div class="cam-bot"><span>{{ t(r.region) }}{% if r.unit %} · {{ t(r.unit) }}{% endif %}{% if r.cab_label %} · {{ r.cab_label }}{% endif %}</span><span>{{ r.a.opened_at | dt("%d.%m.%Y %H:%M:%S") }}</span></div>
+</div>
+{%- endmacro %}
+
+{% macro where_links(r) -%}
+<span class="sig-where">
+  {% if r.region_id %}<a href="/hudud/{{ r.region_id }}">{{ t(r.region) }}</a>{% endif %}
+  {% if r.a.armory_id %}<span class="sep">›</span><a href="/qurolxona/{{ r.a.armory_id }}" title="{{ t(r.armory) }}">{{ t(r.unit) }}</a>{% endif %}
+  {% if r.a.cabinet_id %}<span class="sep">›</span><a href="/yacheyka/{{ r.a.cabinet_id }}">{{ t("yacheyka") }} {{ r.cab_label }}</a>{% endif %}
+  {% if not r.region_id and not r.a.armory_id %}<span class="muted">{{ t("Respublika · markaziy server") }}</span>{% endif %}
+</span>
+{%- endmacro %}
+
+{% macro resolve_form(r, next_url, reasons, compact=True) -%}
+<form method="post" action="/signal/{{ r.a.id }}/yechish" class="{{ 'sig-resolve-form' if compact else 'sig-form' }}">
+  <input type="hidden" name="next" value="{{ next_url }}">
+  <label for="sabab-{{ r.a.id }}">{{ t("Yechish sababi") }}</label>
+  <select name="sabab" id="sabab-{{ r.a.id }}" required>
+    <option value="">{{ t("— tanlang —") }}</option>
+    {% for k, v in reasons %}<option value="{{ k }}">{{ t(v) }}</option>{% endfor %}
+  </select>
+  <input name="izoh" maxlength="200" placeholder="{{ t('Izoh (Boshqa uchun majburiy)') }}" autocomplete="off">
+  <div class="row"><button class="btn btn-sm btn-danger">{{ icon("check", 14, 2.2) }} {{ t("Yechish va yopish") }}</button></div>
+</form>
+{%- endmacro %}
+
+{% macro sig_card(r, can_ack, next_url, reasons) -%}
+<article class="sig-card lv-{{ r.a.level | lower }} {% if r.needs_ack %}needs-ack{% endif %}" id="s{{ r.a.id }}">
+  {% if r.needs_ack %}<div class="sig-ribbon">{{ icon("alert", 13, 2.4) }} {{ t("Tasdiq talab qiladi") }}</div>{% endif %}
+  <div class="sig-head">
+    {{ level_icon(r.a.level) }}
+    <div class="sig-titles">
+      <a class="sig-title" href="/signal/{{ r.a.id }}">{{ t(r.a.title) }}</a>
+      <span class="sig-type">{{ t(r.type_label) }} · #{{ r.a.id }}</span>
+    </div>
+    {{ level_badge(r.badge) }}
+  </div>
+  {{ where_links(r) }}
+  {% if r.a.detail %}<div class="sig-detail">{{ t(r.a.detail) }}</div>{% endif %}
+  {% if r.a.cabinet_id or r.a.type in ("kamera", "tamper", "favqulodda", "mexanik_kalit") %}{{ cam_frame(r) }}{% endif %}
+  <div class="sig-meta">
+    <span class="meta-item mono">{{ icon("clock", 13) }} {{ r.a.opened_at | dt("%d.%m %H:%M") }} · {{ r.a.opened_at | ago }} {{ t("oldin") }}</span>
+    {% if r.a.forwarded %}<span class="chip chip-violet">{{ icon("shield", 13, 2.2) }} {{ t("Qorovul postiga yo'naltirildi") }}</span>{% endif %}
+    {% if r.a.acked_at %}<span class="chip chip-green">{{ icon("check", 13, 2.2) }} {{ t("Tasdiqlandi") }} · {{ r.a.acked_by }} · {{ r.a.acked_at | dt }}</span>
+    {% elif not r.a.requires_ack %}<span class="chip chip-gray">{{ t("Tasdiq shart emas") }}</span>{% endif %}
+    {% if r.armory_online is sameas false %}<span class="chip chip-red">{{ icon("wifi-off", 13, 2.2) }} {{ t("qurolxona oflayn") }}</span>{% endif %}
+    {% if r.cab_status in ("bloklangan", "nosoz") %}<span class="chip chip-red">{{ t("yacheyka") }} {{ t(r.cab_status) }}</span>{% endif %}
+  </div>
+  <div class="sig-actions">
+    {% if can_ack %}
+      {% if not r.a.acked_at %}
+      <form method="post" action="/signal/{{ r.a.id }}/tasdiqlash"><input type="hidden" name="next" value="{{ next_url }}"><button class="btn btn-sm btn-primary">{{ icon("check", 14, 2.2) }} {{ t("Tasdiqlash") }}</button></form>
+      {% endif %}
+      <details class="sig-resolve">
+        <summary class="btn btn-sm">{{ icon("check", 14, 2.2) }} {{ t("Yechish") }}</summary>
+        {{ resolve_form(r, next_url, reasons) }}
+      </details>
+      {% if not r.a.forwarded %}
+      <form method="post" action="/signal/{{ r.a.id }}/yonaltirish"><input type="hidden" name="next" value="{{ next_url }}"><button class="btn btn-sm btn-ghost" title="{{ t('Qorovul postiga yo`naltirish') }}">{{ icon("shield", 14, 2) }} {{ t("Qorovul posti") }}</button></form>
+      {% endif %}
+    {% else %}
+      <span class="muted">{{ t("Tasdiqlash: navbatchi yoki qurolxona mas'uli") }}</span>
+    {% endif %}
+    <a class="btn btn-sm btn-ghost sig-more" href="/signal/{{ r.a.id }}">{{ t("Batafsil") }} {{ icon("chev", 13, 2.2) }}</a>
+  </div>
+</article>
+{%- endmacro %}
+
+{% macro tarix_table(rows, mini=False) -%}
+{% if rows %}
+<div class="tbl-wrap">
+<table class="tbl tbl-signals">
+  <thead><tr>
+    <th class="l">{{ t("Ochilgan") }}</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Tur") }}</th>
+    {% if not mini %}<th class="l">{{ t("Sarlavha") }}</th>{% endif %}
+    <th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("Yacheyka") }}</th>
+    {% if not mini %}<th class="l">{{ t("Tasdiqlagan") }}</th>{% endif %}
+    <th class="l">{{ t("Yechgan") }}</th><th>{{ t("Yechilgan") }}</th><th>{{ t("Davomiyligi") }}</th>
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="row-link" data-href="/signal/{{ r.a.id }}">
+    <td class="l mono">{{ r.a.opened_at | dt("%d.%m.%Y %H:%M") }}</td>
+    <td class="l">{{ level_icon(r.a.level) }} {{ level_badge(r.badge) }}</td>
+    <td class="l"><a href="/signal/{{ r.a.id }}">{{ t(r.type_label) }}</a></td>
+    {% if not mini %}<td class="l">{{ t(r.a.title) }}</td>{% endif %}
+    <td class="l">{% if r.region_id %}<a href="/hudud/{{ r.region_id }}">{{ t(r.region) }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+    <td class="l">{% if r.a.armory_id %}<a href="/qurolxona/{{ r.a.armory_id }}">{{ t(r.unit) }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+    <td class="l">{% if r.a.cabinet_id %}<a href="/yacheyka/{{ r.a.cabinet_id }}">{{ r.cab_label }}</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+    {% if not mini %}<td class="l">{% if r.a.acked_by %}{{ r.a.acked_by }} <span class="muted">{{ r.a.acked_at | dt("%d.%m %H:%M") }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>{% endif %}
+    <td class="l">{{ r.a.resolved_by or "—" }}</td>
+    <td class="mono">{{ r.a.resolved_at | dt("%d.%m.%Y %H:%M") }}</td>
+    <td>{{ r.duration_min | num }} {{ t("daq") }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+{{ empty("Yechilgan signallar yo'q") }}
+{% endif %}
+{%- endmacro %}
+
+{% macro pager(page, pages, page_url) -%}
+{% if pages > 1 %}
+<div class="pager">
+  <span>{{ t("Sahifa") }} {{ page }} / {{ pages }}</span>
+  {% if page > 1 %}<a href="{{ page_url(page - 1) }}">{{ icon("chev-left", 13, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+  {% if page < pages %}<a href="{{ page_url(page + 1) }}">{{ t("Keyingi") }} {{ icon("chev", 13, 2.2) }}</a>{% endif %}
+</div>
+{% endif %}
+{%- endmacro %}

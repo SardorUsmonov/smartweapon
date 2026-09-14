@@ -1,0 +1,4 @@
+/.tools/
+/data/share-preview.json
+/data/share-*.log
+__pycache__/

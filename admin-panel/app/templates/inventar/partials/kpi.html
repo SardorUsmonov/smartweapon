@@ -1,0 +1,8 @@
+{% from "macros.html" import kpi with context %}
+{{ kpi("Jami jihozlar", k.jami, k.qurollar|num ~ " ta qurol", "box", "", "/inventar?tur=" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Qurollar uyada", k.uyada, "mavjud, ochiq berish qaydi yo'q", "gun", "", "/inventar?tur=qurol&holat=mavjud" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Xodimlardagi qurollar", k.xodimda, k.ochiq_qaydlar|num ~ " ochiq qayd · " ~ k.takroriy_qaydlar|num ~ " takroriy qayd", "users", "", "/inventar?tur=qurol&berilgan=1" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Kechikish", k.kechikish, "muddat o'tgan", "clock", "red" if k.kechikish else "", "/inventar?tur=qurol&kechikish=1" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Inventar farqlari", k.farq, "30 kun, nomuvofiq qaytarish", "clipboard", "yellow" if k.farq else "", "/inventar?tur=qurol&farq=1" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Ko'rik / ta'mir", k.korik, k.nosoz|num ~ " nosoz yoki xizmatda", "wrench", "yellow" if k.korik else "", "/inventar?tur=&korik=ko'rik_kutilmoqda" ~ "&" ~ (location_qs | default(""))) }}
+{{ kpi("Ushlab turilgan", k.hold, "berish bloklangan", "ban", "red" if k.hold else "", "/inventar?tur=&hold=1" ~ "&" ~ (location_qs | default(""))) }}

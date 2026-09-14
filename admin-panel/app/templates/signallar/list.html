@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/signallar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Signal markazi") }}<small>{{ t("Faol signallar 4 daraja bo'yicha: AXBOROT · OGOHLANTIRISH · SIGNAL · XAVFSIZLIK. Tasdiqlash va yechish jurnalga yoziladi; panel qulf ochmaydi.") }}</small></h1>
+  <div class="page-actions">
+    {% if holat == "yechilgan" %}
+    <a class="btn btn-sm btn-primary" href="{{ link(holat='', page=0) }}">{{ icon("bell", 14, 2) }} {{ t("Faol signallar") }}</a>
+    {% else %}
+    <a class="btn btn-sm btn-ghost" href="{{ link(holat='yechilgan', page=0) }}">{{ icon("list", 14, 2) }} {{ t("Yechilganlar tarixi") }}</a>
+    {% endif %}
+    <a class="btn btn-sm btn-ghost" href="/jurnal/favqulodda">{{ icon("siren", 14, 2) }} {{ t("Favqulodda jurnali") }}</a>
+  </div>
+</div>
+{% if xato %}<div class="notice red sig-notice">{{ icon("alert", 15, 2.2) }} {{ t(xato) }}</div>{% endif %}
+<form class="filters sig-filters" method="get" action="/signallar">
+  <input type="hidden" name="holat" value="{{ holat if holat != 'faol' else '' }}">
+  <span class="sig-pills">
+    {% for key, label in holat_label.items() %}
+    <a class="pill {% if holat == key %}on{% endif %}" href="{{ link(holat=key, page=0) }}">{{ t(label) }}{% if key == 'faol' %} {{ counts.faol }}{% elif key == 'kutmoqda' %} {{ counts.kutmoqda }}{% elif key == 'tasdiqlangan' %} {{ counts.tasdiqlangan }}{% endif %}</a>
+    {% endfor %}
+  </span>
+  <select name="daraja" title="{{ t('Daraja') }}">
+    <option value="">{{ t("Barcha darajalar") }}</option>
+    {% for lv in levels %}<option value="{{ lv }}" {% if daraja == lv %}selected{% endif %}>{{ lv }} · {{ t(level_name[lv]) }}</option>{% endfor %}
+  </select>
+  {% include "partials/location_filters.html" %}
+  <input name="q" value="{{ q }}" placeholder="{{ t('Yacheyka, qurolxona, matn…') }}" autocomplete="off" style="width: 220px">
+  <button class="btn btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qo'llash") }}</button>
+  {% if daraja or hudud or location_selected.bolinma or location_selected.qurolxona or q %}<a class="btn btn-sm btn-ghost" href="{{ link(daraja='', hudud=0, bolinma=0, qurolxona=0, q='', page=0) }}">{{ t("Tozalash") }}</a>{% endif %}
+  <span class="meta-item muted sig-scope">{{ icon("eye", 14) }} {{ t("Vakolat doirasi") }}: {{ t({"respublika": "Respublika", "hudud": "Hudud", "bolinma": "Bo'linma", "qurolxona": "Qurolxona"}.get(ctx.scope_kind, ctx.scope_kind)) }}</span>
+</form>
+<div id="sig-live" hx-get="/signallar/partials/faol{% if qs %}?{{ qs }}{% endif %}" hx-trigger="live[!sigBusy()] from:body, every 30s[!sigBusy()]" hx-swap="innerHTML">
+  {% include "signallar/_faol.html" %}
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // jonli yangilanish ochiq forma (yechish sababi) yozilayotganda to'xtab turadi
+  window.sigBusy = function () { return !!document.querySelector('#sig-live details[open], #sig-live form:focus-within'); };
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/inventar.css">{% endblock %}
+{% block content %}
+{% set c = s.counts %}
+{% set nd = s.discrepancies | length %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Inventarizatsiya") }} · {{ t(arm.unit.name) }}<small>{{ t(arm.unit.region.name) }} · {{ t(arm.name) }} · {{ t("boshlagan") }} {{ s.started_by }}, {{ s.started_at | dt("%d.%m.%Y %H:%M") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/qurolxona/{{ arm.id }}">{{ icon("building", 14, 2) }} {{ t("Qurolxona") }}</a>
+    {% if ctx.can("inventar") %}
+    <form method="post" action="/inventarizatsiya/{{ arm.id }}/bekor" onsubmit="return confirm('{{ t("Sessiyani bekor qilasizmi? Skan natijalari saqlanmaydi.") }}')"><button class="btn btn-sm">{{ icon("stop", 14, 2.2) }} {{ t("Bekor qilish") }}</button></form>
+    {% endif %}
+  </div>
+</div>
+{% if xato %}<div class="notice red" style="margin-bottom: 12px">{{ icon("alert", 14, 2.2) }} {{ t(xato) }}</div>{% endif %}
+
+<div class="steps">
+  <div class="step {{ 'done' if s.scanned else 'on' }}"><b>1</b><div class="lbl"><span>{{ t("RFID skan") }}</span>{{ t("uyalar o'quvchilari, simulyatsiya") }}</div></div>
+  <div class="step {{ 'on' if s.scanned else '' }}"><b>2</b><div class="lbl"><span>{{ t("Farqlar") }}</span>{{ t("tizim hisobi bilan solishtirish") }}</div></div>
+  <div class="step"><b>3</b><div class="lbl"><span>{{ t("Akt") }}</span>{{ t("ikkinchi shaxs tasdig'i, PDF, jurnal") }}</div></div>
+</div>
+
+<div class="inv-session-grid">
+  <div class="stack">
+    <section class="card">
+      {% call card_head("1 · RFID skan") %}{% if s.scanned %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ s.scanned_at | dt("%H:%M:%S") }}</span>{% endif %}{% endcall %}
+      <dl class="kv">
+        <dt>{{ t("Yacheykalar") }}</dt><dd>{{ arm.cabinets | length | num }}</dd>
+        <dt>{{ t("Jihozlar") }}</dt><dd>{{ rows | length | num }}</dd>
+        <dt>{{ t("Aloqa") }}</dt><dd>{% if arm.online %}<span class="chip chip-green">{{ icon("wifi", 13) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 13) }} {{ t("oflayn") }}</span>{% endif %}</dd>
+      </dl>
+      {% if s.scanned %}
+      <div class="scan-bar"><i style="width: 100%"></i></div>
+      <div class="scan-summary">
+        <div class="scan-stat"><span class="v">{{ c.rfid | num }}</span><span class="l">{{ t("RFID o'qildi") }}</span></div>
+        <div class="scan-stat green"><span class="v">{{ c.topildi | num }}</span><span class="l">{{ t("uyada, mos") }}</span></div>
+        <div class="scan-stat"><span class="v">{{ c.xodimda | num }}</span><span class="l">{{ t("xodimda (kutilgan)") }}</span></div>
+        <div class="scan-stat {{ 'red' if c.topilmadi else '' }}"><span class="v">{{ c.topilmadi | num }}</span><span class="l">{{ t("topilmadi") }}</span></div>
+        <div class="scan-stat {{ 'red' if c.kutilmagan + c.rfid_mos_emas else '' }}"><span class="v">{{ (c.kutilmagan + c.rfid_mos_emas) | num }}</span><span class="l">{{ t("kutilmagan / RFID mos emas") }}</span></div>
+        <div class="scan-stat {{ 'yellow' if c.miqdor_farqi else '' }}"><span class="v">{{ c.miqdor_farqi | num }}</span><span class="l">{{ t("miqdor farqi") }}</span></div>
+      </div>
+      {% if ctx.can("inventar") %}
+      <form method="post" action="/inventarizatsiya/{{ arm.id }}/skan"><button class="btn btn-sm">{{ icon("sync", 14, 2) }} {{ t("Qayta skanlash") }}</button></form>
+      {% endif %}
+      {% else %}
+      <div class="notice" style="margin-bottom: 10px">{{ t("Skan barcha uyalardagi RFID belgilarini o'qiydi va Item holati bilan solishtiradi. RFID belgisi yo'q jihozlar (magazin, o'q-dori, jihoz) miqdor bo'yicha hisoblanadi.") }}</div>
+      {% if ctx.can("inventar") %}
+      <form method="post" action="/inventarizatsiya/{{ arm.id }}/skan"><button class="btn btn-primary">{{ icon("target", 15, 2) }} {{ t("RFID skanni boshlash (simulyatsiya)") }}</button></form>
+      {% else %}
+      <div class="muted">{{ t("Skanni faqat qurolxona mas'uli boshlaydi.") }}</div>
+      {% endif %}
+      {% endif %}
+    </section>
+
+    {% if s.scanned %}
+    <section class="card" id="akt">
+      {% call card_head("3 · Aktni yakunlash") %}{% endcall %}
+      {% if ctx.can("inventar") %}
+      <form method="post" action="/inventarizatsiya/{{ arm.id }}/yakunlash" class="form-grid" onsubmit="return confirm('{{ t("Aktni yakunlaysizmi? Natija jurnalga (hash zanjiri) yoziladi va o'zgartirilmaydi.") }}')">
+        <label for="t1">{{ t("O'tkazdi") }}</label><input id="t1" value="{{ ctx.user.full_name if ctx.user else '' }}" disabled>
+        <label for="t2">{{ t("Tasdiqlovchi (ikkinchi shaxs)") }} *</label><input id="t2" name="tasdiqlovchi" required minlength="3" maxlength="80" placeholder="{{ t('Komissiya a\'zosi F.I.Sh.') }}">
+        <label for="iz">{{ t("Izoh") }}</label><textarea id="iz" name="izoh" maxlength="300" placeholder="{{ t('Farqlar bo\'yicha tushuntirish, chora-tadbirlar…') }}"></textarea>
+        <div class="check-row" style="grid-column: 1 / -1"><input type="checkbox" id="hf" name="hold_farq" value="1" {% if nd %}checked{% endif %} {% if not nd %}disabled{% endif %}><label for="hf">{{ t("Farqli jihozlarga ushlab turish (hold) qo'yish — berish bloklanadi") }} ({{ nd }})</label></div>
+        <div class="check-row" style="grid-column: 1 / -1"><input type="checkbox" id="ts" name="tasdiq" value="1" required><label for="ts">{{ t("Natijalar bilan tanishdim, akt to'g'ri tuzilgan") }}</label></div>
+        <div class="actions"><button class="btn btn-primary">{{ icon("clipboard", 15, 2) }} {{ t("Aktni yakunlash va PDF") }}</button></div>
+      </form>
+      {% else %}
+      <div class="muted">{{ t("Aktni faqat qurolxona mas'uli yakunlaydi.") }}</div>
+      {% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+  <div class="stack">
+    {% if s.scanned %}
+    <section class="card" id="farqlar">
+      {% call card_head("2 · Farqlar") %}{% if nd %}<span class="badge b-red">{{ nd }} {{ t("FARQ") }}</span>{% else %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ t("farq yo'q") }}</span>{% endif %}{% endcall %}
+      {% if s.discrepancies %}
+      <table class="tbl">
+        <thead><tr><th>#</th><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Model · seriya") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Tizimda") }}</th><th class="l">{{ t("Skan natijasi") }}</th><th class="l">{{ t("Izoh") }}</th></tr></thead>
+        <tbody>
+        {% for d in s.discrepancies %}{% set sc = SCAN.get(d.code, ("chip-gray", d.code)) %}{% set st = STATE.get(d.tizimda, ("chip-gray", d.tizimda)) %}
+        <tr class="row-link hl-red" data-href="/jihoz/{{ d.item_id }}">
+          <td class="muted">{{ loop.index }}</td>
+          <td class="l"><a href="/yacheyka/{{ d.cabinet_id }}">{{ d.cabinet }}</a></td>
+          <td class="l">{{ t(KIND.get(d.kind, d.kind)) }}</td>
+          <td class="l"><a href="/jihoz/{{ d.item_id }}">{{ d.model }}</a> <span class="mono muted">{{ d.serial }}</span></td>
+          <td class="l">{% if d.officer_id %}<a href="/xodim/{{ d.officer_id }}">{{ d.officer }}</a>{% else %}—{% endif %}</td>
+          <td class="l"><span class="chip {{ st[0] }}">{{ t(st[1]) }}</span></td>
+          <td class="l"><span class="chip {{ sc[0] }}">{{ t(sc[1]) }}</span></td>
+          <td class="l muted">{{ t(d.note) }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      {{ empty("Farqlar aniqlanmadi: barcha jihozlar tizim hisobiga mos") }}
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="card">
+      {% call card_head("Jihozlar · tizim hisobi" ~ (" va skan" if s.scanned else "")) %}<span class="muted">{{ rows | length | num }} {{ t("ta") }}</span>{% endcall %}
+      <div class="tbl-wrap tl-scroll">
+      <table class="tbl">
+        <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Model") }}</th><th class="l">{{ t("Seriya") }}</th><th class="l">RFID</th><th class="l">{{ t("Xodim") }}</th><th>{{ t("Miqdor") }}</th><th class="l">{{ t("Tizimda") }}</th>{% if s.scanned %}<th class="l">{{ t("Skan") }}</th>{% endif %}</tr></thead>
+        <tbody>
+        {% for item, cab, off in rows %}{% set st = STATE.get(item.state, ("chip-gray", item.state)) %}{% set r = s.results.get(item.id) %}
+        <tr class="row-link {% if r and r.code in DISC %}hl-red{% endif %}" data-href="/jihoz/{{ item.id }}">
+          <td class="l"><a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a></td>
+          <td class="l">{{ t(KIND.get(item.kind, item.kind)) }}</td>
+          <td class="l"><a href="/jihoz/{{ item.id }}">{{ item.model }}</a></td>
+          <td class="l mono">{{ item.serial }}</td>
+          <td class="l mono muted">{{ item.rfid or "—" }}</td>
+          <td class="l">{% if off %}{{ off.full_name }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{{ item.qty | num }}{% if r and r.qty != item.qty %} <span class="n-yellow">→ {{ r.qty }}</span>{% endif %}</td>
+          <td class="l"><span class="chip {{ st[0] }}">{{ t(st[1]) }}</span>{% if item.hold %} <span class="badge b-red">HOLD</span>{% endif %}</td>
+          {% if s.scanned %}{% set sc = SCAN.get(r.code, ("chip-gray", r.code)) if r else ("chip-gray", "—") %}<td class="l"><span class="chip {{ sc[0] }}">{{ t(sc[1]) }}</span></td>{% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

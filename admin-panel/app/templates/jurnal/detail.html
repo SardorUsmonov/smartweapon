@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% from "jurnal/_macros.html" import tabs, lv, where_cell with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/jurnal.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Hodisa") }} #{{ ev.id }}<small>{{ t(r.type_label) }} · {{ ev.ts_server | dt("%d.%m.%Y %H:%M:%S") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="/jurnal">{{ icon("chev-left", 14) }} {{ t("Jurnalga qaytish") }}</a>{% if r.cabinet %}<a class="btn btn-sm" href="/jurnal/yaxlitlik?yacheyka={{ r.cabinet.id }}">{{ icon("shield", 14) }} {{ t("Yacheyka yaxlitligi") }}</a>{% endif %}</div>
+</div>
+{{ tabs(tab, can_export) }}
+<div class="stack">
+  <section class="card">
+    {% call card_head(ev.title or r.type_label) %}{{ lv(ev.level) }}{% if ev.offline %}<span class="chip chip-yellow">{{ t("Oflayn yozuv") }}</span>{% endif %}{% if ev.simulated %}<span class="chip chip-gray">{{ t("Simulyatsiya") }}</span>{% endif %}{% endcall %}
+    {% if ev.detail %}<p class="jur-description">{{ t(ev.detail) }}</p>{% endif %}
+    <div class="jur-info">
+      <dl class="kv"><dt>{{ t("Hudud va qurolxona") }}</dt><dd>{{ where_cell(r) }}{% if r.armory %}<div class="muted">{{ t(r.armory.name) }}</div>{% endif %}</dd><dt>{{ t("Yacheyka") }}</dt><dd>{% if r.cabinet %}<a href="/yacheyka/{{ r.cabinet.id }}">{{ r.cabinet.label }}</a><div class="muted mono">{{ r.cabinet.serial }}</div>{% else %}—{% endif %}</dd><dt>{{ t("Xodim") }}</dt><dd>{% if r.officer %}<a href="/xodim/{{ r.officer.id }}">{{ t(r.officer.full_name) }}</a><div class="muted mono">{{ r.officer.tabel }}</div>{% else %}—{% endif %}</dd><dt>{{ t("Jihoz") }}</dt><dd>{% if r.item %}<a href="/jihoz/{{ r.item.id }}">{{ r.item.model }} · {{ r.item.serial }}</a>{% else %}—{% endif %}</dd></dl>
+      <dl class="kv"><dt>{{ t("Qurilma vaqti") }}</dt><dd class="mono">{{ ev.ts_device | dt("%d.%m.%Y %H:%M:%S") }}</dd><dt>{{ t("Server vaqti") }}</dt><dd class="mono">{{ ev.ts_server | dt("%d.%m.%Y %H:%M:%S") }}</dd><dt>{{ t("Usul") }}</dt><dd>{{ t(r.method_label) if ev.method else "—" }}</dd><dt>{{ t("Natija") }}</dt><dd><span class="chip {{ 'chip-green' if ev.result == 'ok' else 'chip-red' }}">{{ t(r.result_label) or "—" }}</span></dd><dt>{{ t("Sabab") }}</dt><dd>{{ t(r.reason_label) if ev.reason else "—" }}</dd><dt>{{ t("Urinishlar") }}</dt><dd>{{ ev.attempts }}</dd></dl>
+      <dl class="kv"><dt>{{ t("Birinchi tasdiqlovchi") }}</dt><dd>{{ t(ev.approver1) if ev.approver1 else "—" }}</dd><dt>{{ t("Ikkinchi tasdiqlovchi") }}</dt><dd>{{ t(ev.approver2) if ev.approver2 else "—" }}</dd><dt>{{ t("Bog'liq signal") }}</dt><dd>{% if r.alarm_id %}<a href="/signal/{{ r.alarm_id }}">{{ t("Signal") }} #{{ r.alarm_id }}</a>{% else %}—{% endif %}</dd><dt>{{ t("Hodisa turi") }}</dt><dd class="mono">{{ ev.type }}</dd><dt>{{ t("Oqimdagi tartib raqami") }}</dt><dd class="mono">{{ ev.seq }}</dd><dt>{{ t("Media qaydi") }}</dt><dd class="mono">{{ ev.media_ref or "—" }}</dd></dl>
+    </div>
+  </section>
+  <div class="grid-2 jur-columns">
+    <section class="card">
+      {% call card_head("Yozuv yaxlitligi") %}<span class="chip {{ 'chip-green' if hash_ok and link_ok else 'chip-red' }}">{{ t("Mos") if hash_ok and link_ok else t("Nomuvofiqlik") }}</span>{% endcall %}
+      <div class="notice {{ 'green' if hash_ok and link_ok else 'red' }}">{{ t("Yozuv hash qiymati va oldingi yozuv bilan bog'lanish mos.") if hash_ok and link_ok else t("Hash qiymati yoki oldingi yozuv bilan bog'lanish mos emas. Tekshiruv natijasini mas'ulga yetkazing.") }}</div>
+      <dl class="kv jur-hashes"><dt>SHA-256</dt><dd><code>{{ ev.hash }}</code><span class="jur-check {{ 'n-green' if hash_ok else 'n-red' }}">{{ t("Mos") if hash_ok else t("Mos emas") }}</span></dd><dt>{{ t("Oldingi hash") }}</dt><dd><code>{{ ev.prev_hash or t("Oqimning birinchi yozuvi") }}</code><span class="jur-check {{ 'n-green' if link_ok else 'n-red' }}">{{ t("Bog'lanish mos") if link_ok else t("Bog'lanish mos emas") }}</span></dd></dl>
+      <p class="muted jur-help">{{ t("Ushbu tekshiruv bitta yozuvga tegishli. To'liq oqimni Yaxlitlik sahifasida tekshiring. Jurnal yozuvlari tahrirlanmaydi va o'chirilmaydi.") }}</p>
+    </section>
+    <section class="card">{% call card_head("Hodisa ma'lumotlari") %}<span class="meta-item mono">JSON</span>{% endcall %}<pre class="jur-json">{{ payload_json }}</pre></section>
+  </div>
+  <section class="card">
+    {% call card_head("Oqimdagi qo'shni hodisalar") %}<span class="meta-item muted">{{ t("Yacheyka oqimi") if r.cabinet else t("Umumiy oqim") }}</span>{% endcall %}
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th class="l">#</th><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Hodisa") }}</th><th class="l">{{ t("Natija") }}</th></tr></thead><tbody>{% for row in around %}<tr class="row-link {% if row.ev.id == ev.id %}jur-current{% endif %}" data-href="/jurnal/{{ row.ev.id }}"><td class="l"><a href="/jurnal/{{ row.ev.id }}">{{ row.ev.id }}</a>{% if row.ev.id == ev.id %} · {{ t("joriy") }}{% endif %}</td><td class="l mono">{{ row.ev.ts_server | dt("%d.%m.%Y %H:%M:%S") }}</td><td class="l">{{ lv(row.ev.level) }}</td><td class="l">{{ t(row.type_label) }}</td><td class="l">{{ t(row.result_label) }}</td></tr>{% endfor %}</tbody></table></div>
+  </section>
+</div>
+{% endblock %}

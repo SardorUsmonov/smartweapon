@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, cab_status with context %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t("Simulyator") }}<small>{{ t("Apparat o'rnida: yacheyka va qurolxona hodisalarini qo'lda chaqirish. Barcha hodisalar 'simulyatsiya' belgisi bilan yoziladi.") }}</small></h1>
+  <div class="page-actions">
+    {% if auto.running %}
+    <form method="post" action="/simulyator/avto/off"><button class="btn btn-danger">{{ icon("stop", 14, 2.2) }} {{ t("Avto-rejimni to'xtatish") }} ({{ auto.interval }} s)</button></form>
+    {% else %}
+    <form method="post" action="/simulyator/avto/on" class="form-row" style="margin: 0"><label>{{ t("Interval, s") }}</label><input type="number" name="interval" value="4" min="1" max="60" style="width: 70px"><button class="btn btn-primary">{{ icon("play", 14, 2.2) }} {{ t("Avto-rejim") }}</button></form>
+    {% endif %}
+  </div>
+</div>
+<div class="sim-grid">
+  <div class="stack">
+    <section class="card">
+      {{ card_head("Qurolxona") }}
+      <form method="get" action="/simulyator" class="form-row">
+        <select name="armory_id" onchange="this.form.submit()">
+          {% for a in armories %}<option value="{{ a.id }}" {% if a.id == armory.id %}selected{% endif %}>{{ a.unit.region.short }} · {{ a.unit.name }}</option>{% endfor %}
+        </select>
+      </form>
+      <dl class="kv">
+        <dt>{{ t("Holat") }}</dt><dd>{% if armory.online %}<span class="chip chip-green">{{ icon("wifi", 13) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 13) }} {{ t("oflayn") }}</span>{% endif %}</dd>
+        <dt>{{ t("Yacheykalar") }}</dt><dd>{{ cabs | length }}</dd>
+        <dt>{{ t("Oxirgi sinxron") }}</dt><dd>{{ armory.last_sync | dt("%d.%m %H:%M:%S") }}</dd>
+        <dt>UPS</dt><dd>{{ armory.ups_battery_pct }} %{% if armory.ups_on_battery %} · {{ t("batareyada") }}{% endif %}</dd>
+      </dl>
+      <div class="sim-actions">
+        {% for key, (typ, title, level) in armory_actions.items() %}
+        <form method="post" action="/simulyator/qurolxona/{{ armory.id }}/{{ key }}"><button class="btn btn-xs {% if level == 'CRITICAL' %}btn-danger{% endif %}" title="{{ typ }}">{{ t(title) }}</button></form>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="card">
+      {{ card_head("Rejimlar") }}
+      {% for m in modes %}
+      <div class="notice red" style="margin-bottom: 8px">
+        <b>{{ 'TREVOGA' if m.kind == 'trevoga' else "YIG'ILISH" }}</b> · {{ m.issued_count }}/{{ m.target_count }} · {{ t("navbatda") }} {{ m.queue_count }} · {{ m.started_at | dt }}
+        <div class="sim-actions">
+          <form method="post" action="/simulyator/rejim/{{ m.id }}/qadam"><input type="hidden" name="n" value="3"><button class="btn btn-xs">{{ t("+3 qurol berildi") }}</button></form>
+          <form method="post" action="/simulyator/rejim/{{ m.id }}/tugatish"><button class="btn btn-xs btn-danger">{{ t("Tugatish") }}</button></form>
+        </div>
+      </div>
+      {% endfor %}
+      <form method="post" action="/simulyator/rejim/boshlash" class="form-row">
+        <input type="hidden" name="armory_id" value="{{ armory.id }}">
+        <select name="kind"><option value="trevoga">Trevoga</option><option value="yigilish">Yig'ilish</option></select>
+        <input name="started_by" value="Navbatchi" style="width: 110px"><input name="approver2" value="Komandir" style="width: 110px">
+        <button class="btn btn-primary btn-sm">{{ t("Rejimni boshlash") }}</button>
+      </form>
+    </section>
+  </div>
+  <section class="card">
+    {% call card_head("Yacheykalar · " ~ armory.unit.name) %}<span class="muted">{{ t("Harakat tanlang: to'liq ssenariy jurnalga bir necha hodisa yozadi") }}</span>{% endcall %}
+    <div class="sim-cabs">
+      {% for c in cabs %}
+      <div class="sim-cab">
+        <b>{{ c.label }} {{ cab_status(c.status) }}</b>
+        <span class="st">{{ c.officer.full_name if c.officer else t("biriktirilmagan") }}</span>
+        <span class="st">AK: {{ t("uyada") if c.ak_present else t("xodimda") }} · PM: {{ t("uyada") if c.pm_present else t("xodimda") }} · {{ t("eshik") }}: {{ t("ochiq") if c.door_open else t("yopiq") }}</span>
+        <div class="sim-actions">
+          {% if c.ak_present %}<form method="post" action="/simulyator/yacheyka/{{ c.id }}/take"><button class="btn btn-xs btn-primary">{{ t("AK olish") }}</button></form>
+          {% else %}<form method="post" action="/simulyator/yacheyka/{{ c.id }}/return"><button class="btn btn-xs btn-primary">{{ t("Qaytarish") }}</button></form>
+          <form method="post" action="/simulyator/yacheyka/{{ c.id }}/return_mismatch"><button class="btn btn-xs">{{ t("Noto'g'ri qaytarish") }}</button></form>{% endif %}
+          {% if c.pm_present %}<form method="post" action="/simulyator/yacheyka/{{ c.id }}/take_pm"><button class="btn btn-xs">{{ t("PM olish") }}</button></form>{% endif %}
+          {% for key, spec in cabinet_actions.items() %}
+          <form method="post" action="/simulyator/yacheyka/{{ c.id }}/{{ key }}"><button class="btn btn-xs {% if spec[4] == 'CRITICAL' or spec[4] == 'SECURITY' %}btn-danger{% endif %}">{{ t(spec[1]) }}</button></form>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

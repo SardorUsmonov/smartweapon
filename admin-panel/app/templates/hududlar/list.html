@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hududlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Hududlar") }}<small>{{ t("14 hudud bo'yicha yacheyka, berilgan qurol, kechikish, rad etish, signal va oflayn holati · jonli") }}</small></h1>
+  <div class="page-actions">
+    <a class="pill {% if korinish == 'kartochka' %}on{% endif %}" href="{{ request.url.include_query_params(korinish='kartochka') }}">{{ icon("layers", 13, 2.2) }} {{ t("Kartochkalar") }}</a>
+    <a class="pill {% if korinish == 'jadval' %}on{% endif %}" href="{{ request.url.include_query_params(korinish='jadval') }}">{{ icon("list", 13, 2.2) }} {{ t("Jadval") }}</a>
+  </div>
+</div>
+<form class="filters" method="get" action="/hududlar">
+  <input type="hidden" name="korinish" value="{{ korinish }}">
+  <input name="q" value="{{ q }}" placeholder="{{ t('Hudud nomi…') }}" style="width: 200px" autocomplete="off">
+  <select name="holat" onchange="this.form.submit()">
+    <option value="">{{ t("Barcha holatlar") }}</option>
+    <option value="muammo" {% if holat == 'muammo' %}selected{% endif %}>{{ t("Signal yoki oflayn") }}</option>
+    <option value="kechikish" {% if holat == 'kechikish' %}selected{% endif %}>{{ t("Kechikish bor") }}</option>
+    <option value="meyorda" {% if holat == 'meyorda' %}selected{% endif %}>{{ t("Me'yorda") }}</option>
+  </select>
+  <label class="muted">{{ t("Saralash") }}</label>
+  <select name="saralash" onchange="this.form.submit()">
+    {% for key, label in sort_options %}<option value="{{ key }}" {% if saralash == key %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}
+  </select>
+  <select name="tartib" onchange="this.form.submit()">
+    <option value="desc" {% if tartib == 'desc' %}selected{% endif %}>{{ t("Kamayish bo'yicha") }}</option>
+    <option value="asc" {% if tartib == 'asc' %}selected{% endif %}>{{ t("O'sish bo'yicha") }}</option>
+  </select>
+  <button class="btn btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qidirish") }}</button>
+  {% if q or holat %}<a class="btn btn-ghost btn-sm" href="/hududlar?korinish={{ korinish }}">{{ t("Tozalash") }}</a>{% endif %}
+</form>
+<div class="hud-layout">
+  <section class="card" id="hud-list" hx-get="/hududlar/partials/royxat?{{ request.url.query }}" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+    {% include "hududlar/_royxat.html" %}
+  </section>
+  <section class="card hud-map">
+    {% call card_head("Xarita") %}<span class="meta-item muted">{{ t("bosilsa hudud sahifasi ochiladi") }}</span>{% endcall %}
+    <div class="map-wrap hud-map-wrap">{{ map_svg | safe }}<div class="map-tip" hidden></div></div>
+    <div class="hud-legend">
+      <span><span class="sw" style="background: var(--map-base)"></span>{{ t("Me'yorda") }}</span>
+      <span><span class="sw" style="background: var(--yellow)"></span>{{ t("Kechikish") }}</span>
+      <span><span class="sw" style="background: var(--red)"></span>{{ t("Signal / oflayn") }}</span>
+      <span><span class="sw" style="background: var(--gray)"></span>{{ t("Filtrdan tashqarida") }}</span>
+    </div>
+  </section>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

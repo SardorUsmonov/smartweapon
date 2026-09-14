@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, status_chip, num_cell, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurolxonalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Qurolxonalar") }}<small>{{ t("Obyekt darajasi: lokal kontroller, yacheykalar, qurilmalar va smena holati") }}</small></h1>
+  <div class="page-actions qx-summary">
+    <a class="pill {% if not f_holat %}on{% endif %}" href="{{ list_link(holat='') }}">{{ t("Jami") }}<b>{{ summary.jami | num }}</b></a>
+    <a class="pill {% if f_holat == 'onlayn' %}on{% endif %}" href="{{ list_link(holat='onlayn') }}"><span class="dot dot-green" style="margin-right:6px"></span>{{ t("Onlayn") }}<b>{{ summary.onlayn | num }}</b></a>
+    <a class="pill {% if f_holat == 'oflayn' %}on{% endif %}" href="{{ list_link(holat='oflayn') }}"><span class="dot dot-red" style="margin-right:6px"></span>{{ t("Oflayn") }}<b>{{ summary.oflayn | num }}</b></a>
+    <a class="pill {% if f_holat == 'smena' %}on{% endif %}" href="{{ list_link(holat='smena') }}">{{ t("Smena ochiq") }}<b>{{ summary.smena | num }}</b></a>
+    <a class="pill {% if f_holat == 'muammo' %}on{% endif %}" href="{{ list_link(holat='muammo') }}">{{ t("E'tibor talab") }}<b>{{ summary.muammo | num }}</b></a>
+  </div>
+</div>
+<section class="card">
+  {% call card_head("Qurolxonalar ro'yxati") %}
+    <span class="meta-item">{{ icon("layers", 15) }} {{ summary.yacheyka | num }} {{ t("yacheyka") }}</span>
+    <span class="meta-item">{{ icon("gun", 15) }} {{ summary.berilgan | num }} {{ t("berilgan") }}</span>
+    <span class="meta-item {% if summary.kechikish %}n-yellow{% else %}muted{% endif %}">{{ icon("clock", 15) }} {{ summary.kechikish | num }} {{ t("kechikish") }}</span>
+  {% endcall %}
+  <form class="filters" method="get" action="/qurolxonalar">
+    {% include "partials/location_filters.html" %}
+    <select name="holat" onchange="this.form.submit()">
+      <option value="">{{ t("Holat: barchasi") }}</option>
+      <option value="onlayn" {% if f_holat == 'onlayn' %}selected{% endif %}>{{ t("Onlayn") }}</option>
+      <option value="oflayn" {% if f_holat == 'oflayn' %}selected{% endif %}>{{ t("Oflayn") }}</option>
+      <option value="smena" {% if f_holat == 'smena' %}selected{% endif %}>{{ t("Smena ochiq") }}</option>
+      <option value="muammo" {% if f_holat == 'muammo' %}selected{% endif %}>{{ t("E'tibor talab qiladi") }}</option>
+    </select>
+    <select name="sort" onchange="this.form.submit()">
+      <option value="">{{ t("Saralash: hudud tartibi") }}</option>
+      <option value="holat" {% if f_sort == 'holat' %}selected{% endif %}>{{ t("Holat (muammo avval)") }}</option>
+      <option value="kechikish" {% if f_sort == 'kechikish' %}selected{% endif %}>{{ t("Kechikish") }}</option>
+      <option value="signal" {% if f_sort == 'signal' %}selected{% endif %}>{{ t("Signallar") }}</option>
+      <option value="berilgan" {% if f_sort == 'berilgan' %}selected{% endif %}>{{ t("Berilgan qurollar") }}</option>
+      <option value="yacheyka" {% if f_sort == 'yacheyka' %}selected{% endif %}>{{ t("Yacheykalar soni") }}</option>
+    </select>
+    <input name="q" value="{{ f_q }}" placeholder="{{ t('Qurolxona, bo‘linma, manzil…') }}" style="width: 240px">
+    <button class="btn btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qidirish") }}</button>
+    {% if f_hudud or location_selected.bolinma or location_selected.qurolxona or f_holat or f_q or f_sort %}<a class="btn btn-ghost btn-sm" href="/qurolxonalar">{{ t("Tozalash") }}</a>{% endif %}
+  </form>
+  {% if rows %}
+  <table class="tbl tbl-qx">
+    <thead><tr>
+      <th>#</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Qurolxona / bo'linma") }}</th><th class="l">{{ t("Aloqa") }}</th>
+      <th>{{ t("Yacheyka") }}</th><th>{{ t("Biriktirilgan") }}</th><th>{{ t("Berilgan") }}</th><th>{{ t("Kechikish") }}</th><th>{{ t("Signal") }}</th>
+      <th>{{ t("Nosoz/blok") }}</th><th class="l">{{ t("Qurilmalar") }}</th><th class="l">UPS</th><th class="l">{{ t("Smena") }}</th><th class="l">{{ t("Holat") }}</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr class="row-link st-{{ r.status }}" data-href="/qurolxona/{{ r.id }}">
+      <td class="muted">{{ pg.start + loop.index }}</td>
+      <td class="l"><a href="/hudud/{{ r.region_id }}">{{ t(r.region) }}</a></td>
+      <td class="l"><a href="/qurolxona/{{ r.id }}">{{ t(r.name) }}</a><span class="sub">{{ t(r.unit) }} · {{ t(r.address) }}</span></td>
+      <td class="l">{% if r.online %}<span class="chip chip-green">{{ icon("wifi", 13) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 13) }} {{ t("oflayn") }}</span>{% endif %}
+        <span class="sub mono">{{ t("sinxron") }} {{ r.last_sync | dt("%d.%m %H:%M") }}{% if r.pending %} · {{ r.pending }} {{ t("kutmoqda") }}{% endif %}</span></td>
+      <td>{{ r.yacheyka | num }}</td>
+      <td>{{ r.biriktirilgan | num }}</td>
+      <td>{{ r.berilgan | num }}</td>
+      <td>{{ num_cell(r.kechikish, "yellow") }}</td>
+      <td>{{ num_cell(r.signal, "red") }}</td>
+      <td>{{ num_cell(r.muammo, "yellow") }}</td>
+      <td class="l">{% if r.qurilma_muammo %}<span class="chip chip-red">{{ r.qurilma_muammo }} {{ t("muammo") }}</span>{% else %}<span class="chip chip-green">{{ t("me'yorda") }}</span>{% endif %}</td>
+      <td class="l">{% if r.ups_on_battery %}<span class="chip chip-yellow">{{ icon("battery", 13) }} {{ r.ups_pct }} %</span>{% else %}<span class="muted">{{ r.ups_pct }} %</span>{% endif %}</td>
+      <td class="l">{% if r.smena %}<span class="chip chip-green">{{ t("ochiq") }} · {{ r.smena.opened_at | dt }}</span><span class="sub">{{ t(r.smena.opened_by) }}</span>{% else %}<span class="chip chip-gray">{{ t("yopiq") }}</span>{% endif %}</td>
+      <td class="l">{{ status_chip(r.status) }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  {{ empty("Filtrga mos qurolxona topilmadi") }}
+  {% endif %}
+  <div class="pager">
+    <span>{{ pg.total | num }} {{ t("ta qurolxona") }} · {{ t("sahifa") }} {{ pg.page }}/{{ pg.pages }}</span>
+    {% if pg.has_prev %}<a class="btn btn-ghost btn-xs" href="/qurolxonalar?{{ pg.qs }}page={{ pg.page - 1 }}">{{ icon("chev-left", 13, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+    {% if pg.has_next %}<a class="btn btn-ghost btn-xs" href="/qurolxonalar?{{ pg.qs }}page={{ pg.page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 13, 2.2) }}</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

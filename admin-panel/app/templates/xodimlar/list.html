@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% from "xodimlar/macros.html" import service_chip, armed_chip, pager with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/xodimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Xodimlar") }}<small>{{ total | num }} {{ t("xodim") }} · {{ armed_total | num }} {{ t("qurollangan (ochiq custody)") }} · {{ t("ro'yxat vakolat doirasi bo'yicha") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/inventar?holat=yo'q">{{ icon("gun", 14) }} {{ t("Berilgan qurollar") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/jurnal?tur=rad_etildi">{{ icon("ban", 14) }} {{ t("Rad etishlar") }}</a>
+  </div>
+</div>
+
+<section class="card">
+  {% call card_head("Xodimlar ro'yxati") %}
+    <span class="meta-item muted">{{ t("F.I.Sh., tabel yoki karta UID bo'yicha qidiruv") }}</span>
+  {% endcall %}
+  <form method="get" action="/xodimlar" class="filters">
+    <select name="hudud" onchange="this.form.submit()">
+      <option value="">{{ t("Barcha hududlar") }}</option>
+      {% for r in region_opts %}<option value="{{ r.id }}" {% if hudud == r.id %}selected{% endif %}>{{ t(r.name) }}</option>{% endfor %}
+    </select>
+    <select name="bolinma" onchange="this.form.submit()">
+      <option value="">{{ t("Barcha bo'linmalar") }}</option>
+      {% for u in unit_opts %}<option value="{{ u.id }}" {% if bolinma == u.id %}selected{% endif %}>{{ t(u.region.short) }} · {{ t(u.name) }}</option>{% endfor %}
+    </select>
+    <input type="hidden" name="holat" value="{{ holat }}">
+    <input name="q" value="{{ q }}" placeholder="{{ t('F.I.Sh., tabel, karta…') }}" style="width: 240px">
+    <button class="btn btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qidirish") }}</button>
+    {% if hudud or bolinma or holat or q %}<a class="btn btn-ghost btn-sm" href="/xodimlar">{{ t("Tozalash") }}</a>{% endif %}
+    <span class="xd-pills">
+      <a class="pill {% if not holat %}on{% endif %}" href="?{{ holat_qs }}">{{ t("Barchasi") }}</a>
+      <a class="pill {% if holat == 'qurollangan' %}on{% endif %}" href="?{{ holat_qs }}{% if holat_qs %}&{% endif %}holat=qurollangan">{{ t("Qurollangan") }}</a>
+      {% for code, (label, tone) in statuses.items() %}
+      <a class="pill {% if holat == code %}on{% endif %}" href="?{{ holat_qs }}{% if holat_qs %}&{% endif %}holat={{ code | urlencode }}">{{ t(label) }}</a>
+      {% endfor %}
+    </span>
+  </form>
+
+  {% if rows %}
+  <div class="xd-tblwrap">
+  <table class="tbl xd-tbl">
+    <thead><tr>
+      <th>#</th><th class="l">{{ t("F.I.Sh.") }}</th><th class="l">{{ t("Tabel") }}</th><th class="l">{{ t("Unvon · lavozim") }}</th>
+      <th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma · qurolxona") }}</th><th class="l">{{ t("Yacheyka") }}</th>
+      <th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Qurollangan") }}</th><th class="l">{{ t("Ruxsat") }}</th><th class="l">{{ t("Kredensial") }}</th>
+    </tr></thead>
+    <tbody>
+    {% for off, unit, region, armory, cab, armed in rows %}
+    <tr class="row-link" data-href="/xodim/{{ off.id }}">
+      <td class="muted">{{ (page - 1) * per_page + loop.index }}</td>
+      <td class="l"><a href="/xodim/{{ off.id }}">{{ off.full_name }}</a></td>
+      <td class="l mono">{{ off.tabel }}</td>
+      <td class="l">{{ t(off.rank) }} <span class="muted">· {{ t(off.position) }}</span></td>
+      <td class="l"><a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a></td>
+      <td class="l">{{ t(unit.name) }}{% if armory %} <span class="muted">· <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a></span>{% endif %}</td>
+      <td class="l">{% if cab %}<a href="/yacheyka/{{ cab.id }}">{{ cab.label }}</a>{% if cab.status != 'biriktirilgan' %} <span class="chip chip-red">{{ t(cab.status) }}</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td class="l">{{ service_chip(off.service_status, statuses) }}</td>
+      <td class="l">{{ armed_chip(armed) }}</td>
+      <td class="l"><span class="xd-permit-mini {% if off.permit_ak %}on{% endif %}" title="AVTOMAT">AK</span><span class="xd-permit-mini {% if off.permit_pm %}on{% endif %}" title="TO'PPONCHA">PM</span></td>
+      <td class="l xd-creds">
+        <span class="xd-cred {% if off.card_status == 'faol' and off.card_uid %}on{% endif %}" title="{{ t('Karta') }}">{{ icon("key", 13, 2) }}</span>
+        <span class="xd-cred {% if off.face_enrolled %}on{% endif %}" title="{{ t('Yuz') }}">{{ icon("eye", 13, 2) }}</span>
+        <span class="xd-cred {% if off.finger_enrolled %}on{% endif %}" title="{{ t('Barmoq izi') }}">{{ icon("target", 13, 2) }}</span>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {{ pager(page, pages, total, per_page, base_qs) }}
+  {% else %}
+  {{ empty("Filtrga mos xodim topilmadi") }}
+  {% endif %}
+</section>
+{% endblock %}

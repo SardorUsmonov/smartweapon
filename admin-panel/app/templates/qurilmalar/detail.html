@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty, level_icon with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurilmalar.css">{% endblock %}
+{% block content %}
+{% set region = armory.unit.region %}
+<div class="page-head">
+  <h1 class="page-title"><span class="dev-ic dev-ic-lg st-{{ d.status }}">{{ icon(d.icon, 18, 2) }}</span> {{ dev.name }}
+    <small>{{ t(d.kind_label) }} · <a href="/hudud/{{ region.id }}">{{ t(region.short) }}</a> › {{ t(armory.unit.name) }} › <a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a> · QR-{{ "%06d" | format(dev.id) }}</small></h1>
+  <div class="page-actions">
+    <span class="chip {{ d.chip }}">{% if d.status == "onlayn" %}{{ icon("check", 13, 2.4) }}{% elif d.status == "oflayn" %}{{ icon("wifi-off", 13, 2.4) }}{% elif d.status == "xizmatda" %}{{ icon("wrench", 13, 2.4) }}{% else %}{{ icon("alert", 13, 2.4) }}{% endif %} {{ t(d.status_label) }}</span>
+    {% if ctx.can("qurilmalar") %}
+    <form method="post" action="/qurilma/{{ dev.id }}/self-test"><button class="btn btn-primary btn-sm">{{ icon("check", 14, 2.2) }} {{ t("Self-test") }}</button></form>
+    <form method="post" action="/qurilma/{{ dev.id }}/vaqt-sinxroni"><button class="btn btn-sm">{{ icon("sync", 14, 2.2) }} {{ t("Vaqt sinxroni") }}</button></form>
+    {% endif %}
+  </div>
+</div>
+{% if msg %}<div class="notice {{ msg[0] }} qz-notice">{{ t(msg[1]) }}</div>{% endif %}
+{% if err %}<div class="notice red qz-notice">{{ t(err) }}</div>{% endif %}
+{% if xizmat %}<div class="notice yellow qz-notice">{{ icon("wrench", 14, 2.2) }} <b>{{ t("Xizmat rejimida") }}</b> · {{ t("sabab") }}: {{ xizmat.sabab }} · {{ t("kim") }}: {{ xizmat.kim }} · {{ t("boshlandi") }}: {{ xizmat.boshlandi | dt("%d.%m.%Y %H:%M") }}</div>{% endif %}
+{% if not armory.online %}<div class="notice red qz-notice">{{ icon("wifi-off", 14, 2.2) }} {{ t("Qurolxona oflayn: qurilma bilan aloqa yo'q, ko'rsatkichlar so'nggi sinxrondan olingan") }} ({{ armory.last_sync | dt("%d.%m.%Y %H:%M") }}).</div>{% endif %}
+
+<div class="grid-3">
+  <div class="stack">
+    <section class="card">
+      {{ card_head("Qurilma") }}
+      <dl class="kv">
+        <dt>{{ t("Tur") }}</dt><dd>{{ t(d.kind_label) }}</dd>
+        <dt>{{ t("Nom") }}</dt><dd>{{ dev.name }}</dd>
+        <dt>{{ t("Holat") }}</dt><dd><span class="chip {{ d.chip }}">{{ t(d.status_label) }}</span>{% if dev.status != d.status %} <span class="muted">({{ t("qurilma") }}: {{ t(dev.status) }})</span>{% endif %}</dd>
+        <dt>{{ t("Hudud") }}</dt><dd><a href="/hudud/{{ region.id }}">{{ t(region.name) }}</a></dd>
+        <dt>{{ t("Bo'linma") }}</dt><dd>{{ t(armory.unit.name) }}</dd>
+        <dt>{{ t("Qurolxona") }}</dt><dd><a href="/qurolxona/{{ armory.id }}">{{ t(armory.name) }}</a> · {% if armory.online %}<span class="chip chip-green">{{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ t("oflayn") }}</span>{% endif %}</dd>
+        <dt>{{ t("Manzil") }}</dt><dd>{{ armory.address or "—" }}</dd>
+        <dt>{{ t("So'nggi aloqa") }}</dt><dd>{% if dev.last_seen %}{{ dev.last_seen | dt("%d.%m.%Y %H:%M:%S") }} <span class="muted">({{ dev.last_seen | ago }} {{ t("oldin") }})</span>{% else %}—{% endif %}</dd>
+        <dt>{{ t("Qurolxona sinxroni") }}</dt><dd>{{ armory.last_sync | dt("%d.%m.%Y %H:%M:%S") or "—" }}</dd>
+        <dt>{{ t("Vaqt sinxroni") }}</dt><dd>{% if sinxron %}{{ sinxron | dt("%d.%m.%Y %H:%M:%S") }} · {{ t("og'ish") }} {{ dev.metrics.get("ntp_ogish_s", 0) }} s{% else %}<span class="muted">{{ t("qo'lda bajarilmagan") }}</span>{% endif %}</dd>
+        <dt>{{ t("Identifikator") }}</dt><dd><span style="font-family: var(--font-mono)">QR-{{ "%06d" | format(dev.id) }}</span></dd>
+      </dl>
+    </section>
+    <section class="card">
+      {% call card_head("Ko'rsatkichlar") %}<span class="meta-item muted">{{ t("telemetriya") }}</span>{% endcall %}
+      {% if metrics %}
+      <div class="metric-list">
+        {% for m in metrics %}
+        <div class="metric">
+          <span class="lbl">{{ t(m.label) }}</span>
+          {% if m.kind == "pct" %}<span class="bar t-{{ m.tone }}"><i style="width: {{ m.pct }}%"></i></span>
+          {% elif m.kind == "bool" %}<span><span class="chip chip-{{ m.tone }}">{% if m.value %}{{ icon("check", 12, 2.4) }}{% else %}{{ icon("ban", 12, 2.4) }}{% endif %} {{ t(m.text) }}</span></span>
+          {% else %}<span></span>{% endif %}
+          <span class="val {% if m.tone == 'red' %}n-red{% elif m.tone == 'yellow' %}n-yellow{% endif %}">{{ t(m.text) }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}{{ empty("Bu qurilma uchun ko'rsatkich yo'q") }}{% endif %}
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Self-test") %}{% if selftest %}<span class="meta-item muted">{{ selftest.ts | dt("%d.%m.%Y %H:%M") }}</span>{% endif %}{% endcall %}
+      {% if selftest %}
+        <div class="notice {{ 'green' if selftest.ok else 'red' }}" style="margin-bottom: 8px">{% if selftest.ok %}{{ icon("check", 14, 2.2) }} {{ t("Barcha tekshiruvlar o'tdi") }}{% else %}{{ icon("alert", 14, 2.2) }} {{ t("Xato") }}: {{ selftest.xato | join(", ") }}{% endif %}</div>
+        <div class="check-list">
+          {% for c in selftest.tekshiruvlar %}<div><span>{{ t(c.label) }}</span><span class="chip {{ 'chip-green' if c.ok else 'chip-red' }}">{{ t(c.value) }}</span></div>{% endfor %}
+        </div>
+      {% else %}
+        {{ empty("Self-test hali bajarilmagan. Natija jurnalga 'texnik_xizmat' turi bilan yoziladi.") }}
+      {% endif %}
+    </section>
+    <section class="card">
+      {{ card_head("Xizmat rejimi") }}
+      {% if ctx.can("qurilmalar") %}
+        {% if dev.status == "xizmatda" %}
+        <form class="form-stack" method="post" action="/qurilma/{{ dev.id }}/xizmat" onsubmit='return confirm("{{ t("Xizmat rejimi tugatiladi, qurilma ish holatiga qaytadi. Davom etasizmi?") }}")'>
+          <input type="hidden" name="holat" value="off">
+          <label>{{ t("Bajarilgan ishlar (izoh)") }}</label>
+          <input name="sabab" placeholder="{{ t("masalan: batareya almashtirildi, sozlamalar tekshirildi") }}" maxlength="200">
+          <button class="btn btn-primary">{{ icon("check", 14, 2.2) }} {{ t("Xizmat rejimini tugatish") }}</button>
+        </form>
+        {% else %}
+        <form class="form-stack" method="post" action="/qurilma/{{ dev.id }}/xizmat" onsubmit='return confirm("{{ t("Qurilma xizmat rejimiga o‘tkaziladi: bu qurilma bo‘yicha signallar vaqtincha e’tiborga olinmaydi. Davom etasizmi?") }}")'>
+          <input type="hidden" name="holat" value="on">
+          <label>{{ t("Sabab (majburiy)") }}</label>
+          <input name="sabab" required placeholder="{{ t("masalan: rejali texnik ko'rik, dasturiy ta'minot yangilash") }}" maxlength="200">
+          <button class="btn btn-danger">{{ icon("wrench", 14, 2.2) }} {{ t("Xizmat rejimiga o'tkazish") }}</button>
+        </form>
+        {% endif %}
+        <p class="muted" style="margin: 8px 0 0; font-size: 12px">{{ t("Har bir harakat jurnalga 'texnik_xizmat' turi bilan, kim va sabab ko'rsatilgan holda yoziladi. Panel qulf ochmaydi.") }}</p>
+      {% else %}
+        <div class="notice">{{ t("Self-test, vaqt sinxroni va xizmat rejimi faqat administrator uchun.") }}</div>
+      {% endif %}
+    </section>
+    <section class="card">
+      {% call card_head("Qurolxona qurilmalari") %}<a class="btn btn-ghost btn-sm" href="/qurolxona/{{ armory.id }}">{{ t("Qurolxona") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      {% if siblings %}
+      <table class="tbl">
+        <thead><tr><th class="l">{{ t("Qurilma") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Ko'rsatkichlar") }}</th></tr></thead>
+        <tbody>
+        {% for s in siblings %}
+        <tr class="row-link" data-href="/qurilma/{{ s.id }}">
+          <td class="l"><span class="dev-ic st-{{ s.status }}">{{ icon(s.icon, 13, 2) }}</span> <a href="/qurilma/{{ s.id }}">{{ s.name }}</a></td>
+          <td class="l"><span class="chip {{ s.chip }}">{{ t(s.status_label) }}</span></td>
+          <td class="l muted">{{ t(s.metrics) }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}{{ empty("Boshqa qurilma yo'q") }}{% endif %}
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Hodisalar") %}<a class="btn btn-ghost btn-sm" href="/jurnal?tur=texnik_xizmat">{{ t("Jurnal") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      <div class="ev-list">
+        {% for e in events %}
+        <a class="ev-row lv-{{ e.level | lower }}" href="/jurnal/{{ e.id }}">
+          <span class="ts">{{ e.ts_server | dt("%d.%m %H:%M") }}</span>
+          {{ level_icon(e.level) }}
+          <span class="feed-body"><span class="feed-title">{{ t(e.title) }}</span><span class="feed-detail">{{ t(e.detail) }}{% if e.approver1 %} · {{ e.approver1 }}{% endif %}</span></span>
+          <span class="chip {{ LEVEL_CHIP.get(e.level, 'chip-gray') }}">{{ e.type }}</span>
+        </a>
+        {% else %}
+        {{ empty("Bu qurilma bo'yicha hodisa yo'q") }}
+        {% endfor %}
+      </div>
+    </section>
+    {% if dev.kind == "terminal" %}
+    <section class="card">
+      {% call card_head("Yacheyka kontrollerlari") %}<span class="meta-item"><span class="dot dot-red"></span>{{ cabs | rejectattr("controller_online") | list | length }} {{ t("oflayn") }}</span><span class="meta-item muted">{{ cabs | length }} {{ t("ta") }}</span>{% endcall %}
+      {% include "qurilmalar/kontrollerlar_partial.html" %}
+    </section>
+    {% endif %}
+  </div>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

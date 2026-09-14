@@ -1,0 +1,10 @@
+{% from "macros.html" import kpi with context %}
+{{ kpi("Jami yacheykalar", k.yacheykalar, k.qurolxonalar|num ~ " qurolxona", "layers", "", "/yacheykalar") }}
+{{ kpi("Berilgan qurollar", k.berilgan, "hozir xodimlarda", "gun", "", "/inventar?berilgan=1") }}
+{{ kpi("Vaqtida qaytarilmagan", k.kechikish, "muddat o'tgan", "clock", "red" if k.kechikish else "", "/inventar?kechikish=1") }}
+{{ kpi("Nosoz yoki bloklangan", k.bloklangan, "yacheyka", "wrench", "yellow" if k.bloklangan else "", "/yacheykalar?holat=muammo") }}
+{{ kpi("Sutkalik olish-qaytarish", k.sutkalik, "bugun, " ~ now.strftime('%H:%M') ~ " gacha", "swap", "", "/jurnal?tur=operatsiya") }}
+{{ kpi("Rad etilgan urinishlar", k.rad_etilgan, "bugun", "ban", "yellow" if k.rad_etilgan else "", "/jurnal?tur=rad_etildi") }}
+{{ kpi("Favqulodda ochilishlar", k.favqulodda, "30 kun", "siren", "red" if k.favqulodda else "", "/jurnal?tur=favqulodda") }}
+{{ kpi("Inventar farqlari", k.inventar_farqlari, "yechilmagan", "clipboard", "yellow" if k.inventar_farqlari else "", "/inventar?farq=1") }}
+{{ kpi("Oflayn qurolxonalar", k.qurolxona_oflayn, k.qurolxonalar|num ~ " dan", "wifi-off", "red" if k.qurolxona_oflayn else "", "/qurolxonalar?holat=oflayn") }}

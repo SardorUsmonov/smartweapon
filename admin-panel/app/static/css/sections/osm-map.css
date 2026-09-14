@@ -1,0 +1,77 @@
+/* Only Uzbekistan is visible; the map shares the executive panel's palette. */
+.executive-map {
+  --osm-canvas: var(--bg); --osm-marker-ring: #fff;
+  --osm-vector-land: #f1efe7; --osm-vector-park: #dce7d5; --osm-vector-water: #99c6d8;
+  --osm-vector-road: #ac8c4b; --osm-vector-minor: #b8b8aa; --osm-vector-division: #9ca8ae; --osm-vector-building: #d4d5cf;
+}
+[data-theme="dark"] .executive-map {
+  --osm-marker-ring: #172b3b;
+  --osm-vector-land: #183043; --osm-vector-park: #254439; --osm-vector-water: #306483;
+  --osm-vector-road: #8da8b4; --osm-vector-minor: #4d7287; --osm-vector-division: #56768a; --osm-vector-building: #345166;
+}
+[data-theme] .executive-map.is-osm {
+  min-height: 425px; margin-top: 12px; border: 1px solid var(--border);
+  border-radius: 7px; background: var(--osm-canvas);
+}
+.executive-map.is-osm > .uzmap, .executive-map.is-osm > .map-grid,
+.executive-map.is-osm > .map-zoom, .executive-map.is-osm > .map-tip { display: none; }
+.osm-surface { position: absolute; inset: 0; z-index: 0; background: var(--osm-canvas); font-family: var(--font); }
+.osm-clip-defs { position: absolute; pointer-events: none; }
+.osm-country-mask { fill: var(--osm-canvas); fill-opacity: 1; }
+.osm-country-boundary { fill: none; stroke: var(--accent); }
+.osm-region-connector { stroke: var(--muted); pointer-events: none; }
+.osm-region-anchor { fill: var(--accent-text); stroke: var(--osm-canvas); pointer-events: none; }
+.osm-heading, .osm-actions { display: none; }
+.is-osm .osm-heading {
+  display: flex; position: absolute; top: 12px; left: 12px; z-index: 2; align-items: center; gap: 7px;
+  padding: 6px 0; color: var(--accent-text);
+  font-size: 11px; font-weight: 500; letter-spacing: .015em; pointer-events: none;
+}
+.osm-boundary-key { width: 17px; height: 11px; border: 1.5px solid var(--accent); background: var(--accent-soft); border-radius: 2px; }
+.is-osm .osm-actions { display: flex; position: absolute; bottom: 28px; left: 12px; z-index: 2; gap: 6px; }
+.osm-actions button, .osm-actions a, .osm-notice button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 34px; padding: 6px 9px; background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 4px; font: 500 11px var(--font); cursor: pointer;
+  box-shadow: 0 2px 6px #0002;
+}
+.osm-actions button:hover, .osm-actions a:hover, .osm-notice button:hover { background: var(--panel-2); color: var(--accent-text); }
+.osm-surface .leaflet-control-zoom { border: 1px solid var(--border); box-shadow: 0 2px 8px #0002; margin: 12px; }
+.osm-surface .leaflet-control-zoom a { width: 34px; height: 34px; line-height: 34px; background: var(--panel); color: var(--text); border-color: var(--border); }
+.osm-surface .leaflet-control-zoom a:hover { background: var(--panel-2); }
+.osm-surface .leaflet-control-zoom a.leaflet-disabled { color: var(--muted); opacity: .65; }
+.osm-surface .leaflet-control-attribution { background: var(--osm-canvas); color: var(--muted); font: 10px/1.6 var(--font); padding: 2px 7px; }
+.osm-surface .leaflet-control-attribution a { color: var(--muted); text-decoration: underline; }
+.osm-surface .leaflet-control-scale-line { background: var(--osm-canvas); color: var(--muted); border-color: var(--muted); font: 10px var(--font); text-shadow: none; }
+.osm-surface .leaflet-bottom.leaflet-left { left: auto; right: 5px; bottom: 22px; }
+.osm-region-icon { background: none; border: 0; --osm-status: var(--gray); width: max-content; height: 30px; }
+.osm-region-label {
+  display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px;
+  background: var(--panel); color: var(--text); border: 1px solid var(--border-strong); border-radius: 4px;
+  font: 500 11px/1 var(--font); white-space: nowrap; box-shadow: 0 2px 5px #0002;
+}
+.osm-region-name { display: block; }
+.osm-region-icon[data-status="critical"] { --osm-status: var(--red); }
+.osm-region-icon[data-status="warning"] { --osm-status: var(--yellow); }
+.osm-region-icon[data-status="good"] { --osm-status: var(--green); }
+.osm-region-dot {
+  display: block; width: 6px; height: 6px; flex-shrink: 0;
+  border-radius: 50%; background: var(--osm-status);
+}
+.osm-region-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.osm-region-icon:hover .osm-region-label, .osm-region-icon:focus-visible .osm-region-label { border-color: var(--accent); color: var(--accent-text); }
+.osm-surface .leaflet-tooltip { background: var(--panel); color: var(--text); border: 1px solid var(--border); box-shadow: 0 3px 12px #0003; font: 11px/1.5 var(--font); }
+.osm-region-tip { display: block; max-width: 235px; white-space: normal; }
+.osm-region-tip b { display: block; margin-bottom: 4px; }
+.osm-region-tip small { display: block; color: var(--muted); font-size: 10px; }
+.osm-notice { position: absolute; left: 10px; right: 10px; top: 58px; z-index: 3; padding: 9px 11px; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 11px; }
+.osm-notice:not([hidden]) { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.osm-notice button { flex-shrink: 0; min-height: 28px; }
+@media (max-width: 1000px) { [data-theme] .executive-map.is-osm { min-height: 0; height: 425px; } }
+@media (max-width: 700px) {
+  [data-theme] .executive-map.is-osm { height: 425px; }
+  .osm-region-label { font-size: 10px; padding: 0 6px; gap: 5px; }
+  .is-osm .osm-heading { top: 9px; left: 9px; max-width: calc(100% - 70px); font-size: 10px; }
+  .osm-actions button, .osm-actions a { min-height: 36px; }
+  .osm-surface .leaflet-control-zoom { margin: 9px; }
+}

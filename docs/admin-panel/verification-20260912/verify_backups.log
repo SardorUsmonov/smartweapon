@@ -1,0 +1,7 @@
+Legacy labels, no fake restore, real authentication, roles, scope and CSRF passed
+Online snapshot equals every source row; manifest SHA/size and 7 historical defects preserved
+Restore into a separate file equals every source row; original snapshot and audit remain unchanged
+File/manifest tamper, missing paths, invalid IDs, weekly category and both languages passed
+CLI backup/restore-copy, no overwrite, no source data mutation and path confinement passed
+Fresh audit fixture produces an intact backup without a historical warning
+PASS scratch: C:\Users\atsha\AppData\Local\Temp\aq_backup_flow__hbb21s9

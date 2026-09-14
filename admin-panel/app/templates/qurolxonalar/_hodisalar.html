@@ -1,0 +1,28 @@
+{% from "macros.html" import icon, card_head, level_badge, level_icon, empty with context %}
+{% call card_head("Faol signallar") %}<a class="btn btn-ghost btn-sm" href="/signallar?qurolxona={{ a.id }}">{{ t("Signal markazi") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+<div class="feed" style="margin-bottom: 14px">
+  {% for al in alarms[:6] %}
+  <a class="feed-row lv-{{ al.level|lower }}" href="/signal/{{ al.id }}">
+    <span class="feed-time">{{ al.opened_at | dt }}</span>
+    {{ level_icon(al.level) }}
+    <span class="feed-body"><span class="feed-title">{{ t(al.title) }}</span><span class="feed-detail">{{ t(al.detail) }}{% if al.requires_ack and not al.acked_at %} · {{ t("tasdiq talab qiladi") }}{% elif al.acked_at %} · {{ t("tasdiqlangan") }}: {{ t(al.acked_by) }}{% endif %}</span></span>
+    {{ level_badge(alarm_badge(al)) }}
+  </a>
+  {% else %}
+  {{ empty("Faol signal yo'q") }}
+  {% endfor %}
+  {% if alarms | length > 6 %}<a class="muted" href="/signallar?qurolxona={{ a.id }}" style="font-size:12px">{{ t("yana") }} {{ alarms | length - 6 }} {{ t("ta signal") }} →</a>{% endif %}
+</div>
+{% call card_head("So'nggi hodisalar") %}<span class="meta-item muted">{{ t("oxirgi") }} {{ events | length }}</span><a class="btn btn-ghost btn-sm" href="/jurnal?qurolxona={{ a.id }}">{{ t("Jurnal") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+<div class="ev-list">
+  {% for e in events %}
+  <a class="ev-row" href="{% if e.cabinet_id %}/yacheyka/{{ e.cabinet_id }}{% else %}/jurnal/{{ e.id }}{% endif %}">
+    <span class="feed-time">{{ e.ts_server | dt("%d.%m %H:%M") }}</span>
+    {{ level_icon(e.level) }}
+    <span class="feed-body"><span class="feed-title">{{ t(e.title) }}</span><span class="feed-detail">{{ t(e.detail) }}{% if e.method %} · {{ e.method }}{% endif %}{% if e.result and e.result != "ok" %} · {{ t(e.result) }}{% endif %}{% if e.offline %} · {{ t("oflayn") }}{% endif %}</span></span>
+    <span class="muted mono" style="font-size:11px">{{ e.type }}</span>
+  </a>
+  {% else %}
+  {{ empty("Hodisalar yo'q") }}
+  {% endfor %}
+</div>

@@ -1,0 +1,179 @@
+/* Shared themes, loaded after page styles. Layout and status meanings stay the same. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f3f6f8;
+  --nav: #f7f9fb;
+  --border: #dce3e9;
+  --border-strong: #afbdc9;
+  --text: #182e41;
+  --muted: #566b7d;
+  --muted-2: #637789;
+  --accent: #9b7a36;
+  --accent-soft: #9b7a3610;
+  --accent-text: #806020;
+  --green: #247653;
+  --yellow: #946511;
+  --red: #b63c40;
+  --gray: #788995;
+  --map-base: #d4e0e8;
+  --map-stroke: #748b9d;
+  --shadow: 0 2px 10px #182e4108;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #090f17;
+  --panel: #101c28;
+  --panel-2: #162432;
+  --nav: #0b131d;
+  --border: #283a4b;
+  --border-strong: #4a5d6d;
+}
+[data-theme] body { color-scheme: inherit; background: var(--bg); }
+[data-theme] .topbar { background: var(--nav); border-bottom-color: var(--border); }
+[data-theme] .sidebar { background: var(--nav); border-right-color: var(--border); }
+[data-theme] .card, [data-theme] .kpi { background: var(--panel); border-color: var(--border); }
+[data-theme] .executive-kpi { background: var(--panel); border-color: var(--border); border-top-color: var(--accent); }
+[data-theme] .executive-kpi:hover { background: var(--panel-2); border-color: var(--accent); color: var(--text); }
+[data-theme] .tbl thead th { background: var(--panel-2); color: var(--muted); }
+[data-theme] .tbl tbody td { border-bottom-color: var(--border); }
+[data-theme] .tbl tbody tr:hover { background: var(--accent-soft); }
+[data-theme] .search input, [data-theme] .lang-switch { border-color: var(--border); }
+[data-theme] .search input::placeholder { color: var(--muted-2); }
+[data-theme] * { scrollbar-color: var(--border-strong) var(--bg); }
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 34px; width: 34px; height: 34px; padding: 0;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--panel); color: var(--accent-text); cursor: pointer;
+}
+.theme-toggle:hover { background: var(--accent-soft); border-color: var(--accent); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+.theme-sun { display: none; }
+[data-theme="dark"] .theme-sun { display: block; }
+[data-theme="dark"] .theme-moon { display: none; }
+.auth-tools { display: flex; align-items: center; gap: 8px; }
+[data-theme] .auth-card { box-shadow: var(--shadow); }
+
+/* Text and controls on the white institutional shell. */
+[data-theme="light"] a:hover { color: var(--accent-text); }
+[data-theme="light"] .brand-logo { box-shadow: 0 0 0 1px var(--border-strong); }
+[data-theme="light"] .brand-sub,
+[data-theme="light"] .environment-note { color: var(--accent-text); }
+[data-theme="light"] .nav-caption,
+[data-theme="light"] .nav-item .ic { color: var(--muted); }
+[data-theme="light"] .nav-item.active { background: var(--accent-soft); color: var(--accent-text); }
+[data-theme="light"] .nav-item.active .ic { color: inherit; }
+[data-theme="light"] .nav-item:hover { background: var(--panel-2); color: var(--text); }
+[data-theme="light"] .btn:hover { color: var(--text); }
+[data-theme="light"] .btn-primary { background: #c3ad7e; border-color: #b69c65; color: #182e41; }
+[data-theme="light"] .btn-primary:hover { background: #ddc695; color: #182e41; }
+[data-theme="light"] .btn-ghost:hover { color: var(--accent-text); border-color: var(--accent); }
+[data-theme="light"] .tbl a { color: var(--text); }
+[data-theme="light"] .tbl a:hover { color: var(--accent-text); }
+[data-theme="light"] .tab.on,
+[data-theme="light"] .step.on b { color: #fff; background: var(--accent-text); }
+
+/* Situation overview: the same hierarchy in both themes. */
+[data-theme="light"] .situation-tabs,
+[data-theme="light"] .situation-attention,
+[data-theme="light"] .attention-list,
+[data-theme="light"] .attention-item,
+[data-theme="light"] .executive-kpi-foot,
+[data-theme="light"] .situation-status-strip { border-color: var(--border); }
+[data-theme="light"] .situation-tabs > a { color: var(--muted); }
+[data-theme="light"] .situation-tabs > a[aria-current="page"] {
+  color: var(--accent-text); background: var(--accent-soft); border-color: #c6b58d;
+}
+[data-theme="light"] .situation-tabs > a:hover { color: var(--accent-text); }
+[data-theme="light"] .situation-eyebrow,
+[data-theme="light"] .situation-coverage > strong,
+[data-theme="light"] .executive-kpi-label > svg,
+[data-theme="light"] .situation-status-strip > a { color: var(--accent-text); }
+[data-theme="light"] .situation-scope,
+[data-theme="light"] .situation-coverage small,
+[data-theme="light"] .map-context,
+[data-theme="light"] .map-context > span:last-child,
+[data-theme="light"] .situation-legend > span,
+[data-theme="light"] .attention-summary small,
+[data-theme="light"] .attention-item-meta,
+[data-theme="light"] .executive-kpi-label,
+[data-theme="light"] .executive-kpi-value > span,
+[data-theme="light"] .executive-kpi-foot,
+[data-theme="light"] .situation-status-strip { color: var(--muted); }
+[data-theme="light"] .situation-coverage > span,
+[data-theme="light"] .attention-summary > span,
+[data-theme="light"] .attention-item,
+[data-theme="light"] .situation-status-strip b { color: var(--text); }
+[data-theme="light"] .attention-item:hover { color: var(--accent-text); }
+[data-theme="light"] .attention-count { color: var(--accent-text); background: var(--accent-soft); border-color: #c6b58d; }
+[data-theme="light"] .attention-item-status { color: var(--yellow); }
+[data-theme="light"] .attention-item-status > span { color: var(--muted); border-color: var(--border-strong); }
+[data-theme="light"] .attention-summary > strong,
+[data-theme="light"] .severity-critical .attention-item-status,
+[data-theme="light"] .severity-security .attention-item-status,
+[data-theme="light"] .executive-kpi-foot .metric-alert { color: var(--red); }
+
+/* SVG map gradients, labels, markers and tooltips need their own light palette. */
+[data-theme="light"] .map-wrap { background: var(--panel-2); }
+[data-theme="light"] .executive-map { background: radial-gradient(ellipse at 45% 55%, #edf2f6, #fff 70%); }
+[data-theme="light"] .map-grid {
+  background-image: linear-gradient(#365a7d0b 1px, transparent 1px), linear-gradient(90deg, #365a7d0b 1px, transparent 1px);
+}
+[data-theme="light"] .map-tip,
+[data-theme="light"] .map-legend { background: var(--panel); border-color: var(--border-strong); box-shadow: 0 5px 20px #182e411a; }
+[data-theme="light"] .executive-map .map-zoom { border-color: var(--border-strong); }
+[data-theme="light"] .executive-map .map-zoom button { background: var(--panel); color: var(--muted); }
+[data-theme="light"] .map-zoom button:hover { background: var(--panel-2); color: var(--accent-text); }
+[data-theme="light"] #situation-map-face stop:nth-child(1) { stop-color: #e2eaf0; }
+[data-theme="light"] #situation-map-face stop:nth-child(2) { stop-color: #d4e0e8; }
+[data-theme="light"] #situation-map-face stop:nth-child(3) { stop-color: #c6d6e1; }
+[data-theme="light"] #situation-map-empty stop:first-child { stop-color: #eef1f4; }
+[data-theme="light"] #situation-map-empty stop:last-child { stop-color: #e1e7ec; }
+[data-theme="light"] #situation-map-depth feDropShadow { flood-color: #415d72; flood-opacity: .12; }
+[data-theme="light"] .uzmap-depth path { fill: #aebfcd; stroke: #98adbd; }
+[data-theme="light"] .uzmap-face { stroke: var(--map-stroke); stroke-opacity: .85; }
+[data-theme="light"] .executive-map .uzmap-labels text { fill: #263f53; stroke: #dae5ed; }
+[data-theme="light"] .executive-map .uzmap-labels path { stroke: #607c91; }
+[data-theme="light"] .uzmap-region.st-good:hover path { fill: #bfcfda; }
+[data-theme="light"] .executive-map .uzmap-region:hover path,
+[data-theme="light"] .executive-map .uzmap-region:focus-visible path { filter: brightness(.97); stroke: var(--accent-text); }
+[data-theme="light"] .uzmap-status-marker.st-critical { color: var(--red); }
+[data-theme="light"] .uzmap-status-marker.st-warning { color: var(--yellow); }
+[data-theme="light"] .uzmap-status-marker.st-good { color: var(--green); }
+[data-theme="light"] .uzmap-status-marker circle { fill: currentColor; stroke: currentColor; }
+[data-theme="light"] .uzmap-status-marker circle:last-child { stroke: var(--panel); }
+
+/* Status colors must remain legible throughout the operational sections. */
+[data-theme="light"] .b-red,
+[data-theme="light"] .btn-danger,
+[data-theme="light"] .mode-banner,
+[data-theme="light"] .mode-banner:hover,
+[data-theme="light"] .rep-sum .pill.red,
+[data-theme="light"] .rep-sum .pill.red b,
+[data-theme="light"] .hud-mode,
+[data-theme="light"] .hud-mode:hover,
+[data-theme="light"] .cell.c-bad,
+[data-theme="light"] .cell.c-bad small,
+[data-theme="light"] .rj-cell.bloklangan,
+[data-theme="light"] .rj-legend i.bloklangan,
+[data-theme="light"] .sig-resolve[open] summary { color: var(--red); }
+[data-theme="light"] .lv-violet,
+[data-theme="light"] .b-violet,
+[data-theme="light"] .chip-violet,
+[data-theme="light"] .sig-tile.tone-violet .sig-tile-val,
+[data-theme="light"] .sig-tile.tone-violet .sig-tile-head .ic,
+[data-theme="light"] .tl-item.violet .tl-dot { color: #6850a3; }
+/* Device displays retain their natural dark surface. */
+[data-theme="light"] .cam-frame,
+[data-theme="light"] .term,
+[data-theme="light"] .yc-terminal-screen {
+  --text: #eff3f5; --muted: #adbdca; --muted-2: #9dabb8;
+  --green: #70b9a2; --yellow: #d9b767; --red: #ef7c76; --accent-text: #d4be8e;
+  color: var(--text);
+}
+@media (max-width: 700px) {
+  .topbar-right .search { min-width: 0; }
+  .topbar-right .user-menu { gap: 6px; }
+}

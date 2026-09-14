@@ -1,0 +1,81 @@
+/* Shared shell: prevent header collisions and keep content usable at narrow widths. */
+html, body {height:100%; color-scheme:dark;}
+:root {--nav-w:160px;}
+body {height:100dvh; overflow:hidden;}
+.topbar {min-width:0; gap:12px;}
+.brand {flex:0 0 244px; min-width:0;}
+.brand-title {white-space:nowrap; font-size:18px;}
+.brand-sub {font-size:9px;}
+.crumbs {flex:0 1 230px; overflow:hidden; text-overflow:ellipsis;}
+.mode-banner {max-width:100%; min-width:0; padding:0 10px; gap:8px; font-size:12px;}
+.mode-banner span {min-width:0; overflow:hidden; text-overflow:ellipsis;}
+.topbar-right {gap:10px; min-width:0; flex-shrink:0;}
+.topbar .search input {width:185px;}
+.topbar .clock,.topbar .sys-ok {padding-left:10px;}
+.topbar .user-chip {max-width:180px;}
+.sidebar {overflow-y:auto; overflow-x:hidden;}
+.nav-item {gap:8px; padding-left:11px; padding-right:9px;}
+.page-head {flex-wrap:wrap;}
+.page-title {overflow-wrap:anywhere;}
+.page-actions {flex-wrap:wrap;}
+.card {min-width:0;}
+.stack {min-width:0;}
+.card:has(> .tbl) {overflow-x:auto;}
+.card:has(> .tree) {overflow-x:auto;}
+.kv dd {min-width:0; overflow-wrap:anywhere;}
+@media(max-width:1600px) {.topbar .clock {display:none;} .crumbs {flex-basis:180px;} }
+@media(max-width:1400px) {
+  :root {--topbar-h:108px;}
+  body {grid-template-rows:auto minmax(0,1fr);}
+  .topbar {flex-wrap:wrap; padding:10px 14px;}
+  .topbar-right {flex:1 0 100%; justify-content:flex-end;}
+  .topbar-right .search {margin-right:auto;}
+  .topbar .search input {width:260px;}
+  .topbar .clock {display:flex;}
+  .topbar .user-chip {max-width:260px;}
+  .crumbs {flex:0 1 auto; max-width:40%;}
+}
+@media(max-width:900px) {
+  .grid-2,.grid-3,.sim-grid {grid-template-columns:minmax(0,1fr);}
+  .topbar .user-chip {max-width:180px;}
+  .topbar .search input {width:190px;}
+  .feed-row {gap:6px;}
+}
+@media(max-width:700px) {
+  .xd-grid {grid-template-columns:minmax(0,1fr);}
+  .rep-layout {grid-template-columns:minmax(0,1fr);}
+  .tree {min-width:820px;}
+  .qz-kpis,.inv-kpis {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .pills,.pager {flex-wrap:wrap;}
+  .kv.kv-wide {grid-template-columns:minmax(0,1fr);}
+  body {grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr);}
+  .topbar {grid-column:1; grid-row:1; gap:8px;}
+  .sidebar {grid-column:1; grid-row:2; border-right:0; border-bottom:1px solid var(--border); overflow-x:auto;}
+  .nav {flex-direction:row; padding:0; width:max-content;}
+  .nav-item {padding:10px 12px; border-left:0; border-bottom:3px solid transparent; white-space:nowrap;}
+  .nav-item.active {border-bottom-color:var(--accent-text);}
+  .nav-sim {margin:0; border-top:0;}
+  .sidebar-foot {display:none;}
+  .main {grid-column:1; grid-row:3; padding:12px;}
+  .brand {flex-basis:190px; gap:8px;}
+  .brand-logo {width:32px; height:32px;}
+  .brand-title {font-size:16px;}
+  .topbar .clock {display:none;}
+  .topbar-right {gap:8px; flex-wrap:wrap;}
+  .topbar-right .search {flex:1 1 150px;}
+  .topbar .search input {width:100%;}
+  .topbar .user-chip {max-width:140px;}
+  .topbar .sys-ok {font-size:11px; padding-left:0; border:0;}
+  .crumbs {display:none;}
+  .topbar-center {justify-content:flex-end;}
+  .mode-banner {height:32px; font-size:11px;}
+  .kpi-row {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .kpi {padding:10px;}
+  .card-head {height:auto; min-height:40px; flex-wrap:wrap; gap:8px;}
+  .card-meta {flex-wrap:wrap; gap:8px; min-width:0;}
+  .filters > input,.filters > select {max-width:100%;}
+  .feed-row {grid-template-columns:38px 24px minmax(0,1fr);}
+  .feed-row > .badge {grid-column:3; justify-self:start;}
+  .toast {right:10px; left:10px;}
+  .toast-item {min-width:0;}
+}

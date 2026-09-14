@@ -1,0 +1,6 @@
+{% from "macros.html" import icon with context %}
+{% if mode %}
+<a class="mode-banner" href="/rejimlar">{{ icon("bell", 18, 2) }}<span>{{ t(mode_label) }}</span>{{ icon("chev", 18, 2.2) }}</a>
+{% else %}
+<span class="mode-none">{{ icon("check", 16, 2) }} {{ t("Faol rejim yo'q") }}</span>
+{% endif %}

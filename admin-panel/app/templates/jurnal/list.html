@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head with context %}
+{% from "jurnal/_macros.html" import tabs with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/jurnal.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Hodisalar jurnali") }}<small>{{ t("Append-only yozuvlar, SHA-256 hash zanjiri yacheyka oqimi bo'yicha. Tahrirlash va o'chirish yo'q.") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/jurnal/yaxlitlik">{{ icon("shield", 14, 2.2) }} {{ t("Yaxlitlikni tekshirish") }}</a>
+    {% if can_export %}<a class="btn btn-primary btn-sm" href="/jurnal/eksport?{{ qlink(page=1) }}">{{ icon("download", 14, 2.2) }} {{ t("CSV eksport") }}</a>{% endif %}
+  </div>
+</div>
+{{ tabs(tab, can_export) }}
+{% if error %}<div class="notice red" role="alert">{{ t(error) }}</div>{% endif %}
+<form class="filters" method="get" action="/jurnal">
+  <label class="fl">{{ t("Dan") }}<input type="date" name="dan" value="{{ f.dan }}"></label>
+  <label class="fl">{{ t("Gacha") }}<input type="date" name="gacha" value="{{ f.gacha }}"></label>
+  <select name="hudud" onchange="this.form.submit()" title="{{ t('Hudud') }}">
+    <option value="">{{ t("Barcha hududlar") }}</option>
+    {% for r in regions %}<option value="{{ r.id }}" {% if r.id == f.hudud %}selected{% endif %}>{{ t(r.short) }}</option>{% endfor %}
+  </select>
+  {% if armory_options %}
+  <select name="qurolxona" title="{{ t('Qurolxona') }}">
+    <option value="">{{ t("Barcha qurolxonalar") }}</option>
+    {% for a in armory_options %}<option value="{{ a.id }}" {% if a.id == f.qurolxona %}selected{% endif %}>{{ t(a.unit.name) }}</option>{% endfor %}
+  </select>
+  {% elif f.qurolxona %}<input type="hidden" name="qurolxona" value="{{ f.qurolxona }}">{% endif %}
+  {% if f.bolinma %}<input type="hidden" name="bolinma" value="{{ f.bolinma }}">{% endif %}
+  <select name="tur" title="{{ t('Tur') }}">
+    <option value="">{{ t("Barcha turlar") }}</option>
+    <optgroup label="{{ t('Guruhlar') }}">
+      {% for k, g in groups.items() %}<option value="{{ k }}" {% if k == f.tur %}selected{% endif %}>{{ t(g[0]) }}</option>{% endfor %}
+    </optgroup>
+    <optgroup label="{{ t('Aniq tur') }}">
+      {% for k, lbl in type_options %}<option value="{{ k }}" {% if k == f.tur %}selected{% endif %}>{{ t(lbl) }}</option>{% endfor %}
+    </optgroup>
+  </select>
+  <select name="daraja" title="{{ t('Daraja') }}">
+    <option value="">{{ t("Barcha darajalar") }}</option>
+    {% for lv in levels %}<option value="{{ lv }}" {% if lv == f.daraja %}selected{% endif %}>{{ t(level_label[lv]) }}</option>{% endfor %}
+  </select>
+  <input name="xodim" value="{{ f.xodim }}" placeholder="{{ t('Xodim: F.I.Sh. yoki tabel') }}" style="width: 190px">
+  <input name="yacheyka" value="{{ f.yacheyka }}" placeholder="{{ t('Yacheyka: Y-017 yoki seriya') }}" style="width: 180px">
+  <label class="chk"><input type="checkbox" name="oflayn" value="1" {% if f.oflayn %}checked{% endif %}> {{ t("Oflayn belgisi") }}</label>
+  <button class="btn btn-sm btn-primary">{{ icon("search", 14, 2.2) }} {{ t("Qo'llash") }}</button>
+  <a class="btn btn-sm btn-ghost" href="/jurnal">{{ t("Tozalash") }}</a>
+</form>
+<div class="jur-quick">
+  <a class="pill {% if not f.tur and not f.daraja and not f.oflayn %}on{% endif %}" href="/jurnal?{{ qlink(tur='', daraja='', oflayn='', page=1) }}">{{ t("Barchasi") }}</a>
+  <a class="pill {% if f.tur == 'operatsiya' %}on{% endif %}" href="/jurnal?{{ qlink(tur='operatsiya', page=1) }}">{{ t("Olish-qaytarish") }}</a>
+  <a class="pill {% if f.tur == 'rad_etildi' %}on{% endif %}" href="/jurnal?{{ qlink(tur='rad_etildi', page=1) }}">{{ t("Rad etilgan") }}</a>
+  <a class="pill {% if f.tur == 'kechikish' %}on{% endif %}" href="/jurnal?{{ qlink(tur='kechikish', page=1) }}">{{ t("Kechikish") }}</a>
+  <a class="pill {% if f.tur == 'signal' %}on{% endif %}" href="/jurnal?{{ qlink(tur='signal', page=1) }}">{{ t("Signal beruvchi") }}</a>
+  <a class="pill {% if f.tur == 'favqulodda' %}on{% endif %}" href="/jurnal?{{ qlink(tur='favqulodda', page=1) }}">{{ t("Favqulodda") }}</a>
+  <a class="pill {% if f.tur == 'texnik' %}on{% endif %}" href="/jurnal?{{ qlink(tur='texnik', page=1) }}">{{ t("Texnik") }}</a>
+  <a class="pill {% if f.tur == 'boshqaruv' %}on{% endif %}" href="/jurnal?{{ qlink(tur='boshqaruv', page=1) }}">{{ t("Boshqaruv va audit") }}</a>
+  <a class="pill {% if f.daraja == 'SECURITY' %}on{% endif %}" href="/jurnal?{{ qlink(daraja='SECURITY', page=1) }}">{{ t("Xavfsizlik darajasi") }}</a>
+  <a class="pill {% if f.oflayn %}on{% endif %}" href="/jurnal?{{ qlink(oflayn='1', page=1) }}">{{ icon("wifi-off", 12, 2.2) }} {{ t("Oflayn") }}</a>
+</div>
+<section class="card" id="jurnal-card" {% if page == 1 %}hx-get="/jurnal/partials/jadval?{{ qlink() }}" hx-trigger="live from:body, every 30s" hx-swap="innerHTML"{% endif %}>
+  {% include "jurnal/_table.html" %}
+</section>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

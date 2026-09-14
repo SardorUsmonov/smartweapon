@@ -1,0 +1,9 @@
+{% from "macros.html" import icon, card_head, empty, level_icon with context %}
+{% call card_head("Hodisalar vaqt chizig'i") %}<span class="muted">{{ t("So'nggi") }} {{ events | length }}</span><a class="btn btn-ghost btn-xs" href="/jurnal?yacheyka={{ cab.id }}">{{ t("Jurnalda barchasi") }} {{ icon("chev", 13) }}</a>{% endcall %}
+{% if events %}<div class="feed yc-events">{% for e in events %}<a class="feed-row lv-{{ e.level | lower }}" href="/jurnal/{{ e.id }}">
+  <span class="feed-time">{{ e.ts_server | dt("%d.%m") }}<br>{{ e.ts_server | dt("%H:%M:%S") }}</span>{{ level_icon(e.level) }}
+  <span class="feed-body"><span class="feed-title">{{ t(e.title) }}</span><span class="feed-detail">{{ t(e.detail) }}</span>
+    {% if e.officer_id or e.item_id %}<span class="feed-detail">{{ t(officer_names.get(e.officer_id, "")) }}{% if e.item_id %} · {{ item_names.get(e.item_id, "#" ~ e.item_id) }}{% endif %}</span>{% endif %}
+    {% if e.reason %}<span class="feed-detail">{{ t("Sabab") }}: {{ t(e.reason) }}</span>{% endif %}
+  </span><span class="yc-event-meta"><span class="badge {{ 'b-red' if e.level == 'CRITICAL' else 'b-yellow' if e.level == 'WARNING' else 'b-violet' if e.level == 'SECURITY' else 'b-blue' }}">{{ t({'CRITICAL': 'KRITIK', 'WARNING': 'OGOHLANTIRISH', 'SECURITY': 'XAVFSIZLIK', 'INFO': 'AXBOROT'}.get(e.level, e.level)) }}</span><span class="yc-sub">{{ e.method or "—" }} · {{ t(e.result) }}</span>{% if e.offline %}<span class="yc-sub n-yellow">{{ t("Oflayn yozuv") }}</span>{% endif %}</span>
+</a>{% endfor %}</div>{% else %}{{ empty("Bu yacheyka bo'yicha hodisalar qayd etilmagan.") }}{% endif %}

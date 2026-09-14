@@ -1,0 +1,100 @@
+[
+  {
+    "osm_id": 178016,
+    "code": "UZ-AN",
+    "name": "Andijon viloyati",
+    "lat": 40.7740809,
+    "lon": 72.5355339
+  },
+  {
+    "osm_id": 1670973,
+    "code": "UZ-BU",
+    "name": "Buxoro viloyati",
+    "lat": 40.229366,
+    "lon": 63.5470584
+  },
+  {
+    "osm_id": 178018,
+    "code": "UZ-FA",
+    "name": "Farg'ona Viloyati",
+    "lat": 40.5,
+    "lon": 71.25
+  },
+  {
+    "osm_id": 196254,
+    "code": "UZ-JI",
+    "name": "Jizzax viloyati",
+    "lat": 40.3319095,
+    "lon": 67.4551198
+  },
+  {
+    "osm_id": 196242,
+    "code": "UZ-XO",
+    "name": "Xorazm viloyati",
+    "lat": 41.4203897,
+    "lon": 60.5481182
+  },
+  {
+    "osm_id": 178017,
+    "code": "UZ-NG",
+    "name": "Namangan Viloyati",
+    "lat": 40.9555061,
+    "lon": 71.1097749
+  },
+  {
+    "osm_id": 196246,
+    "code": "UZ-NW",
+    "name": "Navoiy Viloyati",
+    "lat": 42.0,
+    "lon": 64.0
+  },
+  {
+    "osm_id": 1670974,
+    "code": "UZ-QA",
+    "name": "Qashqadaryo viloyati",
+    "lat": 38.7382667,
+    "lon": 66.1442685
+  },
+  {
+    "osm_id": 196241,
+    "code": "UZ-QR",
+    "name": "Qoraqalpogʻiston Respublikasi",
+    "lat": 43.7738841,
+    "lon": 57.6234617
+  },
+  {
+    "osm_id": 196249,
+    "code": "UZ-SA",
+    "name": "Samarqand viloyati",
+    "lat": 39.7337023,
+    "lon": 66.1282889
+  },
+  {
+    "osm_id": 196253,
+    "code": "UZ-SI",
+    "name": "Sirdaryo viloyati",
+    "lat": 40.3737191,
+    "lon": 68.4341132
+  },
+  {
+    "osm_id": 196248,
+    "code": "UZ-SU",
+    "name": "Surxondaryo viloyati",
+    "lat": 37.9520843,
+    "lon": 67.1265996
+  },
+  {
+    "osm_id": 196251,
+    "code": "UZ-TO",
+    "name": "Toshkent viloyati",
+    "lat": 41.0877657,
+    "lon": 69.4978552
+  },
+  {
+    "osm_id": 2216724,
+    "code": "UZ-TK",
+    "name": "Toshkent",
+    "lat": 41.3123363,
+    "lon": 69.2787079
+  }
+]

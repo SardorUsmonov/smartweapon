@@ -1,0 +1,68 @@
+/* Qurilmalar bo'limi: daraxt, ko'rsatkich chiziqlari, hodisa ro'yxati, zaxira kartochkalari */
+.qz-kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.qz-kpis .kpi { min-height: 92px; } .qz-kpis .kpi-val { font-size: 26px; }
+.qz-notice { margin-bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pills { display: inline-flex; gap: 6px; margin-left: auto; }
+.pills .pill { gap: 5px; }
+
+/* ---- daraxt ---- */
+.tree { display: flex; flex-direction: column; gap: 6px; }
+.tree-head, .tree summary { display: grid; grid-template-columns: minmax(0, 1fr) 64px 72px 72px 72px 80px 120px 24px; align-items: center; gap: 8px; }
+.tree-head { padding: 0 10px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+.tree-head span, .tree summary .c { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tree-head span:first-child { text-align: left; }
+.tree details { border: 1px solid var(--border); border-radius: 6px; background: var(--panel-2); }
+.tree details details { margin: 6px 0 0 18px; background: rgba(255, 255, 255, .02); }
+.tree details details details { background: rgba(255, 255, 255, .015); }
+.tree summary { padding: 7px 10px; cursor: pointer; list-style: none; user-select: none; }
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary:hover { background: rgba(255, 255, 255, .035); border-radius: 6px; }
+.tree-name { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; font-size: 13px; }
+.tree-name .lvl { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-2); min-width: 78px; }
+.tree-name .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.tree-name a.nm:hover { color: var(--accent-text); }
+.tree-name .muted { font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+.tree-chev { color: var(--muted); transition: transform .15s; display: inline-flex; justify-content: flex-end; }
+details[open] > summary .tree-chev { transform: rotate(90deg); }
+.tree-body { padding: 0 10px 8px; }
+.tree-body .tbl { margin-top: 4px; }
+.tree-body .tbl td { height: 28px; }
+.tree details.ctrl { margin-top: 8px; margin-left: 0; }
+
+/* ---- qurilma belgisi ---- */
+.dev-ic { display: inline-flex; width: 24px; height: 24px; border-radius: 6px; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent-text); vertical-align: middle; }
+.dev-ic-lg { width: 32px; height: 32px; border-radius: 8px; }
+.dev-ic.st-onlayn { background: rgba(34, 197, 94, .14); color: var(--green); }
+.dev-ic.st-oflayn { background: rgba(239, 59, 59, .16); color: var(--red); }
+.dev-ic.st-ogohlantirish, .dev-ic.st-xizmatda { background: rgba(245, 180, 0, .16); color: var(--yellow); }
+
+/* ---- ko'rsatkichlar ---- */
+.metric-list { display: flex; flex-direction: column; gap: 10px; }
+.metric { display: grid; grid-template-columns: 130px minmax(0, 1fr) 72px; align-items: center; gap: 10px; font-size: 13px; }
+.metric .lbl { color: var(--muted); } .metric .val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bar { display: block; height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.bar.t-green i { background: var(--green); } .bar.t-yellow i { background: var(--yellow); } .bar.t-red i { background: var(--red); }
+
+/* ---- self-test va hodisalar ---- */
+.check-list { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.check-list div { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 4px 8px; border-radius: 4px; background: var(--panel-2); }
+.ev-list { display: flex; flex-direction: column; gap: 5px; }
+.ev-row { display: grid; grid-template-columns: 82px 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 5px 8px 5px 10px; border: 1px solid var(--border); border-left-width: 3px; border-radius: 6px; background: var(--panel-2); color: var(--text); font-size: 12.5px; }
+.ev-row:hover { border-color: var(--border-strong); color: var(--text); }
+.ev-row.lv-critical { border-left-color: var(--red); } .ev-row.lv-warning { border-left-color: var(--yellow); }
+.ev-row.lv-security { border-left-color: #9085e9; } .ev-row.lv-info { border-left-color: var(--accent); }
+.ev-row .ts { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.ev-row .chip { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+
+/* ---- formalar ---- */
+.form-stack { display: flex; flex-direction: column; gap: 8px; }
+.form-stack label { font-size: 12px; color: var(--muted); }
+.form-stack input, .form-stack textarea, .form-stack select { width: 100%; }
+.form-stack .btn { align-self: flex-start; }
+
+/* ---- zaxira ---- */
+.bk-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.bk-card .big { font-size: 22px; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1280px) { .qz-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .grid-3 { grid-template-columns: 1fr 1fr; } .bk-cards { grid-template-columns: 1fr; } }

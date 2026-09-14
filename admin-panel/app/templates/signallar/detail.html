@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, level_badge, level_icon, cab_status, empty with context %}
+{% from "signallar/_macros.html" import cam_frame, where_links, tarix_table with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/signallar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title sig-page-title">{{ level_icon(a.level) }} {{ t(a.title) }} {{ level_badge(r.badge) }}
+    <small>{{ t("Signal") }} #{{ a.id }} · {{ t(r.type_label) }} · {{ t(level_name[a.level]) }} · {{ t("ochilgan") }} {{ a.opened_at | dt("%d.%m.%Y %H:%M:%S") }} ({{ a.opened_at | ago }} {{ t("oldin") }})</small>
+  </h1>
+  <div class="page-actions">
+    <a class="btn btn-sm btn-ghost" href="/signallar">{{ icon("chev-left", 14, 2.2) }} {{ t("Signal markazi") }}</a>
+    {% if a.cabinet_id %}<a class="btn btn-sm btn-ghost" href="/yacheyka/{{ a.cabinet_id }}">{{ icon("lock", 14, 2) }} {{ t("Yacheyka") }} {{ r.cab_label }}</a>{% endif %}
+    {% if a.event_id %}<a class="btn btn-sm btn-ghost" href="/jurnal/{{ a.event_id }}">{{ icon("list", 14, 2) }} {{ t("Jurnaldagi hodisa") }}</a>{% endif %}
+  </div>
+</div>
+{% if xato %}<div class="notice red sig-notice">{{ icon("alert", 15, 2.2) }} {{ t(xato) }}</div>{% endif %}
+{% if r.needs_ack %}<div class="notice red sig-notice"><b>{{ t("Tasdiq talab qiladi.") }}</b> {{ t("CRITICAL/SECURITY darajali signal; navbatchi yoki qurolxona mas'uli tasdiqlashi shart.") }}{% if a.forwarded %} {{ t("Qorovul postiga yo'naltirilgan.") }}{% endif %}</div>{% endif %}
+
+<div class="sig-detail-grid">
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Signal ma'lumotlari") %}<span class="meta-item muted">{{ t("simulyatsiya") }}</span>{% endcall %}
+      <dl class="kv">
+        <dt>{{ t("Daraja") }}</dt><dd>{{ level_icon(a.level) }} {{ a.level }} · {{ t(level_name[a.level]) }}</dd>
+        <dt>{{ t("Tur") }}</dt><dd>{{ t(r.type_label) }} <span class="muted">({{ a.type }})</span></dd>
+        <dt>{{ t("Sarlavha") }}</dt><dd>{{ t(a.title) }}</dd>
+        <dt>{{ t("Tafsilot") }}</dt><dd>{{ t(a.detail) if a.detail else "—" }}</dd>
+        <dt>{{ t("Joylashuv") }}</dt><dd>{{ where_links(r) }}</dd>
+        {% if arm %}<dt>{{ t("Qurolxona") }}</dt><dd><a href="/qurolxona/{{ arm.id }}">{{ t(arm.name) }}</a> · {% if arm.online %}<span class="chip chip-green">{{ icon("wifi", 13) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 13) }} {{ t("oflayn") }}</span>{% endif %}{% if arm.address %} · <span class="muted">{{ t(arm.address) }}</span>{% endif %}</dd>{% endif %}
+        {% if officer %}<dt>{{ t("Xodim") }}</dt><dd><a href="/xodim/{{ officer.id }}">{{ officer.full_name }}</a> · {{ officer.rank }} · {{ t("tabel") }} {{ officer.tabel }}</dd>{% endif %}
+        <dt>{{ t("Ochilgan") }}</dt><dd class="mono">{{ a.opened_at | dt("%d.%m.%Y %H:%M:%S") }}</dd>
+        <dt>{{ t("Tasdiq talabi") }}</dt><dd>{% if a.requires_ack %}<span class="chip chip-red">{{ t("majburiy") }}</span>{% else %}<span class="chip chip-gray">{{ t("shart emas") }}</span>{% endif %}</dd>
+        <dt>{{ t("Qorovul posti") }}</dt><dd>{% if a.forwarded %}<span class="chip chip-violet">{{ icon("shield", 13, 2.2) }} {{ t("yo'naltirilgan") }}</span>{% else %}<span class="muted">{{ t("yo'naltirilmagan") }}</span>{% endif %}</dd>
+        <dt>{{ t("Davomiyligi") }}</dt><dd>{{ r.duration_min | num }} {{ t("daq") }}{% if not a.resolved_at %} <span class="muted">({{ t("hali ochiq") }})</span>{% endif %}</dd>
+      </dl>
+    </section>
+
+    <section class="card">
+      {% call card_head("Kamera kadri") %}<span class="meta-item muted">{{ icon("camera", 14) }} {{ t("simulyatsiya · foto/video havola o'rnida") }}</span>{% endcall %}
+      {{ cam_frame(r, big=True) }}
+    </section>
+
+    <section class="card">
+      {% call card_head("Manba hodisa") %}{% if src %}<a class="btn btn-ghost btn-sm" href="/jurnal/{{ src.id }}">{{ t("Jurnalda ochish") }} {{ icon("chev", 14, 2.2) }}</a>{% endif %}{% endcall %}
+      {% if src %}
+      <dl class="kv">
+        <dt>{{ t("Hodisa turi") }}</dt><dd>{{ src.type }} · {{ t(src.title) }}</dd>
+        <dt>{{ t("Qurilma vaqti") }}</dt><dd class="mono">{{ src.ts_device | dt("%d.%m.%Y %H:%M:%S") }} <span class="muted">· {{ t("server") }} {{ src.ts_server | dt("%H:%M:%S") }}{% if src.offline %} · {{ t("oflayn keshdan") }}{% endif %}</span></dd>
+        <dt>{{ t("Usul / natija") }}</dt><dd>{{ src.method or "—" }} · {{ src.result }}{% if src.reason %} · {{ src.reason }}{% endif %}{% if src.attempts %} · {{ t("urinishlar") }}: {{ src.attempts }}{% endif %}</dd>
+        {% if src.detail %}<dt>{{ t("Tafsilot") }}</dt><dd>{{ t(src.detail) }}</dd>{% endif %}
+        <dt>{{ t("Tartib raqami") }}</dt><dd class="mono">{{ src.seq }}</dd>
+        <dt>{{ t("Hash") }}</dt><dd><span class="hash">{{ src.hash or "—" }}</span></dd>
+        <dt>{{ t("Oldingi hash") }}</dt><dd><span class="hash">{{ src.prev_hash or t("(oqim boshi)") }}</span></dd>
+      </dl>
+      {% else %}
+      {{ empty("Manba hodisa bog'lanmagan (tizim signali)") }}
+      {% endif %}
+    </section>
+
+    <section class="card">
+      {% call card_head("Bog'liq hodisalar") %}<span class="meta-item muted">{{ t("signal oynasi") }}: {{ (a.opened_at) | dt("%d.%m %H:%M") }} − 30 {{ t("daq") }} … {{ (a.resolved_at or now) | dt("%d.%m %H:%M") }} · {{ related | length }} {{ t("ta") }}</span>{% endcall %}
+      {% if related %}
+      <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Sarlavha") }}</th><th class="l">{{ t("Usul") }}</th><th class="l">{{ t("Natija") }}</th></tr></thead>
+        <tbody>
+        {% for e in related %}
+        <tr class="row-link {% if e.id == a.event_id %}sig-src-row{% endif %}" data-href="/jurnal/{{ e.id }}">
+          <td class="l mono">{{ e.ts_server | dt("%d.%m %H:%M:%S") }}</td>
+          <td class="l">{{ level_icon(e.level) }}</td>
+          <td class="l"><a href="/jurnal/{{ e.id }}">{{ e.type }}</a></td>
+          <td class="l">{{ t(e.title) }}{% if e.detail %} <span class="muted">· {{ t(e.detail) }}</span>{% endif %}</td>
+          <td class="l">{{ e.method or "—" }}</td>
+          <td class="l">{% if e.result in ("ok", "tasdiqlandi", "yechildi") %}<span class="chip chip-green">{{ e.result }}</span>{% else %}<span class="chip chip-yellow">{{ e.result }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      {{ empty("Signal oynasida boshqa hodisa yo'q") }}
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="stack">
+    <div id="sig-holat" hx-get="/signal/{{ a.id }}/partials/holat" hx-trigger="live[!sigBusy()] from:body, every 30s[!sigBusy()]" hx-swap="innerHTML">
+      {% include "signallar/_holat.html" %}
+    </div>
+
+    <section class="card">
+      {% call card_head("Shu obyekt bo'yicha signallar") %}<span class="meta-item muted">{{ t("oxirgi") }} 10</span>{% endcall %}
+      {% if history %}
+      <div class="tbl-wrap">
+      <table class="tbl tbl-signals">
+        <thead><tr><th class="l">{{ t("Ochilgan") }}</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+        <tbody>
+        {% for h in history %}
+        <tr class="row-link" data-href="/signal/{{ h.a.id }}">
+          <td class="l mono">{{ h.a.opened_at | dt("%d.%m.%Y %H:%M") }}</td>
+          <td class="l">{{ level_icon(h.a.level) }} {{ level_badge(h.badge) }}</td>
+          <td class="l"><a href="/signal/{{ h.a.id }}">{{ t(h.type_label) }}</a></td>
+          <td class="l">{% if h.status == "yechilgan" %}<span class="chip chip-green">{{ t("yechilgan") }}</span>{% elif h.status == "tasdiqlangan" %}<span class="chip chip-yellow">{{ t("tasdiqlangan") }}</span>{% else %}<span class="chip chip-red">{{ t("faol") }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      {% else %}
+      {{ empty("Boshqa signal yo'q") }}
+      {% endif %}
+    </section>
+  </div>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.sigBusy = function () { return !!document.querySelector('#sig-holat form:focus-within'); };
+</script>
+{% endblock %}

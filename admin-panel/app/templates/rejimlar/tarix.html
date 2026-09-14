@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/rejimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Rejimlar tarixi") }}<small>{{ t("Barcha yig'ilish va trevoga rejimlari: qamrov, kim boshlagan va tasdiqlagan, natija") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/rejimlar">{{ icon("chev-left", 15) }} {{ t("Faol rejimlar") }}</a>
+    {% if ctx.can("rejim") %}<a class="btn btn-primary" href="/rejimlar/boshlash">{{ icon("siren", 15, 2) }} {{ t("Rejim boshlash") }}</a>{% endif %}
+  </div>
+</div>
+<section class="card">
+  {% call card_head("Rejimlar ro'yxati") %}<span class="meta-item muted">{{ total | num }} {{ t("ta yozuv") }} · {{ t("sahifa") }} {{ page }} / {{ pages }}</span>{% endcall %}
+  <form class="filters" method="get" action="/rejimlar/tarix">
+    <select name="tur"><option value="">{{ t("Barcha turlar") }}</option>{% for k, lbl in kinds.items() %}<option value="{{ k }}" {% if f.tur == k %}selected{% endif %}>{{ t(lbl) }}</option>{% endfor %}</select>
+    <select name="hudud"><option value="">{{ t("Barcha hududlar") }}</option>{% for r in regions %}<option value="{{ r.id }}" {% if f.hudud|string == r.id|string %}selected{% endif %}>{{ t(r.short) }}</option>{% endfor %}</select>
+    <select name="holat"><option value="">{{ t("Faol va tugatilgan") }}</option><option value="faol" {% if f.holat == 'faol' %}selected{% endif %}>{{ t("Faol") }}</option><option value="tugagan" {% if f.holat == 'tugagan' %}selected{% endif %}>{{ t("Tugatilgan") }}</option></select>
+    <label class="muted">{{ t("dan") }}</label><input type="date" name="dan" value="{{ f.dan }}">
+    <label class="muted">{{ t("gacha") }}</label><input type="date" name="gacha" value="{{ f.gacha }}">
+    <input type="search" name="q" value="{{ f.q }}" placeholder="{{ t('Boshlagan, tasdiqlovchi, sabab, qurolxona…') }}" style="width: 260px">
+    <button class="btn btn-sm">{{ icon("search", 14) }} {{ t("Qidirish") }}</button>
+    {% if f.tur or f.hudud or f.holat or f.dan or f.gacha or f.q %}<a class="btn btn-sm btn-ghost" href="/rejimlar/tarix">{{ t("Tozalash") }}</a>{% endif %}
+  </form>
+  {% if rows %}
+  <table class="tbl">
+    <thead><tr>
+      <th>#</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma · qurolxona") }}</th>
+      <th class="l">{{ t("Boshlagan") }}</th><th class="l">{{ t("Tasdiqlovchi") }}</th><th>{{ t("Boshlanish") }}</th><th>{{ t("Tugash") }}</th><th>{{ t("Davomiylik") }}</th>
+      <th>{{ t("Berildi / jami") }}</th><th>{{ t("O'rtacha") }}</th><th class="l">{{ t("Sabab") }}</th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr class="row-link" data-href="/rejim/{{ r.m.id }}">
+      <td class="muted">{{ r.m.id }}</td>
+      <td class="l"><span class="badge {{ 'b-red-fill' if (r.m.kind == 'trevoga' and r.active) else ('b-red' if r.m.kind == 'trevoga' else 'b-yellow') }}">{{ t(r.kind) }}</span></td>
+      <td class="l">{% if r.active %}<span class="chip chip-red"><span class="dot dot-red"></span> {{ t("faol") }}</span>{% else %}<span class="chip chip-gray">{{ icon("check", 12, 2.4) }} {{ t("tugatilgan") }}</span>{% endif %}</td>
+      <td class="l">{% if r.arm %}<a href="/hudud/{{ r.arm.region_id }}">{{ t(r.arm.region) }}</a>{% else %}{{ t("Respublika") }}{% endif %}</td>
+      <td class="l">{% if r.arm %}<a href="/qurolxona/{{ r.arm.id }}">{{ t(r.arm.unit) }} · {{ t(r.arm.name) }}</a>{% else %}—{% endif %}</td>
+      <td class="l">{{ r.m.started_by }}</td>
+      <td class="l">{{ r.m.approver2 or "—" }}</td>
+      <td>{{ r.m.started_at | dt("%d.%m.%Y %H:%M") }}</td>
+      <td>{% if r.m.ended_at %}{{ r.m.ended_at | dt("%d.%m.%Y %H:%M") }}{% else %}—{% endif %}</td>
+      <td>{{ r.duration }}</td>
+      <td>{{ r.m.issued_count | num }} / {{ r.m.target_count | num }}</td>
+      <td>{% if r.m.avg_seconds %}{{ r.m.avg_seconds }} s{% else %}—{% endif %}</td>
+      <td class="l muted rj-reason" title="{{ r.m.reason }}">{% if r.m.reason %}{{ t(r.m.reason[:48]) }}{% if r.m.reason|length > 48 %}…{% endif %}{% else %}—{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}{{ empty("Shartlarga mos rejim topilmadi") }}{% endif %}
+  {% if pages > 1 %}
+  <div class="pager">
+    {% if page > 1 %}<a class="btn btn-xs btn-ghost" href="{{ base_qs }}page={{ page - 1 }}">{{ icon("chev-left", 12, 2.4) }} {{ t("Oldingi") }}</a>{% endif %}
+    <span>{{ (page - 1) * per_page + 1 }}–{{ [page * per_page, total] | min }} / {{ total | num }}</span>
+    {% if page < pages %}<a class="btn btn-xs btn-ghost" href="{{ base_qs }}page={{ page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 12, 2.4) }}</a>{% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, status_chip, num_cell, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hududlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t(region.name) }}<small>{{ region.code }} · {{ total | num }} {{ t("bo'linma") }} · {{ k.qurolxonalar | num }} {{ t("qurolxona") }} · {{ k.yacheykalar | num }} {{ t("yacheyka") }} · {{ officers_total | num }} {{ t("xodim") }} ({{ officers_active | num }} {{ t("faol") }})</small></h1>
+  <div class="page-actions">
+    {% if ctx.can("eksport") %}
+    <form method="post" action="/hudud/{{ region.id }}/eksport" class="hud-export">
+      <input name="maqsad" placeholder="{{ t('Eksport maqsadi (majburiy)') }}" required minlength="3" maxlength="200" value="" autocomplete="off">
+      <button class="btn btn-sm" title="{{ t('Bo\'linmalar jadvali, CSV · ExportLog va jurnalga yoziladi') }}">{{ icon("download", 14, 2.2) }} CSV</button>
+    </form>
+    {% endif %}
+    {% if ctx.can("sozlamalar") and ctx.scope_kind in ('respublika', 'hudud') %}<a class="btn btn-primary btn-sm" href="/hudud/{{ region.id }}/bolinma/yangi">{{ icon("plus", 14, 2.4) }} {{ t("Bo'linma qo'shish") }}</a>{% endif %}
+    <a class="btn btn-ghost btn-sm" href="/qurolxonalar?hudud={{ region.id }}">{{ icon("building", 14) }} {{ t("Qurolxonalar") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/jurnal?hudud={{ region.id }}">{{ icon("list", 14) }} {{ t("Jurnal") }}</a>
+  </div>
+</div>
+{% if xato == "maqsad" %}<div class="notice yellow hud-notice">{{ t("Eksport bajarilmadi: maqsad maydoni (kamida 3 belgi) to'ldirilishi shart.") }}</div>{% endif %}
+{% if ctx.scope_kind in ('bolinma', 'qurolxona') %}<div class="notice hud-notice">{{ t("Ko'rsatkichlar, bo'linmalar va eksport faqat vakolat doirangizdagi qurolxonalarga tegishli.") }}</div>{% endif %}
+{% for row in modes %}
+<a class="notice red hud-notice hud-mode" href="/rejimlar">{{ icon("bell", 16, 2) }}<b>{{ 'TREVOGA' if row.m.kind == 'trevoga' else "YIG'ILISH" }}</b> · {{ t(row.where) }} · {{ row.m.issued_count | num }}/{{ row.m.target_count | num }} {{ t("berildi") }} · {{ t("navbatda") }} {{ row.m.queue_count | num }} · {{ t("boshlandi") }} {{ row.m.started_at | dt }} {{ icon("chev", 16, 2.2) }}</a>
+{% endfor %}
+<section class="kpi-row" id="hud-kpi" hx-get="/hudud/{{ region.id }}/partials/kpi" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+  {% include "hududlar/_kpi.html" %}
+</section>
+<div class="hud-detail">
+  <div class="stack">
+    <section class="card" id="hud-units" hx-get="/hudud/{{ region.id }}/partials/bolinmalar?page={{ page }}" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+      {% include "hududlar/_bolinmalar.html" %}
+    </section>
+    <section class="card">
+      {% call card_head("Qurolxonalar · " ~ region.short) %}
+        <span class="meta-item"><span class="dot dot-green"></span>{{ k.qurolxona_onlayn | num }} {{ t("onlayn") }}</span>
+        <span class="meta-item"><span class="dot dot-red"></span>{{ k.qurolxona_oflayn | num }} {{ t("oflayn") }}</span>
+      {% endcall %}
+      {% if not armories %}
+        {{ empty("Hududda qurolxona ro'yxatga olinmagan") }}
+      {% else %}
+      <table class="tbl tbl-hud">
+        <thead><tr>
+          <th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("Bo'linma") }}</th><th class="l">{{ t("Aloqa") }}</th><th>{{ t("Yacheyka") }}</th><th>{{ t("Berilgan") }}</th>
+          <th>{{ t("Kechikish") }}</th><th>{{ t("Signal") }}</th><th>UPS</th><th>{{ t("Sinxron") }}</th><th>{{ t("Keshda") }}</th><th class="l">{{ t("Mas'ul") }}</th>
+        </tr></thead>
+        <tbody>
+        {% for r in armories %}
+        <tr class="row-link st-{{ r.status }}" data-href="/qurolxona/{{ r.a.id }}">
+          <td class="l"><a href="/qurolxona/{{ r.a.id }}">{{ t(r.a.name) }}</a></td>
+          <td class="l"><a class="muted" href="/hudud/{{ region.id }}/bolinma/{{ r.unit.id }}">{{ t(r.unit.name) }}</a></td>
+          <td class="l">{% if r.a.online %}<span class="chip chip-green">{{ icon("wifi", 12, 2.4) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 12, 2.4) }} {{ t("oflayn") }}</span>{% endif %}</td>
+          <td>{{ r.s.yacheyka | num }}</td>
+          <td>{{ r.s.berilgan | num }}</td>
+          <td>{{ num_cell(r.s.kechikish, "yellow") }}</td>
+          <td>{{ num_cell(r.s.signal, "red") }}</td>
+          <td class="{% if r.a.ups_on_battery %}n-yellow{% endif %}">{{ r.a.ups_battery_pct }} %{% if r.a.ups_on_battery %} {{ icon("battery", 12, 2.2) }}{% endif %}</td>
+          <td class="{% if not r.a.online %}n-red{% endif %}">{% if r.a.last_sync %}{{ r.a.last_sync | ago }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td>{{ num_cell(r.a.pending_events, "yellow") }}</td>
+          <td class="l">{% if r.masul %}<a href="/xodim/{{ r.masul.id }}">{{ r.masul.full_name }}</a>{% else %}<span class="muted">{{ t("tayinlanmagan") }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </section>
+  </div>
+  <div class="stack">
+    <section class="card card-feed" id="hud-feed" hx-get="/hudud/{{ region.id }}/partials/lenta" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+      {% include "hududlar/_lenta.html" %}
+    </section>
+    <section class="card card-chart">
+      {% include "hududlar/_chart.html" %}
+    </section>
+  </div>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

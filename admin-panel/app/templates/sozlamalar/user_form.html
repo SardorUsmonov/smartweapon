@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "macros.html" import card_head with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/sozlamalar.css">{% endblock %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t(title) }}<small>{{ account.username if account else t('Yangi hisob tasdiqlangunga qadar nofaol bo‘ladi') }}</small></h1></div>
+{% if error %}<div class="notice red" role="alert">{{ t(error) }}</div>{% endif %}
+<section class="card">{% call card_head('Foydalanuvchi ma’lumotlari') %}{% endcall %}
+<form method="post" class="settings-form" action="/sozlamalar/foydalanuvchi/{{ account.id if account else 'yangi' }}">
+<div class="notice yellow">{{ t('Rol, vakolat va holat o‘zgarishlarini boshqa administrator tasdiqlaydi. Tasdiqdan keyin foydalanuvchi qayta kirishi kerak.') }}</div>
+<div class="setting-fields">
+{% if not account %}<label class="form-field">{{ t('Login') }}<input name="username" value="{{ data.get('username','') }}" minlength="3" maxlength="40" pattern="[a-zA-Z][a-zA-Z0-9_.-]{2,39}" autocomplete="off" required></label>
+<label class="form-field">{{ t('Boshlang‘ich parol') }}<input type="password" name="password" minlength="{{ password_min }}" maxlength="128" autocomplete="new-password" required><small>{{ t('Kamida') }} {{ password_min }} {{ t('belgi') }}</small></label>{% endif %}
+<label class="form-field">{{ t('F.I.Sh.') }}<input name="full_name" value="{{ data.full_name }}" minlength="3" maxlength="120" required></label>
+<label class="form-field">{{ t('Rol') }}<select name="role" required>{% for key, label in role_labels.items() %}<option value="{{ key }}" {{ 'selected' if data.role == key }}>{{ t(label) }}</option>{% endfor %}</select></label>
+<label class="form-field">{{ t('Vakolat turi') }}<select name="scope_kind" id="scope-kind" required>{% for key, label in scope_labels.items() %}<option value="{{ key }}" {{ 'selected' if data.scope_kind == key }}>{{ t(label) }}</option>{% endfor %}</select></label>
+<label class="form-field" data-scope="hudud">{{ t('Hudud') }}<select name="scope_hudud"><option value="">{{ t('Tanlang') }}</option>{% for region in regions %}<option value="{{ region.id }}" {{ 'selected' if data.scope_kind == 'hudud' and data.scope_id|string == region.id|string }}>{{ t(region.name) }}</option>{% endfor %}</select></label>
+<label class="form-field" data-scope="bolinma">{{ t('Bo‘linma') }}<select name="scope_bolinma"><option value="">{{ t('Tanlang') }}</option>{% for unit in units %}<option value="{{ unit.id }}" {{ 'selected' if data.scope_kind == 'bolinma' and data.scope_id|string == unit.id|string }}>{{ t(unit.region.short) }} · {{ t(unit.name) }}</option>{% endfor %}</select></label>
+<label class="form-field" data-scope="qurolxona">{{ t('Qurolxona') }}<select name="scope_qurolxona"><option value="">{{ t('Tanlang') }}</option>{% for armory in armories %}<option value="{{ armory.id }}" {{ 'selected' if data.scope_kind == 'qurolxona' and data.scope_id|string == armory.id|string }}>{{ t(armory.unit.region.short) }} · {{ t(armory.name) }}</option>{% endfor %}</select></label>
+</div>
+<label><input type="checkbox" name="mfa" value="1" {{ 'checked' if data.mfa }}> {{ t('Kirishda MFA talab qilinsin') }}</label>
+<label><input type="checkbox" name="active" value="1" {{ 'checked' if data.active }}> {{ t('Hisob faol bo‘lsin') }}</label>
+<label class="form-field">{{ t('O‘zgarish sababi') }}<textarea name="sabab" minlength="5" maxlength="300" required>{{ data.get('sabab','') }}</textarea></label>
+<label><input type="checkbox" name="tasdiq" value="1" required> {{ t('Ma’lumotlarni tekshirdim, tasdiqlash uchun yuboraman') }}</label>
+<div class="decision-form"><button class="btn btn-primary">{{ t('So‘rov yuborish') }}</button><a class="btn btn-ghost" href="/sozlamalar">{{ t('Bekor qilish') }}</a></div>
+</form></section>
+{% endblock %}
+{% block scripts %}<script>
+const scopeChoice = document.getElementById('scope-kind');
+function showScope() { document.querySelectorAll('[data-scope]').forEach(label => { label.hidden = label.dataset.scope !== scopeChoice.value; label.querySelector('select').required = !label.hidden; }); }
+scopeChoice.addEventListener('change', showScope); showScope();
+</script>{% endblock %}

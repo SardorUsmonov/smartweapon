@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, kpi, empty with context %}
+{% from "jurnal/_macros.html" import tabs, lv, pager, where_cell with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/jurnal.css">{% endblock %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t("Favqulodda ochilishlar") }}<small>{{ t("Favqulodda va mexanik kalit hodisalari, tasdiqlovchilar va bog'liq signallar") }}</small></h1>{% if can_export %}<a class="btn btn-primary btn-sm" href="/jurnal/eksport?{{ qlink(page=1) }}">{{ icon("download", 14) }} {{ t("CSV eksport") }}</a>{% endif %}</div>
+{{ tabs(tab, can_export) }}
+{% if error %}<div class="notice red" role="alert">{{ t(error) }}</div>{% endif %}
+<div class="jur-kpis">
+{{ kpi("Favqulodda ochilishlar", stats.favqulodda_30, "oxirgi 30 kun", "siren", "red" if stats.favqulodda_30 else "") }}
+{{ kpi("Mexanik kalit", stats.mexanik_30, "oxirgi 30 kun", "lock", "yellow" if stats.mexanik_30 else "") }}
+{{ kpi("Jami hodisalar", stats.jami, "vakolat doirasi bo'yicha", "list") }}
+{{ kpi("Tasdiq kutmoqda", stats.tasdiq_kutmoqda, "ochiq signallar", "bell", "red" if stats.tasdiq_kutmoqda else "", "/signallar") }}
+</div>
+<form class="filters" method="get" action="/jurnal/favqulodda">
+  <label class="fl">{{ t("Dan") }}<input type="date" name="dan" value="{{ f.dan }}"></label><label class="fl">{{ t("Gacha") }}<input type="date" name="gacha" value="{{ f.gacha }}"></label>
+  <select name="hudud" aria-label="{{ t('Hudud') }}"><option value="">{{ t("Barcha hududlar") }}</option>{% for region in regions %}<option value="{{ region.id }}" {% if f.hudud == region.id %}selected{% endif %}>{{ t(region.short) }}</option>{% endfor %}</select>
+  <select name="tur" aria-label="{{ t('Hodisa turi') }}"><option value="favqulodda">{{ t("Barcha favqulodda hodisalar") }}</option><option value="favqulodda_ochish" {% if f.tur == 'favqulodda_ochish' %}selected{% endif %}>{{ t("Favqulodda ochish") }}</option><option value="mexanik_kalit" {% if f.tur == 'mexanik_kalit' %}selected{% endif %}>{{ t("Mexanik kalit") }}</option></select>
+  <button class="btn btn-primary btn-sm">{{ icon("search", 14) }} {{ t("Qo'llash") }}</button><a class="btn btn-ghost btn-sm" href="/jurnal/favqulodda">{{ t("Tozalash") }}</a>
+</form>
+<section class="card">
+{% call card_head("Favqulodda hodisalar tarixi") %}<span class="meta-item muted">{{ total | num }} {{ t("ta yozuv") }}</span>{% endcall %}
+{% if rows %}<div class="tbl-wrap"><table class="tbl jur-emergency"><thead><tr><th class="l">{{ t("Vaqt va daraja") }}</th><th class="l">{{ t("Hodisa va joy") }}</th><th class="l">{{ t("Yacheyka / xodim") }}</th><th class="l">{{ t("Tasdiqlovchilar") }}</th><th class="l">{{ t("Sabab") }}</th><th class="l">{{ t("Signal") }}</th></tr></thead><tbody>
+{% for r in rows %}{% set e = r.ev %}<tr class="row-link" data-href="/jurnal/{{ e.id }}"><td class="l"><span class="mono">{{ e.ts_server | dt("%d.%m.%Y %H:%M:%S") }}</span><div>{{ lv(e.level) }}</div></td><td class="l"><a href="/jurnal/{{ e.id }}">{{ t(r.type_label) }}</a><div class="muted">{{ where_cell(r) }}</div></td><td class="l">{% if r.cabinet %}<a href="/yacheyka/{{ r.cabinet.id }}">{{ r.cabinet.label }}</a>{% else %}—{% endif %}{% if r.officer %}<div><a href="/xodim/{{ r.officer.id }}">{{ t(r.officer.full_name) }}</a></div>{% endif %}</td><td class="l">{{ t(e.approver1) if e.approver1 else t("Qayd etilmagan") }}{% if e.approver2 %}<div>{{ t(e.approver2) }}</div>{% endif %}</td><td class="l jur-wrap">{{ t(r.reason_label or e.detail) or "—" }}</td><td class="l">{% if r.alarm_id %}<a href="/signal/{{ r.alarm_id }}">{{ t("Signal") }} #{{ r.alarm_id }}</a>{% else %}—{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>{{ pager(page, pages, total, qlink, base) }}{% else %}{{ empty("Tanlangan filtr bo'yicha favqulodda hodisa topilmadi") }}{% endif %}
+</section>
+{% endblock %}

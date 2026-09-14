@@ -1,0 +1,22 @@
+{% from "macros.html" import icon, card_head with context %}
+{% call card_head("Respublika xaritasi · hududlar holati") %}
+  <span class="meta-item">{{ icon("building", 15) }} {{ k.qurolxonalar | num }} {{ t("qurolxona") }}</span>
+  <span class="meta-item"><span class="dot dot-green"></span>{{ k.qurolxona_onlayn | num }} {{ t("onlayn") }}</span>
+  <span class="meta-item"><span class="dot dot-red"></span>{{ k.qurolxona_oflayn | num }} {{ t("oflayn") }}</span>
+  <span class="meta-item muted">{{ t("sinxron") }} {{ now.strftime('%H:%M:%S') }}</span>
+{% endcall %}
+<div class="map-wrap" id="map-wrap">
+  <div class="map-zoom">
+    <button type="button" data-zoom="in" title="{{ t('Yaqinlashtirish') }}">{{ icon("plus", 16, 2.2) }}</button>
+    <button type="button" data-zoom="out" title="{{ t('Uzoqlashtirish') }}">{{ icon("minus", 16, 2.2) }}</button>
+    <button type="button" data-zoom="reset" title="{{ t('Respublika') }}">{{ icon("target", 16, 2) }}</button>
+  </div>
+  {{ map_svg | safe }}
+  <div class="map-legend">
+    <div><span class="sw" style="background: var(--green)"></span>{{ t("Onlayn") }} ({{ k.qurolxona_onlayn }})</div>
+    <div><span class="sw" style="background: var(--yellow)"></span>{{ t("Ogohlantirish") }}</div>
+    <div><span class="sw" style="background: var(--red)"></span>{{ t("Muammo") }} ({{ k.qurolxona_oflayn + k.faol_signallar }})</div>
+    <div><span class="sw" style="background: var(--gray)"></span>{{ t("Ma'lumot yo'q") }}</div>
+  </div>
+  <div class="map-tip" id="map-tip" hidden></div>
+</div>

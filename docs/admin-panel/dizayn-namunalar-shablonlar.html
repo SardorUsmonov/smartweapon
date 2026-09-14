@@ -1,0 +1,299 @@
+<!doctype html><html lang="uz"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin panel: qaysi dashboardni nusxa qilamiz</title><style>
+body{margin:0;background:#15181c;color:#e8eaed;font:15px/1.45 Segoe UI,Arial,sans-serif;padding:20px 28px}
+h1{font-size:24px;margin:0 0 6px} h2{font-size:19px;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #2b3138}
+h3{font-size:16px;margin:0 0 4px} p.lead{color:#a7b0ba;margin:0 0 14px;max-width:960px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.card{background:#1e2329;border:1px solid #2b3138;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.card.fA{border-color:#2f8f5b} .card.fB{border-color:#8a6d2f} .card.fC{opacity:.8}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;display:block;background:#0b0d10}
+.b{padding:10px 12px 12px} .h{font-size:16px;font-weight:600} .fit{color:#a7b0ba;font-weight:400;font-size:13px;margin-left:6px}
+.n{display:inline-block;color:#fff;border-radius:4px;padding:0 7px;font-size:13px;margin-right:4px}
+.m{color:#a7b0ba;font-size:13px;margin:3px 0 6px} .d{color:#c9d0d6;font-size:14px}
+.l{margin-top:8px;font-size:13px} .l a{color:#6db3f2} .src{color:#7d8790;font-size:12px}
+.type{background:#1e2329;border:1px solid #2b3138;border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.type p{color:#c9d0d6;margin:0 0 8px;font-size:14px}
+.refs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .ref{display:block;color:#a7b0ba;font-size:12px;text-decoration:none}
+.ref img{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:top;border-radius:4px;display:block;margin-bottom:3px;background:#000}
+.reco{background:#1b2a22;border:1px solid #2f8f5b;border-radius:8px;padding:12px 14px;margin:8px 0 6px}
+.reco b{color:#7fd7a4} table{border-collapse:collapse;font-size:14px;margin-top:8px} td,th{border:1px solid #2b3138;padding:6px 10px;text-align:left;vertical-align:top} th{color:#a7b0ba;font-weight:600}
+</style></head><body>
+<h1>Respublika admin paneli: qaysi turdagi dashboardni nusxa qilamiz</h1>
+<p class="lead">Uch bo'lim: (1) dashboard turlari va har biriga Dribbble'dan namuna; (2) tayyor admin shablonlar, ularning kodini olib bevosita ishlatsa bo'ladi (skrinshot, demo, GitHub); (3) rasmli ilhom saytlari. Tanlagan raqamlarni yozing: tur (1–4), shablon (T raqami), kerak bo'lsa sayt (S raqami).</p>
+
+<div class="reco"><b>Tavsiyam:</b> tur sifatida 1 + 4 aralashmasi (kirish ekrani xarita bilan nazorat markazi, ichki sahifalar klassik admin), shablon sifatida <b>T1 Tabler</b> (bepul, MIT, Bootstrap 5, qorong'i rejim va xarita bor, FastAPI + Jinja bilan bevosita ishlaydi). React bilan qurmoqchi bo'lsak <b>T4 Ant Design Pro</b> yoki <b>T5 TailAdmin</b>. Vizual til Dribbble'dagi 1, 2, 3-dizaynlardan olinadi.</div>
+
+<h2>1. Dashboard turlari (bizga qaysi kerak)</h2>
+<div class="type"><h3>1. Nazorat markazi (xarita birinchi)</h3><p>Kirish ekrani xarita, ustida holat ranglari, yon panelda KPI va signal lentasi. Respublika dashboardi uchun aynan shu tur.</p><div class="refs"><a class="ref" href="https://dribbble.com/shots/27657356-Locker-Network-Ops-Dashboard-Real-Time-Fleet-Monitoring" target="_blank"><img src="https://cdn.dribbble.com/userupload/48748870/file/cbf5c255a66ceb3bdc18ebfba3f335ab.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Locker Network Ops Dashboard</span></a><a class="ref" href="https://dribbble.com/shots/6522733-1-Logistics-Dashboard-Military" target="_blank"><img src="https://cdn.dribbble.com/userupload/42286336/file/original-f7dcfc0823a1c5ab997d6488772a1cc4.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Logistics Dashboard Military</span></a><a class="ref" href="https://dribbble.com/shots/6545595-911-Interactive-map-for-unit-management" target="_blank"><img src="https://cdn.dribbble.com/userupload/42300243/file/original-3880ed424568a07375e4125e78e71810.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>911 Interactive map</span></a></div></div><div class="type"><h3>2. Rahbariyat KPI dashboardi</h3><p>Yuqorida katta raqamlar (KPI), pastda grafiklar va jadvallar. Hudud va bo&#x27;linma sahifalari uchun.</p><div class="refs"><a class="ref" href="https://dribbble.com/shots/27187154-Smart-Surveillance-Security-Monitoring-Dashboard-with-AI-Alerts" target="_blank"><img src="https://cdn.dribbble.com/userupload/47074147/file/cee9a6f5e9201f96564242eac6f702ae.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Smart Surveillance Monitoring</span></a><a class="ref" href="https://dribbble.com/shots/27008263-Admin-Security-Monitoring-Dashboard" target="_blank"><img src="https://cdn.dribbble.com/userupload/46470454/file/84978fc187c210b025ff467df409f57c.jpg?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Admin &amp; Security Monitoring</span></a><a class="ref" href="https://dribbble.com/shots/26628974-Autonomous-Mission-Control-Interface-Dashboard-UI" target="_blank"><img src="https://cdn.dribbble.com/userupload/45240663/file/b4ecb558a923a8ca6ebbfe5806edd802.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Autonomous Mission Control</span></a></div></div><div class="type"><h3>3. Qurilmalar parki (fleet) monitoringi</h3><p>Shkaflar ro&#x27;yxati holat belgilari bilan, texnik telemetriya, oflayn va signal filtrlari. Shkaflar va qurilmalar sahifalari uchun.</p><div class="refs"><a class="ref" href="https://dribbble.com/shots/27370155-Industrial-IoT-Dashboard-UIUX-Design-Devices-AI" target="_blank"><img src="https://cdn.dribbble.com/userupload/47707575/file/46b0df3a535147d0d4cf74203fa579dc.jpg?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Industrial IoT Devices</span></a><a class="ref" href="https://dribbble.com/shots/25698629-Fleet-Management-Operator-Detail" target="_blank"><img src="https://cdn.dribbble.com/userupload/37344455/file/original-50a4bcf04becad10e3b8b7076cd88d86.jpeg?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Fleet Management Operator</span></a><a class="ref" href="https://dribbble.com/shots/27652703-VaultEdge-Stock-Inventory-Management-Dashboard" target="_blank"><img src="https://cdn.dribbble.com/userupload/48732482/file/a2b211e487a8d311180bcd0f6a996be9.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>VaultEdge Inventory</span></a></div></div><div class="type"><h3>4. Klassik admin panel (jadval va formalar)</h3><p>Chap menyu, ro&#x27;yxatlar, filtrlar, kartochkalar, formalar. Xodimlar, inventar, jurnal, sozlamalar sahifalari uchun.</p><div class="refs"><a class="ref" href="https://dribbble.com/shots/25748099-User-Management-Dashboard-Dark-Mode" target="_blank"><img src="https://cdn.dribbble.com/userupload/41522442/file/original-c613133e8239304633ef75f945092ed4.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>User Management Dark</span></a><a class="ref" href="https://dribbble.com/shots/27683837-Healthcare-Asset-Management-Dashboard-Medical-Equipment-Tracking" target="_blank"><img src="https://cdn.dribbble.com/userupload/48846976/file/34802b4038f768c9e07517e7a424ceb9.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Asset Management Equipment</span></a><a class="ref" href="https://dribbble.com/shots/27395311-Incident-Management-System-Lexa" target="_blank"><img src="https://cdn.dribbble.com/userupload/47796090/file/74157be54dbf317eb6b571d2f50c50eb.png?format=webp&resize=800x600&vertical=center" loading="lazy"><span>Incident Management Lexa</span></a></div></div>
+
+<h2>2. Tayyor ochiq kodli admin shablonlar (nusxa olib ishlatsa bo'ladi)</h2>
+<p class="lead">Barchasi bepul va ochiq litsenziya. A daraja: bizning stek va vazifaga eng mos. Rasm README yoki avtomatik skrinshotdan.</p>
+<div class="grid"><div class="card fA">
+  <a href="https://preview.tabler.io/" target="_blank"><img src="https://raw.githubusercontent.com/tabler/tabler/dev/shared/static/tabler-preview.png" alt="Tabler" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#2f8f5b">T1</span> Tabler <span class="fit">A: eng mos</span></div>
+    <div class="m">Bootstrap 5, HTML + JS · MIT, bepul</div>
+    <div class="d">Eng toza va zamonaviy Bootstrap shablon: qorong&#x27;i rejim, xarita (jsvectormap), jadvallar, vaqt chizig&#x27;i, 100+ sahifa. FastAPI + Jinja bilan bevosita ishlaydi.</div>
+    <div class="l"><a href="https://github.com/tabler/tabler" target="_blank">GitHub</a> · <a href="https://preview.tabler.io/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fA">
+  <a href="https://adminlte.io/themes/v3/index.html" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fadminlte.io%2Fthemes%2Fv3%2Findex.html?w=1000" alt="AdminLTE 4" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#2f8f5b">T2</span> AdminLTE 4 <span class="fit">A: eng mos</span></div>
+    <div class="m">Bootstrap 5, HTML + JS · MIT, bepul</div>
+    <div class="d">Davlat va korporativ tizimlarda eng ko&#x27;p ishlatiladigan klassik admin shablon. Konservativ, tanish ko&#x27;rinish, ko&#x27;p vidjet.</div>
+    <div class="l"><a href="https://github.com/ColorlibHQ/AdminLTE" target="_blank">GitHub</a> · <a href="https://adminlte.io/themes/v3/index.html" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://coreui.io/demos/bootstrap/5.x/free/" target="_blank"><img src="https://assets.coreui.io/products/coreui-free-bootstrap-admin-template-light-dark.webp" alt="CoreUI Free" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T3</span> CoreUI Free <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Bootstrap 5 · MIT, bepul</div>
+    <div class="d">Sodda, tezkor, korporativ. Pullik versiyasida ko&#x27;proq komponent bor.</div>
+    <div class="l"><a href="https://github.com/coreui/coreui-free-bootstrap-admin-template" target="_blank">GitHub</a> · <a href="https://coreui.io/demos/bootstrap/5.x/free/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fA">
+  <a href="https://preview.pro.ant.design/dashboard/analysis" target="_blank"><img src="https://github.com/user-attachments/assets/74ad0b4a-e086-4955-8edd-9f2cff31aee8" alt="Ant Design Pro" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#2f8f5b">T4</span> Ant Design Pro <span class="fit">A: eng mos</span></div>
+    <div class="m">React, Ant Design · MIT, bepul</div>
+    <div class="d">Korxona darajasidagi React admin: jadval, filtr, formalar, ruxsatlar, ko&#x27;p til. Katta ma&#x27;lumotli tizimlar uchun juda kuchli.</div>
+    <div class="l"><a href="https://github.com/ant-design/ant-design-pro" target="_blank">GitHub</a> · <a href="https://preview.pro.ant.design/dashboard/analysis" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fA">
+  <a href="https://free-react-demo.tailadmin.com/" target="_blank"><img src="https://raw.githubusercontent.com/TailAdmin/free-react-tailwind-admin-dashboard/main/banner.png" alt="TailAdmin (React)" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#2f8f5b">T5</span> TailAdmin (React) <span class="fit">A: eng mos</span></div>
+    <div class="m">React, Tailwind · MIT, bepul</div>
+    <div class="d">Zamonaviy Tailwind dizayn, qorong&#x27;i rejim, yaxshi grafiklar. React bilan qurmoqchi bo&#x27;lsak asosiy nomzod.</div>
+    <div class="l"><a href="https://github.com/TailAdmin/free-react-tailwind-admin-dashboard" target="_blank">GitHub</a> · <a href="https://free-react-demo.tailadmin.com/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://mantisdashboard.io/free/" target="_blank"><img src="https://org-public-assets.s3.us-west-2.amazonaws.com/Free-Version-Banners/GITHUB-FREE-REACT-REPO+-+Mantis.png" alt="Mantis" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T6</span> Mantis <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">React, MUI · MIT, bepul</div>
+    <div class="d">Material UI asosida, toza va professional. Bepul versiyasi cheklangan.</div>
+    <div class="l"><a href="https://github.com/codedthemes/mantis-free-react-admin-template" target="_blank">GitHub</a> · <a href="https://mantisdashboard.io/free/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://berrydashboard.io/free/" target="_blank"><img src="https://org-public-assets.s3.us-west-2.amazonaws.com/Free-Version-Banners/GITHUB-FREE-REACT-REPO-Berry.png" alt="Berry" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T7</span> Berry <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">React, MUI · MIT, bepul</div>
+    <div class="d">Mantis bilan bir oiladan, yumshoqroq ko&#x27;rinish.</div>
+    <div class="l"><a href="https://github.com/codedthemes/berry-free-react-admin-template" target="_blank">GitHub</a> · <a href="https://berrydashboard.io/free/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://demos.themeselection.com/materio-vuetify-vuejs-admin-template-free/demo/" target="_blank"><img src="https://cdn.themeselection.com/ts-assets/materio/materio-vuetify-vuejs-admin-template-free/banner/banner.png" alt="Materio" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T8</span> Materio <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Vue 3, Vuetify · MIT, bepul</div>
+    <div class="d">Vue bilan qurmoqchi bo&#x27;lsak eng chiroyli bepul variant.</div>
+    <div class="l"><a href="https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free" target="_blank">GitHub</a> · <a href="https://demos.themeselection.com/materio-vuetify-vuejs-admin-template-free/demo/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://flowbite-admin-dashboard.vercel.app/" target="_blank"><img src="https://flowbite.s3.amazonaws.com/templates/flowbite-admin-dashboard/flowbite-admin-dashboard-preview.png" alt="Flowbite Admin Dashboard" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T9</span> Flowbite Admin Dashboard <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Tailwind, HTML · MIT, bepul</div>
+    <div class="d">Tailwind komponentlari, HTML sahifalar, qorong&#x27;i rejim. Jinja bilan ham ishlatsa bo&#x27;ladi.</div>
+    <div class="l"><a href="https://github.com/themesberg/flowbite-admin-dashboard" target="_blank">GitHub</a> · <a href="https://flowbite-admin-dashboard.vercel.app/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://demo.themesberg.com/volt/" target="_blank"><img src="https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-bootstrap-5-dashboard/volt-bootstrap-5-dashboard-preview.jpg" alt="Volt" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T10</span> Volt <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Bootstrap 5 · MIT, bepul</div>
+    <div class="d">Bootstrap 5, 11 sahifa, 100+ komponent, xarita vidjeti bor.</div>
+    <div class="l"><a href="https://github.com/themesberg/volt-bootstrap-5-dashboard" target="_blank">GitHub</a> · <a href="https://demo.themesberg.com/volt/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://horizon-ui.com/horizon-ui-chakra/" target="_blank"><img src="https://i.ibb.co/fdyTwz1/introduction-image-2.png" alt="Horizon UI" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T11</span> Horizon UI <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">React, Chakra UI · MIT, bepul</div>
+    <div class="d">Dizaynerlik ko&#x27;rinishi, yumaloq kartochkalar. Rahbariyat uchun chiroyli, lekin jiddiy davlat tizimiga ortiqcha bezakli bo&#x27;lishi mumkin.</div>
+    <div class="l"><a href="https://github.com/horizon-ui/horizon-ui-chakra" target="_blank">GitHub</a> · <a href="https://horizon-ui.com/horizon-ui-chakra/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://demos.creative-tim.com/material-dashboard/pages/dashboard" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fdemos.creative-tim.com%2Fmaterial-dashboard%2Fpages%2Fdashboard?w=1000" alt="Material Dashboard 2" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T12</span> Material Dashboard 2 <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Bootstrap 5, Material · MIT, bepul</div>
+    <div class="d">Creative Tim: Material dizayn, ko&#x27;p tayyor sahifa.</div>
+    <div class="l"><a href="https://github.com/creativetimofficial/material-dashboard" target="_blank">GitHub</a> · <a href="https://demos.creative-tim.com/material-dashboard/pages/dashboard" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://demos.creative-tim.com/argon-dashboard/pages/dashboard.html" target="_blank"><img src="https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard/argon-dashboard-2.jpg" alt="Argon Dashboard 2" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T13</span> Argon Dashboard 2 <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Bootstrap 5 · MIT, bepul</div>
+    <div class="d">Creative Tim: gradientli, yorug&#x27;.</div>
+    <div class="l"><a href="https://github.com/creativetimofficial/argon-dashboard" target="_blank">GitHub</a> · <a href="https://demos.creative-tim.com/argon-dashboard/pages/dashboard.html" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fC">
+  <a href="https://www.bootstrapdash.com/demo/star-admin2-free/template/" target="_blank"><img src="https://raw.githubusercontent.com/BootstrapDash/StarAdmin-Free-Bootstrap-Admin-Template/master/screenshot.jpg" alt="Star Admin 2" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#4a525b">T14</span> Star Admin 2 <span class="fit">C: faqat ma'lumot uchun</span></div>
+    <div class="m">Bootstrap 5 · MIT, bepul</div>
+    <div class="d">Oddiy, eski uslub.</div>
+    <div class="l"><a href="https://github.com/BootstrapDash/StarAdmin-Free-Bootstrap-Admin-Template" target="_blank">GitHub</a> · <a href="https://www.bootstrapdash.com/demo/star-admin2-free/template/" target="_blank">Jonli demo</a> · <span class="src">README skrinshoti</span></div>
+  </div>
+</div><div class="card fC">
+  <a href="https://adminmart.com/product/modernize-free-bootstrap-admin-template/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fadminmart.com%2Fproduct%2Fmodernize-free-bootstrap-admin-template%2F?w=1000" alt="Modernize" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#4a525b">T15</span> Modernize <span class="fit">C: faqat ma'lumot uchun</span></div>
+    <div class="m">Bootstrap 5 · MIT, bepul</div>
+    <div class="d">Yengil, yorug&#x27;, kam sahifa.</div>
+    <div class="l"><a href="https://github.com/adminmart/modernize-free-bootstrap-admin-template" target="_blank">GitHub</a> · <a href="https://adminmart.com/product/modernize-free-bootstrap-admin-template/" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://refine.dev/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Frefine.dev%2F?w=1000" alt="Refine" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T16</span> Refine <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">React, CRUD framework · MIT, bepul</div>
+    <div class="d">Admin CRUD sahifalarini (ro&#x27;yxat, forma, filtr) tez yasovchi framework; dizayn Ant Design yoki MUI dan olinadi.</div>
+    <div class="l"><a href="https://github.com/refinedev/refine" target="_blank">GitHub</a> · <a href="https://refine.dev/" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fA">
+  <a href="https://ui.shadcn.com/blocks" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fui.shadcn.com%2Fblocks?w=1000" alt="shadcn/ui Dashboard blocks" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#2f8f5b">T17</span> shadcn/ui Dashboard blocks <span class="fit">A: eng mos</span></div>
+    <div class="m">React, Tailwind · MIT, bepul</div>
+    <div class="d">Tayyor dashboard bloklari: sidebar, KPI kartochkalar, jadvallar, grafiklar. Eng zamonaviy ko&#x27;rinish, to&#x27;liq moslashtiriladi.</div>
+    <div class="l"><a href="https://ui.shadcn.com/blocks" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://blocks.tremor.so/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fblocks.tremor.so%2F?w=1000" alt="Tremor blocks" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T18</span> Tremor blocks <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">React, Tailwind · Apache 2.0, bepul</div>
+    <div class="d">Faqat dashboard va grafik bloklari, KPI va jadval uchun juda yaxshi.</div>
+    <div class="l"><a href="https://blocks.tremor.so/" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fC">
+  <a href="https://play.grafana.org/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fplay.grafana.org%2F?w=1000" alt="Grafana (ops uslubi)" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#4a525b">T19</span> Grafana (ops uslubi) <span class="fit">C: faqat ma'lumot uchun</span></div>
+    <div class="m">Monitoring platformasi · AGPL, bepul</div>
+    <div class="d">Faqat uslub uchun: qorong&#x27;i NOC (nazorat markazi) dashboardlari, xarita panellari. Admin panel emas.</div>
+    <div class="l"><a href="https://github.com/grafana/grafana" target="_blank">GitHub</a> · <a href="https://play.grafana.org/" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div></div>
+
+<h2>3. Pullik shablonlar (kerak bo'lsa)</h2>
+<div class="grid"><div class="card fB">
+  <a href="https://preview.keenthemes.com/metronic8/demo1/index.html" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fpreview.keenthemes.com%2Fmetronic8%2Fdemo1%2Findex.html?w=1000" alt="Metronic 8" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T20</span> Metronic 8 <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">HTML, React, Vue · Pullik, ~49 $</div>
+    <div class="d">Dunyoda eng ko&#x27;p sotilgan admin shablon, davlat portallarida ko&#x27;p uchraydi. Juda ko&#x27;p sahifa va layout.</div>
+    <div class="l"><a href="https://preview.keenthemes.com/metronic8/demo1/index.html" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div><div class="card fB">
+  <a href="https://pixinvent.com/demo/vuexy-vuejs-admin-dashboard-template/demo-1/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fpixinvent.com%2Fdemo%2Fvuexy-vuejs-admin-dashboard-template%2Fdemo-1%2F?w=1000" alt="Vuexy" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#8a6d2f">T21</span> Vuexy <span class="fit">B: yaxshi variant</span></div>
+    <div class="m">Vue, React, HTML · Pullik, ~36 $</div>
+    <div class="d">Chiroyli, ko&#x27;p variantli. Pullik.</div>
+    <div class="l"><a href="https://pixinvent.com/demo/vuexy-vuejs-admin-dashboard-template/demo-1/" target="_blank">Jonli demo</a> · <span class="src">avtomatik skrinshot (birinchi ochilishda yuklanishi mumkin)</span></div>
+  </div>
+</div></div>
+
+<h2>4. Rasmli ilhom saytlari</h2>
+<p class="lead">Har birida "Bizga mos qidiruv" havolasi tayyor qidiruv so'rovi bilan ochiladi.</p>
+<div class="grid"><div class="card site">
+  <a href="https://dribbble.com/search/admin-dashboard" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fdribbble.com%2Fsearch%2Fadmin-dashboard?w=1000" alt="Dribbble" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S1</span> Dribbble</div>
+    <div class="d">Eng katta dizayn galereyasi, dashboard dizaynlari ko&#x27;p (avvalgi ro&#x27;yxat shu yerdan)</div>
+    <div class="l"><a href="https://dribbble.com/search/admin-dashboard" target="_blank">Ochish</a> · <a href="https://dribbble.com/search/command-center-dashboard" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://www.behance.net/search/projects/admin%20dashboard" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fwww.behance.net%2Fsearch%2Fprojects%2Fadmin%2520dashboard?w=1000" alt="Behance" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S2</span> Behance</div>
+    <div class="d">To&#x27;liq keys-stadi loyihalar, ko&#x27;p ekranli; &#x27;command center&#x27;, &#x27;SOC dashboard&#x27;, &#x27;police dashboard&#x27; qidiruvlari foydali</div>
+    <div class="l"><a href="https://www.behance.net/search/projects/admin%20dashboard" target="_blank">Ochish</a> · <a href="https://www.behance.net/search/projects/command%20center%20dashboard" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://mobbin.com/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fmobbin.com%2F?w=1000" alt="Mobbin" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S3</span> Mobbin</div>
+    <div class="d">Haqiqiy ishlayotgan mahsulotlarning ekran skrinshotlari (pullik, bepul ko&#x27;rish cheklangan)</div>
+    <div class="l"><a href="https://mobbin.com/" target="_blank">Ochish</a> · <a href="https://mobbin.com/explore/web" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://www.figma.com/community/search?resource_type=files&query=dashboard%20ui%20kit" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fwww.figma.com%2Fcommunity%2Fsearch%3Fresource_type%3Dfiles%26query%3Ddashboard%2520ui%2520kit?w=1000" alt="Figma Community" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S4</span> Figma Community</div>
+    <div class="d">Bepul dashboard UI kitlar, Figma da ochib o&#x27;zgartirsa bo&#x27;ladi</div>
+    <div class="l"><a href="https://www.figma.com/community/search?resource_type=files&query=dashboard%20ui%20kit" target="_blank">Ochish</a> · <a href="https://www.figma.com/community/search?resource_type=files&query=admin%20dashboard" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://ui8.net/category/dashboards" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fui8.net%2Fcategory%2Fdashboards?w=1000" alt="UI8" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S5</span> UI8</div>
+    <div class="d">Pullik premium dashboard kitlari, preview rasmlari juda sifatli</div>
+    <div class="l"><a href="https://ui8.net/category/dashboards" target="_blank">Ochish</a> · <a href="https://ui8.net/search?q=admin" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://muz.li/search/?q=dashboard" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fmuz.li%2Fsearch%2F%3Fq%3Ddashboard?w=1000" alt="Muzli" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S6</span> Muzli</div>
+    <div class="d">Dizayn ilhom lentasi, dashboard to&#x27;plamlari</div>
+    <div class="l"><a href="https://muz.li/search/?q=dashboard" target="_blank">Ochish</a> · <a href="https://muz.li/search/?q=admin%20panel" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://www.pinterest.com/search/pins/?q=admin%20dashboard%20ui" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fwww.pinterest.com%2Fsearch%2Fpins%2F%3Fq%3Dadmin%2520dashboard%2520ui?w=1000" alt="Pinterest" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S7</span> Pinterest</div>
+    <div class="d">Rasm to&#x27;plamlari, tez ko&#x27;rib chiqish uchun</div>
+    <div class="l"><a href="https://www.pinterest.com/search/pins/?q=admin%20dashboard%20ui" target="_blank">Ochish</a> · <a href="https://www.pinterest.com/search/pins/?q=command%20center%20dashboard%20ui" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://www.awwwards.com/websites/dashboard/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fwww.awwwards.com%2Fwebsites%2Fdashboard%2F?w=1000" alt="Awwwards" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S8</span> Awwwards</div>
+    <div class="d">Mukofotlangan saytlar, dashboard bo&#x27;limi</div>
+    <div class="l"><a href="https://www.awwwards.com/websites/dashboard/" target="_blank">Ochish</a> · <a href="https://www.awwwards.com/inspiration_search/?text=dashboard" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://www.saasframe.io/categories/dashboard" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fwww.saasframe.io%2Fcategories%2Fdashboard?w=1000" alt="SaaSFrame" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S9</span> SaaSFrame</div>
+    <div class="d">SaaS mahsulotlarining haqiqiy dashboard skrinshotlari</div>
+    <div class="l"><a href="https://www.saasframe.io/categories/dashboard" target="_blank">Ochish</a> · <a href="https://www.saasframe.io/" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://refero.design/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Frefero.design%2F?w=1000" alt="Refero" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S10</span> Refero</div>
+    <div class="d">Haqiqiy veb-ilovalar ekranlari, kategoriya bo&#x27;yicha</div>
+    <div class="l"><a href="https://refero.design/" target="_blank">Ochish</a> · <a href="https://refero.design/apps" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://grafana.com/grafana/dashboards/" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fgrafana.com%2Fgrafana%2Fdashboards%2F?w=1000" alt="Grafana dashboards" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S11</span> Grafana dashboards</div>
+    <div class="d">Monitoring dashboard namunalari, xarita va NOC uslubi uchun</div>
+    <div class="l"><a href="https://grafana.com/grafana/dashboards/" target="_blank">Ochish</a> · <a href="https://grafana.com/grafana/dashboards/?search=map" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div><div class="card site">
+  <a href="https://themeforest.net/category/site-templates/admin-templates" target="_blank"><img src="https://s0.wp.com/mshots/v1/https%3A%2F%2Fthemeforest.net%2Fcategory%2Fsite-templates%2Fadmin-templates?w=1000" alt="ThemeForest" loading="lazy"></a>
+  <div class="b">
+    <div class="h"><span class="n" style="background:#3b5b8a">S12</span> ThemeForest</div>
+    <div class="d">Pullik admin shablonlar bozori, har birida live preview</div>
+    <div class="l"><a href="https://themeforest.net/category/site-templates/admin-templates" target="_blank">Ochish</a> · <a href="https://themeforest.net/search/admin%20dashboard%20dark" target="_blank">Bizga mos qidiruv</a></div>
+  </div>
+</div></div>
+
+<h2>5. Taqqoslash: qurish tezligi va moslik</h2>
+<table><tr><th>Yo'l</th><th>Shablon</th><th>Afzallik</th><th>Kamchilik</th></tr>
+<tr><td>Server tomonida render (FastAPI + Jinja + HTMX)</td><td>T1 Tabler, T2 AdminLTE, T9 Flowbite, T10 Volt</td><td>Eng tez qurish, bitta kod bazasi, oflayn o'rnatish oson, kam JavaScript</td><td>Juda interaktiv ekranlar (jonli xarita, egizak) uchun alohida JS yoziladi</td></tr>
+<tr><td>React SPA + FastAPI API</td><td>T4 Ant Design Pro, T5 TailAdmin, T6 Mantis, T17 shadcn/ui, T16 Refine</td><td>Jonli va boy interfeys, komponentlar ko'p, katta jadvallar qulay</td><td>Ikkita loyiha (frontend va backend), qurish va joylash murakkabroq</td></tr>
+<tr><td>Vue SPA + FastAPI API</td><td>T8 Materio, T20 Vuexy</td><td>React ga o'xshash, o'rganish osonroq</td><td>Bepul shablonlar kamroq</td></tr>
+</table>
+<p class="lead" style="margin-top:20px">Eslatma: rasmlar internetdan yuklanadi. Avtomatik skrinshotlar (WordPress mShots) birinchi ochilishda "generating" ko'rinishi mumkin, sahifani yangilang.</p>
+</body></html>

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon with context %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t(title) }}</h1></div>
+<section class="card"><div class="notice red">{{ icon("alert", 18) }} {{ t(message) }}</div><p><a class="btn btn-ghost" href="/yacheykalar">{{ icon("chev-left", 14) }} {{ t("Yacheykalar ro'yxatiga qaytish") }}</a></p></section>
+{% endblock %}

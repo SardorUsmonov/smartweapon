@@ -1,0 +1,14 @@
+{% extends "auth/base.html" %}
+{% from "macros.html" import icon with context %}
+{% block auth_content %}
+  <div class="auth-heading"><span class="auth-step">{{ t("2-bosqich") }}</span><h2>{{ t("Kirishni tasdiqlang") }}</h2><p>{{ full_name }} · <span class="mono">{{ username }}</span></p></div>
+  {% if error %}<div class="notice red" role="alert">{{ icon("alert", 16) }} {{ t(error) }}</div>{% endif %}
+  <form method="post" action="/kirish/mfa" class="auth-form">
+    <label for="code">{{ t("6 xonali tasdiqlash kodi") }}</label>
+    <input id="code" name="code" class="auth-code" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" required autofocus>
+    <p class="auth-help">{{ t("Tasdiqlash uchun 5 daqiqa beriladi.") }}</p>
+    <button class="btn btn-primary" type="submit">{{ icon("check", 17) }} {{ t("Tasdiqlash va kirish") }}</button>
+  </form>
+  {% if demo_mode %}<div class="auth-demo"><p>{{ t("Demo MFA kodi") }}: <code>123456</code></p></div>{% endif %}
+  <form method="post" action="/chiqish" class="auth-back"><button class="btn btn-ghost" type="submit">{{ icon("chev-left", 15) }} {{ t("Boshqa hisob bilan kirish") }}</button></form>
+{% endblock %}

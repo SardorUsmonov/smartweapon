@@ -1,0 +1,34 @@
+{# Jurnal bo'limi makroslari #}
+{% from "macros.html" import icon, level_badge with context %}
+
+{% macro lv(level) -%}
+{% set m = {"INFO": "AXBOROT", "WARNING": "OGOHLANTIRISH", "CRITICAL": "SIGNAL", "SECURITY": "XAVFSIZLIK"} -%}
+{{ level_badge(m.get(level, level)) }}
+{%- endmacro %}
+
+{% macro tabs(tab, can_export) -%}
+<div class="jur-tabs">
+  <a class="pill {% if tab == 'jurnal' %}on{% endif %}" href="/jurnal">{{ icon("list", 13, 2.2) }} {{ t("Barcha hodisalar") }}</a>
+  <a class="pill {% if tab == 'favqulodda' %}on{% endif %}" href="/jurnal/favqulodda">{{ icon("siren", 13, 2.2) }} {{ t("Favqulodda va mexanik kalit") }}</a>
+  <a class="pill {% if tab == 'yaxlitlik' %}on{% endif %}" href="/jurnal/yaxlitlik">{{ icon("shield", 13, 2.2) }} {{ t("Yaxlitlik") }}</a>
+  {% if can_export %}<a class="pill {% if tab == 'eksport' %}on{% endif %}" href="/jurnal/eksport">{{ icon("download", 13, 2.2) }} {{ t("Eksport") }}</a>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro where_cell(r) -%}
+{% if r.region %}<a href="/hudud/{{ r.region.id }}">{{ t(r.region.short) }}</a>{% else %}<span class="muted">{{ t("Respublika") }}</span>{% endif %}{% if r.unit %} · {{ t(r.unit.name) }}{% endif %}{% if r.armory %} · <a href="/qurolxona/{{ r.armory.id }}">{{ t(r.armory.name) }}</a>{% endif %}
+{%- endmacro %}
+
+{% macro pager(page, pages, total, qlink, base) -%}
+<div class="pager">
+  <span>{{ t("Jami") }} {{ total | num }} {{ t("ta yozuv") }} · {{ t("sahifa") }} {{ page }}/{{ pages }}</span>
+  {% if page > 1 %}
+  <a class="btn btn-ghost btn-sm" href="{{ base }}?{{ qlink(page=1) }}" title="{{ t('Birinchi sahifa') }}">1</a>
+  <a class="btn btn-ghost btn-sm" href="{{ base }}?{{ qlink(page=page - 1) }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>
+  {% endif %}
+  {% if page < pages %}
+  <a class="btn btn-ghost btn-sm" href="{{ base }}?{{ qlink(page=page + 1) }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a>
+  <a class="btn btn-ghost btn-sm" href="{{ base }}?{{ qlink(page=pages) }}" title="{{ t('Oxirgi sahifa') }}">{{ pages }}</a>
+  {% endif %}
+</div>
+{%- endmacro %}

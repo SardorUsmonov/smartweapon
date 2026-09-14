@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, level_icon, level_badge, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurolxonalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Smena yopish") }}<small>{{ t(a.name) }} · {{ t(a.unit.region.short) }} · {{ t("TZ §7.4: qaytarilmagan qurollar, ochiq signallar, mas'ul tasdig'i, smena hisoboti") }}</small></h1>
+  <div class="page-actions"><a class="btn btn-ghost" href="/qurolxona/{{ a.id }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Qurolxona sahifasi") }}</a></div>
+</div>
+
+{% if not shift %}
+<div class="notice yellow" style="margin-bottom: 14px">{{ t("Bu qurolxonada ochiq smena yo'q.") }}
+  {% if ctx.can("smena") %}<a href="/qurolxona/{{ a.id }}/smena/ochish">{{ t("Smena ochish vizardi") }} →</a>{% endif %}
+  {% if last_closed %} · {{ t("Oxirgi smena") }}: <a href="/qurolxona/{{ a.id }}/smena/{{ last_closed[0].id }}">{{ last_closed[0].report_ref or ("#" ~ last_closed[0].id) }}</a>{% endif %}</div>
+{% endif %}
+{% if not can_close %}
+<div class="notice yellow" style="margin-bottom: 14px">{{ icon("shield", 14) }} {{ t("Sizning rolingiz smena yopishga ruxsat bermaydi (faqat navbatchi yoki qurolxona mas'uli). Sahifa faqat ko'rish uchun.") }}</div>
+{% endif %}
+{% if error %}<div class="notice red" style="margin-bottom: 14px">{{ icon("alert", 14) }} {{ t(error) }}</div>{% endif %}
+
+<form method="post" action="/qurolxona/{{ a.id }}/smena/yopish" class="wiz">
+  {% if shift %}
+  <input type="hidden" name="shift_id" value="{{ shift.id }}">
+  <div class="wiz-steps">
+    <div class="wiz-step ok"><span class="n">{{ icon("clock", 14, 2.2) }}</span><span><b>{{ t("Smena") }}</b>{{ shift.opened_at | dt("%d.%m %H:%M") }} · {{ t(shift.opened_by) }} · {{ shift.opened_at | ago }}</span></div>
+    <div class="wiz-step {{ 'warn' if unreturned else 'ok' }}"><span class="n">1</span><span><b>{{ t("Qaytarilmagan qurollar") }}</b>{{ unreturned | length }} {{ t("ta") }}{% set late = unreturned | selectattr("overdue") | list | length %}{% if late %} · <span class="n-red">{{ late }} {{ t("kechikkan") }}</span>{% endif %}</span></div>
+    <div class="wiz-step {{ 'warn' if alarms else 'ok' }}"><span class="n">2</span><span><b>{{ t("Ochiq signallar") }}</b>{{ alarms | length }} {{ t("ta") }}</span></div>
+    <div class="wiz-step"><span class="n">3</span><span><b>{{ t("Mas'ul tasdig'i") }}</b>{{ t("hisobot shakllanadi") }}</span></div>
+  </div>
+
+  <div class="shift-box" style="margin-top: 0">
+    <div class="shift-stat"><b>{{ stats.operatsiya | num }}</b><span>{{ t("olish-qaytarish") }} · {{ t("olindi") }} {{ stats.olindi }} / {{ t("qaytarildi") }} {{ stats.qaytarildi }}</span></div>
+    <div class="shift-stat {% if stats.rad %}tone-yellow{% endif %}"><b>{{ stats.rad | num }}</b><span>{{ t("rad etilgan urinish") }}</span></div>
+    <div class="shift-stat {% if stats.signal %}tone-red{% endif %}"><b>{{ stats.signal | num }}</b><span>{{ t("signal (smena davomida)") }}</span></div>
+    <div class="shift-stat {% if stats.favqulodda %}tone-red{% endif %}"><b>{{ stats.favqulodda | num }}</b><span>{{ t("favqulodda / mexanik kalit") }}</span></div>
+  </div>
+  {% endif %}
+
+  <div class="grid-2">
+    <section class="card">
+      {% call card_head("1 · Qaytarilmagan qurollar") %}
+        {% if unreturned %}<span class="chip chip-yellow">{{ icon("gun", 13) }} {{ unreturned | length }} {{ t("xodimda") }}</span>{% else %}<span class="chip chip-green">{{ icon("check", 13, 2.4) }} {{ t("barcha qurollar uyada") }}</span>{% endif %}
+      {% endcall %}
+      {% if unreturned %}
+      <table class="tbl tbl-compact">
+        <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Qurol") }}</th><th class="l">{{ t("Olingan") }}</th><th class="l">{{ t("Muddat") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+        <tbody>
+        {% for u in unreturned[:40] %}
+        <tr class="row-link" data-href="/yacheyka/{{ u.cabinet.id }}">
+          <td class="l"><a href="/yacheyka/{{ u.cabinet.id }}">{{ u.cabinet.label }}</a></td>
+          <td class="l"><a href="/xodim/{{ u.officer.id }}">{{ t(u.officer.full_name) }}</a> <span class="muted mono">{{ u.officer.tabel }}</span></td>
+          <td class="l"><a href="/jihoz/{{ u.item.id }}">{{ u.item.model }} <span class="mono">{{ u.item.serial }}</span></a></td>
+          <td class="l">{{ u.custody.taken_at | dt("%d.%m %H:%M") }}</td>
+          <td class="l">{{ u.custody.due_at | dt("%d.%m %H:%M") }}</td>
+          <td class="l">{% if u.overdue %}<span class="chip chip-red">{{ icon("clock", 12, 2.4) }} {{ t("kechikkan") }} {{ u.late_min }} {{ t("daq") }}</span>{% else %}<span class="chip chip-yellow">{{ t("muddat ichida") }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% if unreturned | length > 40 %}<div class="muted" style="font-size: 12px; margin-top: 6px">{{ t("yana") }} {{ unreturned | length - 40 }} {{ t("ta yozuv hisobotga kiritiladi") }}</div>{% endif %}
+      <label class="confirm" style="margin-top: 10px"><input type="checkbox" name="ack_unreturned" value="1" {% if form.ack_unreturned == '1' %}checked{% endif %} {% if not can_close %}disabled{% endif %}><span>{{ t("Qaytarilmagan qurollar ro'yxati bilan tanishdim; ular keyingi smenaga o'tadi va kechikish signali kuzatiladi") }}<small>{{ t("Ro'yxat smena hisobotiga muhrlanadi") }}</small></span></label>
+      {% else %}
+      {{ empty("Ochiq berish yozuvi yo'q") }}
+      {% endif %}
+    </section>
+
+    <section class="card">
+      {% call card_head("2 · Ochiq signallar") %}
+        {% if alarms %}<span class="chip chip-red">{{ icon("bell", 13) }} {{ alarms | length }}</span>{% else %}<span class="chip chip-green">{{ icon("check", 13, 2.4) }} {{ t("ochiq signal yo'q") }}</span>{% endif %}
+        <a class="btn btn-ghost btn-sm" href="/signallar?qurolxona={{ a.id }}">{{ t("Signal markazi") }} {{ icon("chev", 14, 2.2) }}</a>
+      {% endcall %}
+      {% if alarms %}
+      <div class="feed">
+        {% for al in alarms[:12] %}
+        <a class="feed-row lv-{{ al.level|lower }}" href="/signal/{{ al.id }}">
+          <span class="feed-time">{{ al.opened_at | dt("%d.%m %H:%M") }}</span>
+          {{ level_icon(al.level) }}
+          <span class="feed-body"><span class="feed-title">{{ t(al.title) }}</span><span class="feed-detail">{{ t(al.detail) }}{% if al.acked_at %} · {{ t("tasdiqlangan") }}{% elif al.requires_ack %} · {{ t("tasdiq talab qiladi") }}{% endif %}</span></span>
+          {{ level_badge(alarm_badge(al)) }}
+        </a>
+        {% endfor %}
+      </div>
+      {% if alarms | length > 12 %}<div class="muted" style="font-size: 12px; margin-top: 6px">{{ t("yana") }} {{ alarms | length - 12 }} {{ t("ta signal") }}</div>{% endif %}
+      <label class="confirm" style="margin-top: 10px"><input type="checkbox" name="ack_alarms" value="1" {% if form.ack_alarms == '1' %}checked{% endif %} {% if not can_close %}disabled{% endif %}><span>{{ t("Ochiq signallar keyingi smenaga topshirilganini tasdiqlayman") }}<small>{{ t("Signallar yopilmaydi — ular Signal markazida yechiladi") }}</small></span></label>
+      {% else %}
+      {{ empty("Ochiq signal yo'q") }}
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card">
+    {{ card_head("3 · Mas'ul tasdig'i va smenani yopish") }}
+    <div class="form-grid">
+      <div><label>{{ t("Smenani yopuvchi (navbatchi)") }}</label><input name="closed_by" value="{{ closed_by }}" readonly></div>
+      <div><label>{{ t("Qurolxona mas'uli tasdig'i (F.I.Sh.)") }}</label><input name="close_confirm" value="{{ form.close_confirm or (responsible.full_name if responsible else '') }}" placeholder="{{ t('Mas’ul shaxs F.I.Sh.') }}" required {% if not can_close %}disabled{% endif %}></div>
+      <div class="full"><label>{{ t("Smena bo'yicha izoh (ixtiyoriy)") }}</label><textarea name="note" rows="2" placeholder="{{ t('Topshirish paytidagi qaydlar') }}" {% if not can_close %}disabled{% endif %}>{{ form.note or '' }}</textarea></div>
+    </div>
+    <div class="wiz-actions" style="margin-top: 12px">
+      <span class="muted" style="font-size: 12px">{{ t("Yopilgach smena hisoboti shakllanadi va jurnalga «smena_yopildi» hodisasi yoziladi.") }}</span>
+      <a class="btn btn-ghost" href="/qurolxona/{{ a.id }}">{{ t("Bekor qilish") }}</a>
+      {% if can_close and shift %}<button class="btn btn-danger" type="submit">{{ icon("stop", 14, 2.2) }} {{ t("Smenani yopish va hisobot shakllantirish") }}</button>{% endif %}
+    </div>
+  </section>
+</form>
+{% endblock %}

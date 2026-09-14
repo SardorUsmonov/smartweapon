@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, level_icon, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurolxonalar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Smena hisoboti") }}<small>{{ t(a.name) }} · {{ t(a.unit.region.short) }} · <span class="report-ref">{{ s.report_ref or ("smena #" ~ s.id) }}</span></small></h1>
+  <div class="page-actions">
+    {% if s.closed_at %}<span class="chip chip-gray">{{ icon("check", 14) }} {{ t("yopilgan") }}</span>{% else %}<span class="chip chip-green">{{ icon("clock", 14) }} {{ t("smena davom etmoqda") }}</span>{% endif %}
+    <a class="btn btn-ghost" href="/qurolxona/{{ a.id }}/smenalar">{{ t("Smenalar tarixi") }}</a>
+    <a class="btn btn-ghost" href="/qurolxona/{{ a.id }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Qurolxona") }}</a>
+    <button class="btn" type="button" onclick="window.print()">{{ icon("file", 14) }} {{ t("Chop etish") }}</button>
+  </div>
+</div>
+
+<div class="stack">
+  <div class="report-head">
+    <section class="card">
+      {{ card_head("Smena") }}
+      <dl class="kv">
+        <dt>{{ t("Hisobot raqami") }}</dt><dd class="report-ref">{{ s.report_ref or "—" }}</dd>
+        <dt>{{ t("Ochilgan") }}</dt><dd>{{ s.opened_at | dt("%d.%m.%Y %H:%M") }} · {{ t(s.opened_by) }}</dd>
+        <dt>{{ t("Yopilgan") }}</dt><dd>{% if s.closed_at %}{{ s.closed_at | dt("%d.%m.%Y %H:%M") }} · {{ t(s.closed_by) }}{% else %}<span class="muted">{{ t("davom etmoqda") }}</span>{% endif %}</dd>
+        <dt>{{ t("Mas'ul tasdig'i") }}</dt><dd>{{ t(s.close_confirm) if s.close_confirm else "—" }}</dd>
+        <dt>{{ t("Davomiyligi") }}</dt><dd>{% set d = (until - s.opened_at).total_seconds() | int %}{{ d // 3600 }} {{ t("soat") }} {{ (d % 3600) // 60 }} {{ t("daq") }}</dd>
+        <dt>{{ t("Ruxsat ro'yxati") }}</dt><dd>{% if s.permits_confirmed %}<span class="chip chip-green">{{ t("tasdiqlangan") }}</span>{% else %}<span class="chip chip-yellow">{{ t("tasdiqlanmagan") }}</span>{% endif %}
+          {% if s.reconcile.get("ruxsat") %} · {{ s.reconcile.ruxsat.mos }}/{{ s.reconcile.ruxsat.jami }} {{ t("xodim") }}{% endif %}</dd>
+        {% if s.reconcile.get("izoh") %}<dt>{{ t("Ochishdagi izoh") }}</dt><dd>{{ t(s.reconcile.izoh) }}</dd>{% endif %}
+        {% if s.reconcile.get("sabab") %}<dt>{{ t("O'z-tekshiruv sababi") }}</dt><dd class="n-yellow">{{ t(s.reconcile.sabab) }}</dd>{% endif %}
+        {% if yopish and yopish.izoh %}<dt>{{ t("Yopishdagi izoh") }}</dt><dd>{{ t(yopish.izoh) }}</dd>{% endif %}
+      </dl>
+    </section>
+    <section class="card">
+      {{ card_head("O'z-tekshiruv (ochishda)") }}
+      <div class="check-list">
+        {% for key, ok in s.selfcheck.items() %}
+        <div class="check-row {{ 'ok' if ok else 'bad' }}" style="grid-template-columns: 26px minmax(0,1fr) auto">
+          {% if ok %}<span class="lv" style="background: rgba(34,197,94,.18); color: var(--green)">{{ icon("check", 13, 2.4) }}</span>{% else %}{{ level_icon("CRITICAL") }}{% endif %}
+          <b>{{ t(selfcheck_label.get(key, key)) }}</b>
+          {% if ok %}<span class="chip chip-green">OK</span>{% else %}<span class="chip chip-red">{{ t("XATO") }}</span>{% endif %}
+        </div>
+        {% else %}
+        {{ empty("O'z-tekshiruv ma'lumoti yo'q") }}
+        {% endfor %}
+      </div>
+    </section>
+    <section class="card">
+      {{ card_head("Yacheyka va inventar (ochishda)") }}
+      <div class="shift-box" style="margin-top: 0; grid-template-columns: repeat(3, minmax(0, 1fr))">
+        <div class="shift-stat"><b>{{ s.reconcile.get("mos", 0) | num }}</b><span>{{ t("mos") }} / {{ s.reconcile.get("yacheyka", "—") }}</span></div>
+        <div class="shift-stat {% if s.reconcile.get('nomuvofiq') %}tone-yellow{% endif %}"><b>{{ s.reconcile.get("nomuvofiq", 0) | num }}</b><span>{{ t("farq") }}</span></div>
+        <div class="shift-stat"><b>{{ s.reconcile.get("berilgan", 0) | num }}</b><span>{{ t("ochiq berish") }}</span></div>
+      </div>
+      {% if s.reconcile.get("farqlar") %}
+      <table class="tbl tbl-compact" style="margin-top: 10px">
+        <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Farq") }}</th></tr></thead>
+        <tbody>{% for f in s.reconcile.farqlar %}<tr><td class="l">{{ f.label }}</td><td class="l issues">{{ t(f.detail) }}</td></tr>{% endfor %}</tbody>
+      </table>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="card">
+    {% call card_head("Yopishda qayd etilgan ko'rsatkichlar" if yopish else "Smena davomidagi ko'rsatkichlar") %}<span class="meta-item muted">{{ s.opened_at | dt("%d.%m %H:%M") }} — {{ until | dt("%d.%m %H:%M") }}</span>{% endcall %}
+    <div class="shift-box" style="margin-top: 0; grid-template-columns: repeat(6, minmax(0, 1fr))">
+      <div class="shift-stat"><b>{{ stats.operatsiya | num }}</b><span>{{ t("olish-qaytarish") }}</span></div>
+      <div class="shift-stat"><b>{{ stats.olindi | num }}</b><span>{{ t("olindi") }}</span></div>
+      <div class="shift-stat"><b>{{ stats.qaytarildi | num }}</b><span>{{ t("qaytarildi") }}</span></div>
+      <div class="shift-stat {% if stats.rad %}tone-yellow{% endif %}"><b>{{ stats.rad | num }}</b><span>{{ t("rad etilgan") }}</span></div>
+      <div class="shift-stat {% if stats.signal %}tone-red{% endif %}"><b>{{ stats.signal | num }}</b><span>{{ t("signal") }}</span></div>
+      <div class="shift-stat {% if stats.favqulodda %}tone-red{% endif %}"><b>{{ stats.favqulodda | num }}</b><span>{{ t("favqulodda / mexanik") }}</span></div>
+    </div>
+  </section>
+
+  {% if yopish %}
+  <div class="grid-2">
+    <section class="card">
+      {% call card_head("Yopish paytida qaytarilmagan qurollar") %}<span class="chip {{ 'chip-yellow' if yopish.qaytarilmagan else 'chip-green' }}">{{ yopish.qaytarilmagan | length }}</span>{% endcall %}
+      {% if yopish.qaytarilmagan %}
+      <table class="tbl tbl-compact">
+        <thead><tr><th class="l">{{ t("Yacheyka") }}</th><th class="l">{{ t("Xodim") }}</th><th class="l">{{ t("Qurol") }}</th><th class="l">{{ t("Muddat") }}</th><th class="l">{{ t("Holat") }}</th></tr></thead>
+        <tbody>
+        {% for u in yopish.qaytarilmagan %}
+        <tr><td class="l">{{ u.label }}</td><td class="l">{{ t(u.xodim) }} <span class="muted mono">{{ u.tabel }}</span></td><td class="l mono">{{ u.qurol }}</td><td class="l">{{ u.muddat | dt("%d.%m %H:%M") }}</td>
+          <td class="l">{% if u.kechikkan %}<span class="chip chip-red">{{ t("kechikkan") }}</span>{% else %}<span class="chip chip-yellow">{{ t("muddat ichida") }}</span>{% endif %}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}{{ empty("Barcha qurollar qaytarilgan") }}{% endif %}
+    </section>
+    <section class="card">
+      {% call card_head("Yopish paytida ochiq signallar") %}<span class="chip {{ 'chip-red' if yopish.ochiq_signallar else 'chip-green' }}">{{ yopish.ochiq_signallar | length }}</span>{% endcall %}
+      {% if yopish.ochiq_signallar %}
+      <table class="tbl tbl-compact">
+        <thead><tr><th class="l">#</th><th class="l">{{ t("Daraja") }}</th><th class="l">{{ t("Signal") }}</th><th class="l">{{ t("Tasdiq") }}</th></tr></thead>
+        <tbody>
+        {% for al in yopish.ochiq_signallar %}
+        <tr class="row-link" data-href="/signal/{{ al.id }}"><td class="l"><a href="/signal/{{ al.id }}">{{ al.id }}</a></td><td class="l">{{ level_icon(al.daraja) }} {{ al.daraja }}</td><td class="l">{{ t(al.sarlavha) }}</td><td class="l">{{ t("tasdiqlangan") if al.tasdiqlangan else t("kutilmoqda") }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}{{ empty("Ochiq signal yo'q edi") }}{% endif %}
+    </section>
+  </div>
+  {% endif %}
+
+  <section class="card">
+    {% call card_head("Smena davomidagi hodisalar") %}<span class="meta-item muted">{{ t("oxirgi") }} {{ events | length }} · {{ t("to'liq ro'yxat Jurnalda") }}</span><a class="btn btn-ghost btn-sm" href="/jurnal?qurolxona={{ a.id }}">{{ t("Jurnal") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+    <div class="ev-list" style="max-height: none">
+      {% for e in events %}
+      <a class="ev-row" href="{% if e.cabinet_id %}/yacheyka/{{ e.cabinet_id }}{% else %}/jurnal/{{ e.id }}{% endif %}">
+        <span class="feed-time">{{ e.ts_server | dt("%d.%m %H:%M") }}</span>
+        {{ level_icon(e.level) }}
+        <span class="feed-body"><span class="feed-title">{{ t(e.title) }}</span><span class="feed-detail">{{ t(e.detail) }}{% if e.method %} · {{ e.method }}{% endif %}</span></span>
+        <span class="muted mono" style="font-size:11px">{{ e.type }}</span>
+      </a>
+      {% else %}
+      {{ empty("Smena davomida hodisa yozilmagan") }}
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

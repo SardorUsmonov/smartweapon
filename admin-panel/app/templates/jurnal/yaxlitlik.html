@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% from "jurnal/_macros.html" import tabs with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/jurnal.css">{% endblock %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t("Jurnal yaxlitligi") }}<small>{{ t("Yozuvlarning SHA-256 hash qiymati va zanjirdagi bog'lanishini tekshirish") }}</small></h1><a class="btn btn-ghost btn-sm" href="/jurnal">{{ t("Jurnalga qaytish") }}</a></div>
+{{ tabs(tab, can_export) }}
+<form class="filters" method="get" action="/jurnal/yaxlitlik"><label class="fl">{{ t("Yacheyka") }}<input name="yacheyka" value="{{ yacheyka }}" placeholder="{{ t('ID, Y-017 yoki seriya raqami') }}"></label><button class="btn btn-primary btn-sm">{{ icon("shield", 14) }} {{ t("Tekshirish") }}</button><a class="btn btn-ghost btn-sm" href="/jurnal/yaxlitlik">{{ t("Barcha ruxsat etilgan oqimlar") }}</a></form>
+{% if error %}<div class="notice yellow" role="alert">{{ t(error) }}</div>{% endif %}
+{% if res %}
+<div class="stack">
+<section class="card">
+{% call card_head("Tekshiruv natijasi") %}<span class="meta-item muted">{{ checked_at | dt("%d.%m.%Y %H:%M:%S") }}</span>{% endcall %}
+<div class="jur-integrity {{ 'is-good' if res.ok else 'is-broken' }}">{{ icon("shield" if res.ok else "alert", 32) }}<div><h2>{{ t("Tekshirilgan yozuvlar mos") if res.ok and res.checked else (t("Tekshirish uchun yozuv yo'q") if not res.checked else t("Yaxlitlik buzilishi aniqlandi")) }}</h2><p>{% if cab %}{{ t("Yacheyka") }} {{ cab.label }} · {{ cab.serial }}{% else %}{{ t("Vakolat doirangizdagi hodisalar") }}{% endif %}</p></div></div>
+<div class="jur-metrics"><div><b>{{ res.checked | num }}</b><span>{{ t("tekshirilgan yozuv") }}</span></div><div><b class="{{ 'n-red' if res.broken else 'n-green' }}">{{ res.broken | num }}</b><span>{{ t("nomuvofiq yozuv") }}</span></div><div><b>{{ streams | num }}</b><span>{{ t("oqim") }}</span></div><div><b>{{ res.ms | num }} <small>ms</small></b><span>{{ t("tekshiruv vaqti") }}</span></div></div>
+{% if first %}<div class="notice red">{{ t("Birinchi nomuvofiq yozuv") }}: <a href="/jurnal/{{ first.id }}">#{{ first.id }} · {{ t(first.title or first.type) }}</a> · {{ first.ts_server | dt("%d.%m.%Y %H:%M:%S") }}. {{ t("Yozuvni va tegishli qurilma jurnalini mas'ul bilan tekshiring.") }}</div>{% endif %}
+</section>
+<section class="card">{% call card_head("Tekshiruv qamrovi") %}{% endcall %}<dl class="kv"><dt>{{ t("Qamrovdagi yozuvlar") }}</dt><dd>{{ total_events | num }}</dd><dt>{{ t("Oxirgi hodisa") }}</dt><dd>{% if last_ev %}<a href="/jurnal/{{ last_ev.id }}">#{{ last_ev.id }}</a> · {{ last_ev.ts_server | dt("%d.%m.%Y %H:%M:%S") }}{% else %}—{% endif %}</dd></dl><p class="jur-help muted">{{ t("Har bir yacheyka alohida hash oqimiga ega. Yacheykasiz hodisalar umumiy oqimda saqlanadi. Tekshiruv yozuvlarni o'zgartirmaydi va mustaqil elektron imzo o'rnini bosmaydi.") }}</p>{% if scoped %}<p class="jur-help muted">{{ t("Faqat vakolat doirangizdagi yozuvlar ko'rsatiladi. Umumiy oqimning boshqa hududlarga tegishli qo'shnilari oshkor qilinmaydi.") }}</p>{% endif %}</section>
+</div>
+{% endif %}
+{% endblock %}

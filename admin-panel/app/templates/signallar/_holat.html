@@ -1,0 +1,113 @@
+{# Jonli qism (batafsil sahifa): holat vaqt chizig'i, harakatlar, yacheyka telemetriyasi #}
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% from "signallar/_macros.html" import resolve_form with context %}
+<section class="card">
+  {% call card_head("Holat va harakatlar") %}
+    {% if a.resolved_at %}<span class="chip chip-green">{{ icon("check", 13, 2.2) }} {{ t("Yechilgan") }}</span>
+    {% elif a.acked_at %}<span class="chip chip-yellow">{{ icon("clock", 13, 2.2) }} {{ t("Tasdiqlangan, ochiq") }}</span>
+    {% else %}<span class="chip chip-red">{{ icon("alert", 13, 2.2) }} {{ t("Faol") }}</span>{% endif %}
+    <span class="meta-item muted">{{ now | dt("%H:%M:%S") }}</span>
+  {% endcall %}
+  <div class="sig-timeline">
+    <div class="tl-item done {{ {'CRITICAL': 'red', 'SECURITY': 'violet', 'WARNING': 'yellow'}.get(a.level, '') }}">
+      <span class="tl-dot">{{ icon("bell", 12, 2.4) }}</span>
+      <div class="tl-body"><b>{{ t("Signal ochildi") }}</b><span class="mono">{{ a.opened_at | dt("%d.%m.%Y %H:%M:%S") }}</span>{% if src %} <span>· {{ src.type }}{% if src.method %} · {{ src.method }}{% endif %}</span>{% endif %}</div>
+    </div>
+    {% if a.forwarded %}
+    <div class="tl-item done violet">
+      <span class="tl-dot">{{ icon("shield", 12, 2.4) }}</span>
+      <div class="tl-body"><b>{{ t("Qorovul postiga yo'naltirildi") }}</b>
+        {% set fw = by_action.get("yonaltirildi") %}
+        {% if fw %}<span class="mono">{{ fw.ts_server | dt("%d.%m.%Y %H:%M:%S") }}</span> <span>· {{ fw.payload.by }}</span>{% else %}<span>{{ t("avtomatik (CRITICAL/SECURITY qoidasi)") }}</span>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="tl-item {% if a.acked_at %}done{% elif a.requires_ack %}red{% endif %}">
+      <span class="tl-dot">{{ icon("check", 12, 2.4) }}</span>
+      <div class="tl-body"><b>{{ t("Tasdiqlash") }}</b>
+        {% if a.acked_at %}<span class="mono">{{ a.acked_at | dt("%d.%m.%Y %H:%M:%S") }}</span> <span>· {{ a.acked_by }}</span>
+        {% elif a.requires_ack %}<span class="n-red">{{ t("kutilmoqda · majburiy") }}</span>
+        {% else %}<span>{{ t("shart emas") }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="tl-item {% if a.resolved_at %}done{% endif %}">
+      <span class="tl-dot">{{ icon("lock", 12, 2.4) }}</span>
+      <div class="tl-body"><b>{{ t("Yechish") }}</b>
+        {% if a.resolved_at %}
+          {% set rs = by_action.get("yechildi") %}
+          <span class="mono">{{ a.resolved_at | dt("%d.%m.%Y %H:%M:%S") }}</span> <span>· {{ a.resolved_by }}</span>
+          {% if rs %}<span class="tl-reason">{{ t("Sabab") }}: {{ t(rs.reason) }}{% if rs.payload.note %} · {{ rs.payload.note }}{% endif %}</span>
+          {% elif a.resolved_by == "tizim" %}<span class="tl-reason">{{ t("Sabab") }}: {{ t("aloqa tiklandi (avtomatik)") }}</span>
+          {% else %}<span class="tl-reason">{{ t("Sabab") }}: {{ t("navbatchi tomonidan (tarixiy yozuv)") }}</span>{% endif %}
+        {% else %}<span>{{ t("ochiq") }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if a.resolved_at %}
+  <div class="notice green">{{ icon("check", 15, 2.2) }} {{ t("Signal yechilgan; yozuv jurnalda saqlanadi, tahrirlanmaydi.") }}</div>
+  {% elif can_ack %}
+  <div class="sig-action-block">
+    {% if not a.acked_at %}
+    <form method="post" action="/signal/{{ a.id }}/tasdiqlash" class="sig-inline">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <button class="btn btn-primary">{{ icon("check", 15, 2.2) }} {{ t("Tasdiqlash") }}</button>
+      <span class="muted">{{ t("Ko'rildi, ishlov berilmoqda; signal ochiq qoladi") }}</span>
+    </form>
+    {% endif %}
+    {% if not a.forwarded %}
+    <form method="post" action="/signal/{{ a.id }}/yonaltirish" class="sig-inline">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <button class="btn">{{ icon("shield", 15, 2) }} {{ t("Qorovul postiga yo'naltirish") }}</button>
+    </form>
+    {% endif %}
+    {% if arm and not arm.online and a.type == "oflayn" %}
+    <div class="notice yellow">{{ t("Qurolxona hali oflayn: aloqa tiklanganda signal avtomatik yechiladi. Qo'lda yechish faqat tekshiruvdan so'ng.") }}</div>
+    {% endif %}
+    <div class="sig-resolve-box" id="yechish">
+      <div class="sig-resolve-title">{{ icon("lock", 14, 2) }} {{ t("Signalni yechish") }}</div>
+      {{ resolve_form(r, next_url, reasons, compact=False) }}
+    </div>
+  </div>
+  {% else %}
+  <div class="notice yellow">{{ icon("info", 15, 2.2) }} {{ t("Tasdiqlash va yechish uchun navbatchi yoki qurolxona mas'uli roli kerak.") }} <span class="muted">({{ t("joriy rol") }}: {{ ctx.role }})</span></div>
+  {% endif %}
+</section>
+
+{% if cab %}
+<section class="card">
+  {% call card_head("Yacheyka " ~ cab.label ~ " · telemetriya") %}{{ cab_status(cab.status) }}<a class="btn btn-ghost btn-sm" href="/yacheyka/{{ cab.id }}">{{ t("Yacheyka kartasi") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+  <div class="sig-tele-grid">
+    <div class="term">
+      <span class="led" style="background: {{ led.get(cab.terminal_state, 'var(--accent)') }}"></span>
+      {% set tt = terminal_text.get(cab.terminal_state, ("", "")) %}
+      <b>{{ t(tt[0]) }}</b><small>{{ t(tt[1]) }}</small>
+      <small class="muted">{{ t("terminal") }} · {{ cab.terminal_state }}</small>
+    </div>
+    <div class="tele">
+      <div class="kv-item"><span>{{ t("Eshik") }}</span><b>{% if cab.door_open %}<span class="n-yellow">{{ t("ochiq") }}</span>{% else %}{{ t("yopiq") }}{% endif %}</b></div>
+      <div class="kv-item"><span>{{ t("Qulf") }}</span><b>{% if cab.door_locked %}{{ icon("lock", 12) }} {{ t("qulf") }}{% else %}<span class="n-yellow">{{ icon("unlock", 12) }} {{ t("ochiq") }}</span>{% endif %}</b></div>
+      <div class="kv-item"><span>AK-74</span><b>{% if cab.ak_present %}{{ t("uyada") }}{% else %}<span class="n-yellow">{{ t("xodimda") }}</span>{% endif %} · {{ t("qisqich") }} {{ t("qulf") if cab.ak_clamp_locked else t("ochiq") }}</b></div>
+      <div class="kv-item"><span>PM</span><b>{% if cab.pm_present %}{{ t("uyada") }}{% else %}<span class="n-yellow">{{ t("xodimda") }}</span>{% endif %} · {{ t("quti") }} {{ t("qulf") if cab.pm_box_locked else t("ochiq") }}</b></div>
+      <div class="kv-item"><span>{{ t("Quvvat") }}</span><b>{% if cab.mains_ok %}<span class="chip chip-green">{{ icon("power", 12) }} {{ t("tarmoq") }}</span>{% else %}<span class="chip chip-red">{{ t("batareyada") }}</span>{% endif %}</b></div>
+      <div class="kv-item"><span>{{ t("Batareya") }}</span><b class="{% if cab.battery_pct < 20 %}n-red{% endif %}">{{ icon("battery", 12) }} {{ cab.battery_pct }} %</b></div>
+      <div class="kv-item"><span>{{ t("Harorat") }}</span><b>{{ "%.1f" | format(cab.temp_c) }} °C</b></div>
+      <div class="kv-item"><span>{{ t("Kontroller") }}</span><b>{% if cab.controller_online %}<span class="chip chip-green">{{ icon("wifi", 12) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 12) }} {{ t("oflayn") }}</span>{% endif %}</b></div>
+      <div class="kv-item"><span>{{ t("So'nggi aloqa") }}</span><b class="mono">{{ cab.last_seen | dt("%d.%m %H:%M:%S") if cab.last_seen else "—" }}</b></div>
+      <div class="kv-item"><span>{{ t("Seriya") }}</span><b class="mono">{{ cab.serial }}</b></div>
+    </div>
+  </div>
+</section>
+{% elif arm %}
+<section class="card">
+  {% call card_head("Qurolxona holati") %}<a class="btn btn-ghost btn-sm" href="/qurolxona/{{ arm.id }}">{{ t("Qurolxona sahifasi") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+  <div class="tele">
+    <div class="kv-item"><span>{{ t("Aloqa") }}</span><b>{% if arm.online %}<span class="chip chip-green">{{ icon("wifi", 12) }} {{ t("onlayn") }}</span>{% else %}<span class="chip chip-red">{{ icon("wifi-off", 12) }} {{ t("oflayn") }}</span>{% endif %}</b></div>
+    <div class="kv-item"><span>WAN</span><b>{{ t("bor") if arm.wan_ok else t("yo'q") }}</b></div>
+    <div class="kv-item"><span>UPS</span><b>{{ arm.ups_battery_pct }} %{% if arm.ups_on_battery %} · <span class="n-yellow">{{ t("batareyada") }}</span>{% endif %}</b></div>
+    <div class="kv-item"><span>{{ t("Keshdagi hodisalar") }}</span><b>{{ arm.pending_events | num }}</b></div>
+    <div class="kv-item"><span>{{ t("Oxirgi sinxron") }}</span><b class="mono">{{ arm.last_sync | dt("%d.%m %H:%M:%S") if arm.last_sync else "—" }}</b></div>
+    <div class="kv-item"><span>{{ t("Yacheykalar") }}</span><b>{{ arm.cabinets | length | num }}</b></div>
+  </div>
+</section>
+{% endif %}

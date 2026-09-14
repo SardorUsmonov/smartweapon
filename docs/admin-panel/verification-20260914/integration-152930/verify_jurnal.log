@@ -1,0 +1,5 @@
+Jurnal pages, Cyrillic, filters, pagination and full integrity coverage OK
+CSV roundtrip (770 rows), audit immutability, scopes, shared history, corruption and expiry OK
+Region views/partials/KPI/export preserve armory and unit scopes; CSV persistence and source link OK
+Shift history pagination/empty state and 80 Latin/Cyrillic open/close page requests OK
+PASS scratch: C:\Users\atsha\AppData\Local\Temp\aq_jurnal_flow_5g9y9ona

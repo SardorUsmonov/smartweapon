@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hisobotlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Eksportlar jurnali") }}<small>{{ t("Har eksport: raqam, kim, hisobot, format, maqsad, amal qilish muddati va fayl hash (SHA-256). Yozuvlar tahrirlanmaydi.") }}</small></h1>
+  <div class="page-actions">
+    <span class="pill on">{{ t("Amalda") }}: {{ n_valid | num }}</span>
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar">{{ icon("chev-left", 14, 2.2) }} {{ t("Hisobotlar") }}</a>
+  </div>
+</div>
+<section class="card">
+  {% call card_head("Filtrlar") %}<span class="meta-item muted">{{ total | num }} {{ t("yozuv") }}</span>{% endcall %}
+  <form method="get" class="filters" action="/hisobotlar/eksportlar">
+    <label>{{ t("Hisobot") }}
+      <select name="hisobot"><option value="">{{ t("Barcha hisobotlar") }}</option>
+        {% for k, s in reports.items() %}<option value="{{ k }}" {% if filt.hisobot == k %}selected{% endif %}>{{ t(s.title) }}</option>{% endfor %}</select></label>
+    <label>{{ t("Format") }}
+      <select name="fmt"><option value="">{{ t("Barchasi") }}</option>
+        {% for k, s in formats.items() %}<option value="{{ k }}" {% if filt.fmt == k %}selected{% endif %}>{{ s[0] }}</option>{% endfor %}</select></label>
+    <label>{{ t("Kim") }}
+      <select name="kim"><option value="">{{ t("Barcha foydalanuvchilar") }}</option>
+        {% for u in users %}<option value="{{ u }}" {% if filt.kim == u %}selected{% endif %}>{{ u }}</option>{% endfor %}</select></label>
+    <label>{{ t("Holat") }}
+      <select name="holat"><option value="">{{ t("Barchasi") }}</option>
+        <option value="amalda" {% if filt.holat == 'amalda' %}selected{% endif %}>{{ t("Amalda") }}</option>
+        <option value="muddati_otgan" {% if filt.holat == 'muddati_otgan' %}selected{% endif %}>{{ t("Muddati o'tgan") }}</option></select></label>
+    <label>{{ t("Dan") }} <input type="date" name="dan" value="{{ filt.dan }}"></label>
+    <label>{{ t("Gacha") }} <input type="date" name="gacha" value="{{ filt.gacha }}"></label>
+    <button class="btn btn-primary btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qo'llash") }}</button>
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar/eksportlar">{{ t("Tozalash") }}</a>
+  </form>
+  <div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr>
+      <th class="l">{{ t("Raqam") }}</th><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Kim") }}</th><th class="l">{{ t("Hisobot") }}</th><th class="l">{{ t("Format") }}</th>
+      <th class="l">{{ t("Maqsad") }}</th><th class="l">{{ t("Amal qilish muddati") }}</th><th class="l">{{ t("Fayl") }}</th><th class="l">{{ t("Hash") }}</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}{% set e = r.log %}
+    <tr class="row-link" data-href="/hisobotlar/eksportlar/{{ e.id }}">
+      <td class="l mono"><a href="/hisobotlar/eksportlar/{{ e.id }}">{{ e.number }}</a></td>
+      <td class="l">{{ e.ts | dt("%d.%m.%Y %H:%M") }}</td>
+      <td class="l">{{ e.username }}</td>
+      <td class="l">{{ t(r.title) }}</td>
+      <td class="l">{{ e.fmt | upper }}</td>
+      <td class="l wrap">{{ e.purpose }}</td>
+      <td class="l">{% if r.valid %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ e.valid_until | dt("%d.%m.%Y %H:%M") }}</span>{% else %}<span class="chip chip-gray">{{ t("muddati o'tgan") }} · {{ e.valid_until | dt("%d.%m.%Y") }}</span>{% endif %}</td>
+      <td class="l"><span class="chip {{ r.file[0] }}">{{ t(r.file[1]) }}</span></td>
+      <td class="l mono" title="{{ e.file_hash }}">{{ e.file_hash[:12] }}…</td>
+      <td>{% if r.valid and ctx.can("eksport") and r.file[1] == "Hash mos" %}<a class="btn btn-ghost btn-xs" href="/hisobotlar/eksportlar/{{ e.id }}/fayl">{{ icon("download", 13, 2.2) }} {{ t("Yuklab olish") }}</a>{% endif %}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="10" class="l">{{ empty("Eksport yozuvlari yo'q") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div class="pager">
+    <span class="pg-info">{{ total | num }} {{ t("yozuv") }}{% if pages > 1 %} · {{ t("sahifa") }} {{ page }} / {{ pages }}{% endif %}</span>
+    {% if pages > 1 %}
+    {% if page > 1 %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page={{ page - 1 }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+    {% if page < pages %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page={{ page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a>{% endif %}
+    {% endif %}
+  </div>
+</section>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

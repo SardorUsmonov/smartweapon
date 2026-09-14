@@ -1,0 +1,49 @@
+{# Faol rejimlar (jonli partial): har rejim uchun progress, ko'rsatkichlar va har yacheyka holati #}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% call card_head("Faol rejimlar · jonli") %}
+  <span class="meta-item"><span class="dot {{ 'dot-red' if views else 'dot-green' }}"></span>{{ views | length }} {{ t("faol") }}</span>
+  <span class="meta-item muted">{{ t("yangilanish") }} {{ now.strftime('%H:%M:%S') }}</span>
+{% endcall %}
+<div class="stack">
+{% for v in views %}
+<article class="rj-mode {{ v.m.kind }}">
+  <div class="rj-mode-head">
+    <span class="badge {{ 'b-red-fill' if v.m.kind == 'trevoga' else 'b-yellow' }}">{{ t(v.kind) }}</span>
+    <a class="rj-mode-title" href="/rejim/{{ v.m.id }}">{{ t(v.where) }}</a>
+    {% if v.arm %}<a class="chip chip-gray" href="/qurolxona/{{ v.arm.id }}">{{ icon("building", 13) }} {{ t(v.arm.name) }}</a>
+    {% if not v.arm.online %}<span class="chip chip-red">{{ icon("wifi-off", 13) }} {{ t("oflayn") }}</span>{% endif %}{% endif %}
+    <span class="rj-mode-actions">
+      <a class="btn btn-sm btn-ghost" href="/rejim/{{ v.m.id }}">{{ t("Batafsil") }} {{ icon("chev", 13, 2.2) }}</a>
+      {% if ctx.can("rejim") %}<a class="btn btn-sm btn-danger" href="/rejim/{{ v.m.id }}#tugatish">{{ icon("stop", 13, 2.2) }} {{ t("Tugatish") }}</a>{% endif %}
+    </span>
+  </div>
+  <div class="rj-stats">
+    <div class="rj-stat"><b>{{ v.m.issued_count | num }} / {{ v.m.target_count | num }}</b><span>{{ t("berildi / jami") }}</span></div>
+    <div class="rj-stat"><b>{{ v.m.queue_count | num }}</b><span>{{ t("navbatda") }}</span></div>
+    <div class="rj-stat"><b>{% if v.m.avg_seconds %}{{ v.m.avg_seconds }} s{% else %}—{% endif %}</b><span>{{ t("o'rtacha vaqt") }}</span></div>
+    <div class="rj-stat"><b>{{ v.m.started_at | dt("%H:%M") }}</b><span>{{ t("boshlanish") }} · {{ v.m.started_at | dt("%d.%m.%Y") }}</span></div>
+    <div class="rj-stat"><b>{{ v.duration }}</b><span>{{ t("davomiylik") }}</span></div>
+    <div class="rj-stat"><b class="rj-name" title="{{ v.m.started_by }}">{{ v.m.started_by }}</b><span>{{ t("boshlagan") }}</span></div>
+    <div class="rj-stat"><b class="rj-name" title="{{ v.m.approver2 }}">{{ v.m.approver2 or "—" }}</b><span>{{ t("ikkinchi tasdiqlovchi") }}</span></div>
+  </div>
+  <div class="rj-progress {{ 'done' if v.pct >= 100 else '' }}" title="{{ v.pct }} %"><i style="width: {{ v.pct }}%"></i></div>
+  <div class="rj-progress-lbl">
+    <span>{{ v.pct }} % {{ t("bajarildi") }}</span>
+    {% if v.eta_min %}<span class="muted">{{ t("navbat uchun taxminan") }} {{ v.eta_min }} {{ t("daq") }}</span>{% endif %}
+    <span class="muted">{{ t("sabab") }}: {{ t(v.m.reason) if v.m.reason else "—" }}</span>
+  </div>
+  <div class="rj-cells">
+    {% for r in v.rows %}<a class="rj-cell {{ r.state }}" href="/yacheyka/{{ r.cab.id }}" title="{{ r.cab.label }} · {{ r.officer.full_name if r.officer else t('biriktirilmagan') }} · {{ t(r.label) }}{% if r.ts %} {{ r.ts | dt }}{% endif %}">{{ r.cab.label }}</a>{% endfor %}
+  </div>
+  <div class="rj-legend">
+    <span><i class="olindi"></i>{{ t("olindi") }} {{ v.counts.olindi }}</span>
+    {% if v.counts.xodimda %}<span><i class="xodimda"></i>{{ t("xodimda (rejimdan oldin)") }} {{ v.counts.xodimda }}</span>{% endif %}
+    <span><i class="kutmoqda"></i>{{ t("kutmoqda") }} {{ v.counts.kutmoqda }}</span>
+    <span><i class="bloklangan"></i>{{ t("berilmaydi (bloklangan / nosoz)") }} {{ v.counts.bloklangan }}</span>
+    <span class="muted">{{ t("qamrov") }}: {{ v.counts.jami }} {{ t("yacheyka") }}</span>
+  </div>
+</article>
+{% else %}
+{{ empty("Faol rejim yo'q — barcha qurolxonalar oddiy rejimda") }}
+{% endfor %}
+</div>

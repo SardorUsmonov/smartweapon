@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="{{ 'uz-Cyrl' if lang == 'cyr' else 'uz' }}" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <script src="/static/js/theme.js?v=1"></script>
+  <title>{{ t(title) }} · {{ t(cfg.APP_TITLE) }}</title>
+  <link rel="stylesheet" href="/static/css/tokens.css?v=situation-1">
+  <link rel="stylesheet" href="/static/css/app.css?v=situation-1">
+  <link rel="stylesheet" href="/static/css/sections/auth.css">
+  <link rel="stylesheet" href="/static/css/theme.css?v=1">
+  <link rel="stylesheet" href="/static/css/sections/relief.css?v=1">
+  <link rel="icon" href="/static/img/iiv-gerb.jpg">
+</head>
+<body class="auth-body">
+{% from "macros.html" import icon with context %}
+  <main class="auth-shell">
+    <div class="auth-toolbar"><span>{{ t("Qurol saqlash tizimi") }}</span><div class="auth-tools">{% include "partials/theme_toggle.html" %}<a class="lang-switch" href="/til/{{ 'lat' if lang == 'cyr' else 'cyr' }}">{{ 'Ўзб' if lang == 'lat' else "O'zb" }}</a></div></div>
+    <section class="auth-card">
+      <header class="auth-brand">
+        <img src="/static/img/iiv-gerb.jpg" alt="{{ t('IIV gerbi') }}" width="76" height="76">
+        <p>{{ t(cfg.ORG_NAME) }}</p>
+        <h1>{{ t(cfg.APP_TITLE) }}</h1>
+      </header>
+      {% block auth_content %}{% endblock %}
+    </section>
+    <p class="auth-footer">{{ icon("shield", 15) }} {{ t("Kirishlar va amallar tizim jurnalida qayd etiladi.") }}</p>
+  </main>
+</body>
+</html>

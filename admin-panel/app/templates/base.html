@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="{{ 'uz-Cyrl' if lang == 'cyr' else 'uz' }}" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script src="/static/js/theme.js?v=1"></script>
+<title>{{ t(title) if title else t(cfg.APP_TITLE) }} · {{ t(cfg.APP_TITLE) }}</title>
+<link rel="stylesheet" href="/static/css/tokens.css?v=situation-1">
+<link rel="stylesheet" href="/static/css/app.css?v=situation-1">
+<link rel="icon" href="/static/img/iiv-gerb.jpg">
+<script src="/static/js/htmx.min.js" defer></script>
+<script src="/static/js/app.js?v=situation-2" defer></script>
+{% block head %}{% endblock %}
+<link rel="stylesheet" href="/static/css/sections/layout.css">
+<link rel="stylesheet" href="/static/css/sections/situation.css?v=1">
+{% if active == 'respublika' %}<link rel="stylesheet" href="/static/css/sections/executive.css?v=1">{% endif %}
+<link rel="stylesheet" href="/static/css/theme.css?v=1">
+<link rel="stylesheet" href="/static/css/sections/leadership-shell.css?v=1">
+<link rel="stylesheet" href="/static/css/sections/relief.css?v=1">
+{% if active == 'respublika' %}
+<link rel="stylesheet" href="/static/css/sections/leadership-map.css?v=2">
+<script src="/static/js/leadership-map.js?v=1" defer></script>
+<script type="importmap">{"imports":{"three":"/static/vendor/three/three.module.js"}}</script>
+<script type="module" src="/static/js/leadership-map-3d.js?v=2"></script>
+{% endif %}
+</head>
+<body data-lang="{{ lang }}" data-now="{{ now.isoformat() }}" data-page="{{ active }}">
+{% from "macros.html" import icon with context %}
+<header class="topbar">
+  <a class="brand" href="/">
+    <img class="brand-logo" src="/static/img/iiv-gerb.jpg" alt="IIV">
+    <span class="brand-text"><span class="brand-title">{{ t(cfg.APP_TITLE) }}</span><span class="brand-sub">{{ t(cfg.APP_SUBTITLE) }}</span></span>
+  </a>
+  {% if breadcrumb %}
+  <nav class="crumbs">
+    <a href="/">{{ t("Respublika") }}</a>
+    {% for label, href in breadcrumb %}{{ icon("chev", 14) }}{% if href %}<a href="{{ href }}">{{ t(label) }}</a>{% else %}<span>{{ t(label) }}</span>{% endif %}{% endfor %}
+  </nav>
+  {% endif %}
+  <div class="topbar-center" id="topbar-status" hx-get="/partials/topbar" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+    {% include "partials/topbar_status.html" %}
+  </div>
+  <div class="topbar-right">
+    <form class="search" action="/qidiruv" method="get"><span class="search-ic">{{ icon("search", 15) }}</span><input name="q" aria-label="{{ t('Tizimdan qidirish') }}" placeholder="{{ t('Xodim, qurol katagi, seriya raqami…') }}" autocomplete="off"></form>
+    <div class="clock">{{ icon("clock", 20, 1.7) }}<div><b id="clock-time">{{ now.strftime('%H:%M') }}</b><small id="clock-date">{{ now.strftime('%d.%m.%Y') }}</small></div></div>
+    <div class="sys-ok"><span class="dot dot-green"></span>{{ t("Tizim faol") }}</div>
+    <div class="user-menu">
+      {% include "partials/theme_toggle.html" %}
+      <a class="lang-switch" href="/til/{{ 'lat' if lang == 'cyr' else 'cyr' }}" title="{{ t('Til') }}">{{ 'Ўзб' if lang == 'lat' else "O'zb" }}</a>
+      <a class="user-chip" href="/profil" title="{{ t('Foydalanuvchi') }}">{{ icon("user", 16) }}<span>{{ ctx.user.full_name if ctx and ctx.user else t("Mehmon") }}</span></a>
+    </div>
+  </div>
+</header>
+<aside class="sidebar">
+  <div class="nav-caption">{{ t("Boshqaruv") }}</div>
+  <nav class="nav" aria-label="{{ t('Asosiy bo‘limlar') }}">
+    {% for key, label, href, ic in nav %}
+    {% if key != 'sozlamalar' or (ctx and ctx.can('sozlamalar')) %}
+    <a class="nav-item {% if active == key %}active{% endif %}" href="{{ href }}" {% if active == key %}aria-current="page"{% endif %}>{{ icon(ic, 20, 1.7) }}<span>{{ t(label) }}</span>
+      {% if key == "signallar" and active_alarms %}<span class="nav-badge">{{ active_alarms }}</span>{% endif %}</a>
+    {% endif %}
+    {% endfor %}
+    {% if ctx and ctx.can('simulyator') %}
+    <a class="nav-item nav-sim {% if active == 'simulyator' %}active{% endif %}" href="/simulyator">{{ icon("play", 20, 1.7) }}<span>{{ t("Simulyator") }}</span></a>
+    {% endif %}
+  </nav>
+  <div class="sidebar-foot"><span class="sidebar-rule"></span>{{ t(cfg.ORG_NAME) | upper }}{% if cfg.DEMO_MODE %}<span class="environment-note">{{ t("Namoyish muhiti") }}</span>{% endif %}</div>
+</aside>
+<main class="main" id="main-content">
+  {% block content %}{% endblock %}
+</main>
+<div id="toast-root"></div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

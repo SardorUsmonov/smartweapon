@@ -1,0 +1,77 @@
+/* Inventar bo'limi: tablar, KPI qatori, chain-of-custody vaqt chizig'i, inventarizatsiya qadamlari */
+.inv-kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.inv-kpis .kpi { min-height: 86px; }
+.inv-kpis .kpi-val { font-size: 24px; }
+
+.tabs { display: flex; gap: 4px; margin: -2px 0 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; margin-bottom: -1px; color: var(--muted); font-weight: 700; font-size: 13px;
+  border-bottom: 2px solid transparent; letter-spacing: .02em; }
+.tab:hover { color: var(--text); }
+.tab.on { color: #fff; border-bottom-color: var(--accent); }
+.tab .cnt { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab.on .cnt { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+
+.mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: .01em; }
+.pill input[type="checkbox"] { margin: 0 6px 0 0; accent-color: var(--accent); }
+.pill label, label.pill { cursor: pointer; }
+.filters .spacer { margin-left: auto; }
+.tbl-wrap { overflow-x: auto; }
+.tbl .sub { display: block; font-size: 11px; color: var(--muted); font-weight: 400; line-height: 1.1; }
+.tbl tr.hl-red td { background: rgba(239, 59, 59, .07); }
+.tbl tr.hl-yellow td { background: rgba(245, 180, 0, .06); }
+.pager a { color: var(--accent-text); padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; }
+.pager a:hover { border-color: var(--border-strong); }
+.pager span.cur { color: var(--text); font-weight: 700; padding: 0 6px; }
+
+/* jihoz kartasi */
+.inv-grid { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; align-items: start; }
+.inv-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.kv dd .chip { vertical-align: middle; }
+.form-grid { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 12px; align-items: center; }
+.form-grid label { color: var(--muted); font-size: 12px; }
+.form-grid textarea { min-height: 54px; resize: vertical; }
+.form-grid .actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; }
+.hold-box { display: flex; flex-direction: column; gap: 8px; }
+.hold-box textarea { min-height: 48px; resize: vertical; }
+
+.tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.tl-item { display: grid; grid-template-columns: 118px 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 7px 0; border-bottom: 1px solid var(--border); }
+.tl-item:last-child { border-bottom: 0; }
+.tl-time { font-family: var(--font-mono); font-size: 12px; color: var(--muted); line-height: 1.35; }
+.tl-time small { display: block; font-size: 11px; color: var(--muted-2); }
+.tl-dot { position: relative; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.tl-dot::before { content: ""; position: absolute; left: 10px; top: -8px; bottom: -8px; width: 2px; background: var(--border); }
+.tl-item:first-child .tl-dot::before { top: 8px; } .tl-item:last-child .tl-dot::before { bottom: 8px; }
+.tl-dot i { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--panel); }
+.tl-dot.green i { background: var(--green); } .tl-dot.red i { background: var(--red); } .tl-dot.yellow i { background: var(--yellow); } .tl-dot.violet i { background: #9085e9; } .tl-dot.gray i { background: var(--gray); }
+.tl-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 12.5px; }
+.tl-body b { font-size: 13px; }
+.tl-body .sub { color: var(--muted); font-size: 12px; }
+.tl-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.tl-scroll { max-height: 520px; overflow: auto; padding-right: 4px; }
+
+/* inventarizatsiya */
+.steps { display: flex; gap: 8px; margin-bottom: 14px; }
+.step { flex: 1 1 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-2); color: var(--muted); font-size: 12.5px; }
+.step b { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; align-items: center; justify-content: center; background: var(--panel); border: 1px solid var(--border-strong); font-size: 12px; color: var(--text); flex-shrink: 0; }
+.step .lbl { display: flex; flex-direction: column; line-height: 1.15; }
+.step .lbl span { font-weight: 700; color: var(--text); font-size: 13px; }
+.step.on { border-color: var(--accent); background: var(--accent-soft); }
+.step.on b { background: var(--accent); border-color: var(--accent); color: #fff; }
+.step.done { border-color: rgba(34, 197, 94, .5); }
+.step.done b { background: rgba(34, 197, 94, .18); border-color: var(--green); color: var(--green); }
+.inv-session-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 14px; align-items: start; }
+.scan-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.scan-stat { padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel-2); }
+.scan-stat .v { display: block; font-size: 20px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.scan-stat .l { font-size: 11px; color: var(--muted); }
+.scan-stat.red .v { color: var(--red); } .scan-stat.yellow .v { color: var(--yellow); } .scan-stat.green .v { color: var(--green); }
+.scan-bar { height: 8px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); overflow: hidden; margin: 6px 0 4px; }
+.scan-bar i { display: block; height: 100%; background: var(--green); }
+.scan-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.check-row { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.check-row input { accent-color: var(--accent); }
+.act-head { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.hash { font-family: var(--font-mono); font-size: 11px; color: var(--muted); word-break: break-all; }
+
+@media (max-width: 1400px) { .inv-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } .inv-grid, .inv-session-grid { grid-template-columns: 1fr; } }

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, num_cell, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/qurilmalar.css">{% endblock %}
+{% macro cells(c) -%}
+<span class="c">{{ c.jami | num }}</span>
+<span class="c">{{ c.onlayn | num }}</span>
+<span class="c">{{ num_cell(c.oflayn, "red") }}</span>
+<span class="c">{{ num_cell(c.ogohlantirish, "yellow") }}</span>
+<span class="c">{{ num_cell(c.xizmatda, "yellow") }}</span>
+<span class="c">{{ num_cell(c.ctrl_oflayn, "red") }} <span class="muted">/ {{ c.ctrl | num }}</span></span>
+{%- endmacro %}
+{% macro dev_rows(devs, full=False) -%}
+{% for d in devs %}
+<tr class="row-link" data-href="/qurilma/{{ d.id }}">
+  <td class="l"><span class="dev-ic st-{{ d.status }}">{{ icon(d.icon, 14, 2) }}</span> <a href="/qurilma/{{ d.id }}">{{ d.name }}</a></td>
+  <td class="l">{{ t(d.kind_label) }}</td>
+  {% if full %}
+  <td class="l">{{ t(d.region.short) }}</td>
+  <td class="l">{{ t(d.unit.name) }}</td>
+  <td class="l"><a href="/qurolxona/{{ d.armory_id }}">{{ t(d.armory.name) }}</a></td>
+  {% endif %}
+  <td class="l"><span class="chip {{ d.chip }}">{% if d.status == "onlayn" %}{{ icon("check", 12, 2.4) }}{% elif d.status == "oflayn" %}{{ icon("wifi-off", 12, 2.4) }}{% elif d.status == "xizmatda" %}{{ icon("wrench", 12, 2.4) }}{% else %}{{ icon("alert", 12, 2.4) }}{% endif %} {{ t(d.status_label) }}</span></td>
+  <td class="l muted">{{ t(d.metrics) }}</td>
+  <td>{% if d.last_seen %}{{ d.last_seen | dt("%d.%m %H:%M") }} <span class="muted">({{ d.last_seen | ago }})</span>{% else %}—{% endif %}</td>
+</tr>
+{% endfor %}
+{%- endmacro %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Qurilmalar") }}<small>{{ t("Respublika › hudud › bo'linma › qurolxona › qurilma va yacheyka kontrollerlari. Holat, ko'rsatkichlar, so'nggi aloqa.") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/qurilmalar/zaxira">{{ icon("download", 14, 2.2) }} {{ t("Zaxira nusxalash") }}</a>
+  </div>
+</div>
+<section class="qz-kpis" id="qz-kpis" hx-get="/qurilmalar/partials/holat?{{ location_qs }}" hx-trigger="live from:body, every 30s" hx-swap="innerHTML">
+  {% include "qurilmalar/holat_partial.html" %}
+</section>
+<section class="card">
+  {% call card_head("Qurilmalar ro'yxati" if f.korinish == "royxat" else "Qurilmalar daraxti · 5 daraja") %}
+    <span class="meta-item"><span class="dot dot-green"></span>{{ total.onlayn | num }} {{ t("onlayn") }}</span>
+    <span class="meta-item"><span class="dot dot-red"></span>{{ total.oflayn | num }} {{ t("oflayn") }}</span>
+    <span class="meta-item"><span class="dot dot-yellow"></span>{{ (total.ogohlantirish + total.xizmatda) | num }} {{ t("ogohlantirish / xizmatda") }}</span>
+    <span class="meta-item muted">{{ t("jami") }} {{ total.jami | num }}</span>
+  {% endcall %}
+  <form class="filters" method="get" action="/qurilmalar">
+    <input type="hidden" name="korinish" value="{{ f.korinish }}">
+    <select name="holat"><option value="">{{ t("Holat: barchasi") }}</option>{% for st in STATUSES %}<option value="{{ st }}" {% if f.holat == st %}selected{% endif %}>{{ t(STATUS_LABEL[st]) }}</option>{% endfor %}</select>
+    {% include "partials/location_filters.html" %}
+    <select name="tur"><option value="">{{ t("Tur: barchasi") }}</option>{% for k in kinds %}<option value="{{ k }}" {% if f.tur == k %}selected{% endif %}>{{ t(KIND_LABEL[k]) }}</option>{% endfor %}</select>
+    <input name="q" value="{{ f.q }}" placeholder="{{ t("Qurilma, qurolxona, bo'linma…") }}" style="width: 220px">
+    <button class="btn btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Filtrlash") }}</button>
+    {% if filtered %}<a class="btn btn-ghost btn-sm" href="/qurilmalar?korinish={{ f.korinish }}">{{ t("Tozalash") }}</a>{% endif %}
+    <span class="pills">
+      <a class="pill {% if f.korinish != 'royxat' %}on{% endif %}" href="/qurilmalar?korinish=daraxt&{{ qs }}">{{ icon("layers", 12, 2.2) }} {{ t("Daraxt") }}</a>
+      <a class="pill {% if f.korinish == 'royxat' %}on{% endif %}" href="/qurilmalar?korinish=royxat&{{ qs }}">{{ icon("list", 12, 2.2) }} {{ t("Ro'yxat") }}</a>
+    </span>
+  </form>
+
+  {% if f.korinish != "royxat" %}
+    {% if tree %}
+    <div class="tree">
+      <div class="tree-head"><span>{{ t("Daraja · nom") }}</span><span>{{ t("Jami") }}</span><span>{{ t("Onlayn") }}</span><span>{{ t("Oflayn") }}</span><span>{{ t("Ogohl.") }}</span><span>{{ t("Xizmatda") }}</span><span>{{ t("Kontroller oflayn") }}</span><span></span></div>
+      <details open>
+        <summary>
+          <span class="tree-name"><span class="lvl">{{ t("Respublika") }}</span><span class="nm">{{ t("O'zbekiston Respublikasi · IIV") }}</span></span>
+          {{ cells(total) }}<span class="tree-chev">{{ icon("chev", 14, 2.2) }}</span>
+        </summary>
+        <div class="tree-body">
+        {% for r in tree %}
+        <details {% if r.open %}open{% endif %}>
+          <summary>
+            <span class="tree-name"><span class="lvl">{{ t("Hudud") }}</span><a class="nm" href="/hudud/{{ r.id }}">{{ t(r.name) }}</a></span>
+            {{ cells(r.cnt) }}<span class="tree-chev">{{ icon("chev", 14, 2.2) }}</span>
+          </summary>
+          <div class="tree-body">
+          {% for u in r.units %}
+          <details {% if u.open %}open{% endif %}>
+            <summary>
+              <span class="tree-name"><span class="lvl">{{ t("Bo'linma") }}</span><span class="nm">{{ t(u.name) }}</span></span>
+              {{ cells(u.cnt) }}<span class="tree-chev">{{ icon("chev", 14, 2.2) }}</span>
+            </summary>
+            <div class="tree-body">
+            {% for a in u.armories %}
+            <details {% if u.open %}open{% endif %}>
+              <summary>
+                <span class="tree-name"><span class="lvl">{{ t("Qurolxona") }}</span><span class="dot {{ 'dot-green' if a.online else 'dot-red' }}"></span><a class="nm" href="/qurolxona/{{ a.id }}">{{ t(a.name) }}</a>{% if a.ups_on_battery %}<span class="chip chip-yellow">{{ icon("battery", 12, 2.4) }} UPS</span>{% endif %}<span class="muted">{{ t("sinxron") }} {{ a.last_sync | dt("%d.%m %H:%M") }}</span></span>
+                {{ cells(a.cnt) }}<span class="tree-chev">{{ icon("chev", 14, 2.2) }}</span>
+              </summary>
+              <div class="tree-body">
+                <table class="tbl">
+                  <thead><tr><th class="l">{{ t("Qurilma") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Ko'rsatkichlar") }}</th><th>{{ t("So'nggi aloqa") }}</th></tr></thead>
+                  <tbody>{{ dev_rows(a.devices) }}</tbody>
+                </table>
+                <details class="ctrl" hx-get="/qurilmalar/partials/kontrollerlar/{{ a.id }}" hx-trigger="toggle once" hx-target="find .ctrl-body" hx-swap="innerHTML">
+                  <summary>
+                    <span class="tree-name"><span class="lvl">{{ t("Kontroller") }}</span><span class="nm">{{ t("Yacheyka kontrollerlari va terminallari") }}</span></span>
+                    <span class="c">{{ a.cnt.ctrl | num }}</span><span class="c">{{ (a.cnt.ctrl - a.cnt.ctrl_oflayn) | num }}</span><span class="c">{{ num_cell(a.cnt.ctrl_oflayn, "red") }}</span><span class="c"></span><span class="c"></span><span class="c"></span>
+                    <span class="tree-chev">{{ icon("chev", 14, 2.2) }}</span>
+                  </summary>
+                  <div class="tree-body ctrl-body">{{ empty("Yuklanmoqda…") }}</div>
+                </details>
+              </div>
+            </details>
+            {% endfor %}
+            </div>
+          </details>
+          {% endfor %}
+          </div>
+        </details>
+        {% endfor %}
+        </div>
+      </details>
+    </div>
+    {% else %}
+    {{ empty("Filtrga mos qurilma topilmadi") }}
+    {% endif %}
+  {% else %}
+    <table class="tbl">
+      <thead><tr><th class="l">{{ t("Qurilma") }}</th><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Hudud") }}</th><th class="l">{{ t("Bo'linma") }}</th><th class="l">{{ t("Qurolxona") }}</th><th class="l">{{ t("Holat") }}</th><th class="l">{{ t("Ko'rsatkichlar") }}</th><th>{{ t("So'nggi aloqa") }}</th></tr></thead>
+      <tbody>
+      {% if pg.rows %}{{ dev_rows(pg.rows, True) }}{% else %}<tr><td colspan="8">{{ empty("Filtrga mos qurilma topilmadi") }}</td></tr>{% endif %}
+      </tbody>
+    </table>
+    <div class="pager">
+      <span>{{ pg.total | num }} {{ t("ta qurilma") }} · {{ t("sahifa") }} {{ pg.page }} / {{ pg.pages }}</span>
+      {% if pg.page > 1 %}<a class="btn btn-ghost btn-sm" href="/qurilmalar?korinish=royxat&{{ qs }}&page={{ pg.page - 1 }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+      {% if pg.page < pg.pages %}<a class="btn btn-ghost btn-sm" href="/qurilmalar?korinish=royxat&{{ qs }}&page={{ pg.page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a>{% endif %}
+    </div>
+  {% endif %}
+</section>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

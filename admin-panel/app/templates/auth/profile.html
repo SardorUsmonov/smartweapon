@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/auth.css">{% endblock %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t("Mening profilim") }}<small>{{ t("Hisob, vakolat doirasi va joriy sessiya") }}</small></h1></div>
+<div class="grid-2 profile-grid">
+  <section class="card">
+    {{ card_head("Hisob ma'lumotlari") }}
+    <dl class="kv"><dt>{{ t("F.I.Sh.") }}</dt><dd>{{ ctx.user.full_name }}</dd><dt>{{ t("Foydalanuvchi") }}</dt><dd class="mono">{{ ctx.user.username }}</dd><dt>{{ t("Rol") }}</dt><dd>{{ t(role_label) }}</dd><dt>{{ t("Vakolat turi") }}</dt><dd>{{ t(scope_kind_label) }}</dd><dt>{{ t("Vakolat doirasi") }}</dt><dd>{{ t(scope_label) }}</dd><dt>{{ t("MFA") }}</dt><dd><span class="chip {{ 'chip-green' if ctx.user.mfa else 'chip-yellow' }}">{{ t("Yoqilgan") if ctx.user.mfa else t("O'chirilgan") }}</span>{% if ctx.user.mfa and demo_mode %} · {{ t("sinov kodi") }}{% endif %}</dd></dl>
+  </section>
+  <section class="card">
+    {{ card_head("Joriy sessiya") }}
+    {% if session %}<dl class="kv"><dt>{{ t("Kirilgan vaqt") }}</dt><dd>{{ session.created_at | dt("%d.%m.%Y %H:%M") }}</dd><dt>{{ t("Amal qilish muddati") }}</dt><dd>{{ session.expires_at | dt("%d.%m.%Y %H:%M") }}</dd></dl>{% endif %}
+    <p class="muted">{{ t("Chiqish tugmasi ushbu brauzerdagi sessiyani yakunlaydi. Qayta ishlash uchun tizimga kirish kerak bo'ladi.") }}</p>
+    <form method="post" action="/chiqish"><button class="btn btn-danger" type="submit">{{ icon("user", 16) }} {{ t("Tizimdan chiqish") }}</button></form>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% from "macros.html" import icon, card_head, status_chip, num_cell, empty with context %}
+{% macro sth(key, label, cls="") -%}
+{% set nt = "asc" if (saralash == key and tartib == "desc") else "desc" -%}
+<th class="{{ cls }}"><a class="hud-sort {% if saralash == key %}on{% endif %}" href="{{ request.url.include_query_params(saralash=key, tartib=nt, page=1) }}">{{ t(label) }}{% if saralash == key %} {{ icon("chev", 11, 2.6, "sort-" ~ tartib) }}{% endif %}</a></th>
+{%- endmacro %}
+{% call card_head("Hududlar · KPI") %}
+  <span class="meta-item">{{ icon("layers", 15) }} {{ totals.yacheyka | num }} {{ t("yacheyka") }}</span>
+  <span class="meta-item">{{ icon("building", 15) }} {{ totals.qurolxona | num }} {{ t("qurolxona") }}</span>
+  <span class="meta-item">{{ icon("gun", 15) }} {{ totals.berilgan | num }} {{ t("berilgan") }}</span>
+  <span class="meta-item"><span class="dot dot-yellow"></span>{{ totals.kechikish | num }} {{ t("kechikish") }}</span>
+  <span class="meta-item"><span class="dot dot-red"></span>{{ totals.signal | num }} {{ t("signal") }} · {{ totals.oflayn | num }} {{ t("oflayn") }}</span>
+  <span class="meta-item muted">{{ now.strftime('%H:%M:%S') }}</span>
+{% endcall %}
+{% if not rows %}
+  {{ empty("Shartga mos hudud topilmadi") }}
+{% elif korinish == "jadval" %}
+<table class="tbl tbl-hud">
+  <thead><tr>
+    <th>#</th>{{ sth("nom", "Hudud", "l") }}{{ sth("bolinma", "Bo'linma") }}{{ sth("qurolxona", "Qurolxona") }}{{ sth("yacheyka", "Yacheyka") }}
+    {{ sth("berilgan", "Berilgan") }}{{ sth("kechikish", "Kechikish") }}{{ sth("rad", "Rad (bugun)") }}{{ sth("signal", "Signal") }}{{ sth("oflayn", "Oflayn") }}<th class="l">{{ t("Holat") }}</th>
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr class="row-link st-{{ r.status }}" data-href="/hudud/{{ r.id }}">
+    <td class="muted">{{ loop.index + (page - 1) * 50 }}</td>
+    <td class="l"><a href="/hudud/{{ r.id }}">{{ t(r.name) }}</a> <span class="muted">{{ r.code }}</span></td>
+    <td>{{ r.bolinma | num }}</td>
+    <td>{{ r.qurolxona | num }}</td>
+    <td>{{ r.yacheyka | num }}</td>
+    <td>{{ r.berilgan | num }}</td>
+    <td>{{ num_cell(r.kechikish, "yellow") }}</td>
+    <td>{{ num_cell(r.rad, "yellow") }}</td>
+    <td>{{ num_cell(r.signal, "red") }}</td>
+    <td>{{ num_cell(r.oflayn, "red") }}</td>
+    <td class="l">{{ status_chip(r.status) }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="hud-cards">
+  {% for r in rows %}
+  <a class="hud-card st-{{ r.status }}" href="/hudud/{{ r.id }}">
+    <div class="hud-card-head">
+      <div class="hud-card-title"><b class="hud-card-name">{{ t(r.short) }}</b><span class="hud-card-sub">{{ r.bolinma | num }} {{ t("bo'linma") }} · {{ r.qurolxona | num }} {{ t("qurolxona") }}</span></div>
+      {{ status_chip(r.status) }}
+    </div>
+    <div class="hud-stats">
+      <div class="hud-stat"><b>{{ r.yacheyka | num }}</b><span>{{ t("yacheyka") }}</span></div>
+      <div class="hud-stat"><b>{{ r.berilgan | num }}</b><span>{{ t("berilgan") }}</span></div>
+      <div class="hud-stat {% if r.kechikish %}tone-yellow{% endif %}"><b>{{ r.kechikish | num }}</b><span>{{ t("kechikish") }}</span></div>
+      <div class="hud-stat {% if r.rad %}tone-yellow{% endif %}"><b>{{ r.rad | num }}</b><span>{{ t("rad, bugun") }}</span></div>
+      <div class="hud-stat {% if r.signal %}tone-red{% endif %}"><b>{{ r.signal | num }}</b><span>{{ t("signal") }}</span></div>
+      <div class="hud-stat {% if r.oflayn %}tone-red{% endif %}"><b>{{ r.oflayn | num }}</b><span>{{ t("oflayn") }}</span></div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% include "hududlar/_pager.html" %}

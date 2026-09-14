@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="uz" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Respublika holati — xarita maketi</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="regions.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="emblem.jpg" alt=""><div><strong>NAZORAT MARKAZI</strong><small>QUROL SAQLASH TIZIMI</small></div></div>
+    <span class="preview-tag"><i></i>Dizayn maketi</span>
+    <div class="top-actions"><span class="sample">Namunaviy ma’lumotlar</span><button id="theme" class="theme-button" aria-label="Kunduzgi rejimga o‘tish">☀ <span>Kunduzgi rejim</span></button><a class="back" href="http://127.0.0.1:8080/">Admin panel ↗</a></div>
+  </header>
+  <aside class="sidebar" aria-label="Maketdagi bo‘limlar">
+    <p>BOSHQARUV</p>
+    <div class="nav-item current"><span>▦</span>Respublika</div>
+    <div class="nav-item"><span>◫</span>Hududlar</div>
+    <div class="nav-item"><span>▤</span>Qurolxonalar</div>
+    <div class="nav-item"><span>▥</span>Qurol kataklari</div>
+    <div class="nav-item"><span>♙</span>Xodimlar</div>
+    <div class="nav-item"><span>▱</span>Inventar</div>
+    <div class="nav-item"><span>≡</span>Jurnal</div>
+    <div class="nav-item"><span>♧</span>Signallar<i class="red-dot"></i></div>
+    <div class="nav-item"><span>⚑</span>Hisobotlar</div>
+    <div class="sidebar-foot"><span></span>O‘ZBEKISTON RESPUBLIKASI<small>Vaziyat markazi</small></div>
+  </aside>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">O‘ZBEKISTON RESPUBLIKASI · VAZIYAT MARKAZI</p><h1>Respublika bo‘yicha holat</h1><p class="intro">Hududiy nazorat va e’tibor talab qiladigan holatlar</p></div><div class="coverage"><b>14</b><span>hudud<small>yagona ko‘rinishda</small></span></div></div>
+    <section class="kpis" aria-label="Namunaviy umumiy ko‘rsatkichlar">
+      <article><span>Qurolxonalar</span><div><b id="total-sites">—</b><small>obyekt</small></div><footer><i class="status-dot stable"></i><span id="site-note"></span></footer></article>
+      <article><span>Hisobdagi qurollar</span><div><b id="total-stock">—</b><small>birlik</small></div><footer>Ma’lumot kelgan hududlar bo‘yicha</footer></article>
+      <article class="critical-kpi"><span>Jiddiy signallar</span><div><b id="total-critical">—</b><small>signal</small></div><footer><i class="status-dot critical"></i>Rahbariyat e’tiborida</footer></article>
+      <article><span>Ma’lumot qamrovi</span><div><b>13<span class="denominator">/14</span></b><small>hudud</small></div><footer><i class="status-dot unknown"></i>1 hudud bo‘yicha ma’lumot yo‘q</footer></article>
+    </section>
+    <section class="workspace">
+      <div class="map-panel">
+        <div class="map-heading"><div><h2>Hududlar holati</h2><p>Hududni tanlab, tafsilotlarini ko‘ring</p></div><button id="focus-alerts" class="quiet-button" aria-pressed="false">Faqat ogohlantirishlar</button></div>
+        <div class="map-stage"><svg id="country-map" viewBox="-28 -36 944 600" aria-label="O‘zbekistonning 14 hududi. Tafsilot uchun hududni tanlang."></svg><div class="north" aria-hidden="true"><b>SH</b><span>↑</span></div></div>
+        <div class="map-bottom"><div class="legend"><span><i class="status-dot stable"></i>Barqaror</span><span><i class="status-dot warning"></i>Ogohlantirish</span><span><i class="status-dot critical"></i>Jiddiy signal</span><span><i class="status-dot unknown"></i>Ma’lumot yo‘q</span></div><button id="reset" class="reset-button">↺ Umumiy holat</button></div>
+        <div class="map-source"><span>Chegaralar: <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> · loyihadagi soddalashtirilgan geometriya</span><span>14 hudud · O‘zbekiston</span></div>
+      </div>
+      <aside class="detail-panel" aria-live="polite" aria-atomic="true">
+        <div class="detail-eyebrow"><span id="detail-category">TANLANGAN HUDUD</span><span id="detail-code">01</span></div>
+        <h2 id="detail-name">Toshkent shahri</h2>
+        <div id="detail-status" class="detail-status critical">● Jiddiy signal mavjud</div>
+        <label class="sr-only" for="region-picker">Hududni tanlang</label><select id="region-picker"></select>
+        <div class="detail-stats"><div><strong id="detail-sites">3</strong><span>qurolxona</span></div><div><strong id="detail-stock">120</strong><span>qurol</span></div><div><strong id="detail-offline">1</strong><span>oflayn</span></div></div>
+        <div class="alerts-heading"><h3>E’tibor talab etadi</h3><span id="detail-count">4</span></div>
+        <div id="detail-alerts"></div>
+        <div class="detail-foot">HUDUDIY UMUMIY MA’LUMOT<small>Xaritadagi belgilar hududni bildiradi.</small></div>
+      </aside>
+    </section>
+    <section class="region-strip" aria-label="Hududlar bo‘yicha qisqa holat"><div class="strip-heading"><h2>Hududlar kesimida</h2><span>Bir bosishda tanlash</span></div><div id="region-buttons"></div></section>
+    <footer class="page-foot"><span><i></i>Interaktiv dizayn maketi · Ma’lumotlar namuna sifatida berilgan</span><span>Xarita konsepsiyasi / 01</span></footer>
+  </main>
+</body>
+</html>

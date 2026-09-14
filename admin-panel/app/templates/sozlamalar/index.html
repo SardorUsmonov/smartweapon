@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/sozlamalar.css">{% endblock %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t('Sozlamalar') }}<small>{{ t('Respublika darajasidagi foydalanuvchilar va tizim siyosati') }}</small></h1>
+{% if tab == 'foydalanuvchilar' %}<a class="btn btn-primary" href="/sozlamalar/foydalanuvchi/yangi">{{ icon('plus', 16) }} {{ t('Yangi foydalanuvchi') }}</a>{% endif %}</div>
+<nav class="settings-tabs" aria-label="{{ t('Sozlamalar bo‘limlari') }}">{% for key, label in tabs.items() %}<a class="pill {{ 'on' if key == tab }}" href="/sozlamalar?tab={{ key }}">{{ t(label) }}</a>{% endfor %}</nav>
+{% if ok %}<div class="notice green" role="status">{{ t(ok) }}</div>{% endif %}
+{% if xato %}<div class="notice red" role="alert">{{ t(xato) }}</div>{% endif %}
+{% if tab == 'foydalanuvchilar' %}
+{% if changes %}<section class="card settings-pending">{% call card_head('Tasdiq kutilmoqda') %}<span class="chip chip-yellow">{{ changes|length }}</span>{% endcall %}
+{% for change in changes %}<article class="change-card">
+<div><b>{{ pending_names[change.user_id].full_name }}</b> <span class="muted">{{ pending_names[change.user_id].username }}</span>
+<p>{{ t('So‘rovchi') }}: {{ pending_names[change.requested_by].full_name }} · {{ change.created_at|dt('%d.%m.%Y %H:%M') }}</p>
+<p>{{ t(change.reason) }}</p></div>
+<div class="settings-table"><table class="tbl"><thead><tr><th class="l">{{ t('Maydon') }}</th><th class="l">{{ t('Hozir') }}</th><th class="l">{{ t('Taklif') }}</th></tr></thead><tbody>
+{% for key, label in [('full_name','F.I.Sh.'),('role','Rol'),('scope_kind','Vakolat turi'),('scope_id','Obyekt ID'),('active','Faol'),('mfa','MFA')] %}
+{% if change.before[key] != change.proposed[key] %}<tr><td class="l">{{ t(label) }}</td><td class="l">{{ t(role_labels.get(change.before[key], change.before[key])) if key == 'role' else t(scope_labels.get(change.before[key],change.before[key])) if key == 'scope_kind' else (t('Ha') if change.before[key] else t('Yo‘q')) if key in ['active','mfa'] else change.before[key] or '—' }}</td><td class="l">{{ t(role_labels.get(change.proposed[key], change.proposed[key])) if key == 'role' else t(scope_labels.get(change.proposed[key],change.proposed[key])) if key == 'scope_kind' else (t('Ha') if change.proposed[key] else t('Yo‘q')) if key in ['active','mfa'] else change.proposed[key] or '—' }}</td></tr>{% endif %}
+{% endfor %}</tbody></table></div>
+{% if change.requested_by != ctx.user.id %}<form method="post" action="/sozlamalar/sorov/{{ change.id }}/tasdiqlash" class="decision-form">
+<label><input type="checkbox" name="tasdiq" value="1" required> {{ t('O‘zgarishlarni tekshirdim') }}</label>
+<button class="btn btn-primary">{{ t('Tasdiqlash') }}</button><button class="btn btn-ghost" formaction="/sozlamalar/sorov/{{ change.id }}/rad">{{ t('Rad etish') }}</button></form>
+{% else %}<p class="notice yellow">{{ t('Siz yuborgan so‘rov. Boshqa administrator tasdig‘i kutilmoqda.') }}</p>{% endif %}
+</article>{% endfor %}</section>{% endif %}
+<section class="card">{% call card_head('Panel foydalanuvchilari') %}<span class="muted">{{ total|num }}</span>{% endcall %}
+<form class="filters" method="get"><input type="hidden" name="tab" value="foydalanuvchilar"><input name="q" value="{{ q }}" placeholder="{{ t('F.I.Sh. yoki login') }}" aria-label="{{ t('Foydalanuvchini qidirish') }}"><button class="btn">{{ t('Qidirish') }}</button></form>
+<div class="settings-table"><table class="tbl"><thead><tr><th class="l">{{ t('Foydalanuvchi') }}</th><th class="l">{{ t('Rol') }}</th><th class="l">{{ t('Vakolat') }}</th><th>{{ t('Holat') }}</th><th>MFA</th><th></th></tr></thead><tbody>
+{% for user in users %}<tr><td class="l"><b>{{ user.full_name }}</b><small class="muted">{{ user.username }}</small></td><td class="l">{{ t(role_labels.get(user.role,user.role)) }}</td><td class="l">{{ t(scope_labels.get(user.scope_kind,user.scope_kind)) }}{% if user.scope_id %} #{{ user.scope_id }}{% endif %}</td><td><span class="chip {{ 'chip-green' if user.active else 'chip-gray' }}">{{ t('Faol' if user.active else 'Nofaol') }}</span></td><td>{{ t('Yoqilgan' if user.mfa else 'O‘chirilgan') }}</td><td><a class="btn btn-sm" href="/sozlamalar/foydalanuvchi/{{ user.id }}">{{ t('Tahrirlash') }}</a></td></tr>
+{% else %}<tr><td colspan="6">{{ empty('Foydalanuvchi topilmadi') }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% elif fields %}
+<section class="card">{% call card_head(tabs[tab]) %}{% endcall %}
+<form method="post" action="/sozlamalar/{{ tab }}/saqlash" class="settings-form">
+{% if tab == 'autentifikatsiya' %}<p class="notice">{{ t('Sessiya muddati yangi kirishlarda, parol uzunligi yangi foydalanuvchilarda qo‘llanadi. MFA demo kodi haqiqiy autentifikator o‘rnini bosmaydi.') }}</p>
+{% elif tab == 'chegaralar' %}<p class="notice">{{ t('Bu chegaralar tizim konfiguratsiyasida saqlanadi. Haqiqiy qurilmalarga uzatish integratsiya bosqichida ulanadi.') }}</p>
+{% else %}<p class="notice">{{ t('Saqlash siyosati qayd etiladi. Demo versiyada fayllar va audit yozuvlari avtomatik o‘chirilmaydi.') }}</p>{% endif %}
+<div class="setting-fields">{% for field in fields %}<label><span>{{ t(field.label) }}</span><div><input type="number" name="{{ field.key }}" value="{{ field.value }}" min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}" required> <small>{{ t(field.unit) }}</small></div></label>{% endfor %}</div>
+<label class="form-field">{{ t('O‘zgarish sababi') }}<textarea name="sabab" minlength="5" maxlength="300" required></textarea></label>
+<label><input type="checkbox" name="tasdiq" value="1" required> {{ t('Qiymatlarni tekshirdim va saqlashni tasdiqlayman') }}</label><div><button class="btn btn-primary">{{ t('Saqlash') }}</button></div>
+</form></section>
+{% elif tab == 'integratsiyalar' %}<section class="card">{% call card_head('Tashqi tizimlar') %}{% endcall %}<div class="settings-table"><table class="tbl"><thead><tr><th class="l">{{ t('Integratsiya') }}</th><th class="l">{{ t('Vazifasi') }}</th><th>{{ t('Holat') }}</th></tr></thead><tbody>{% for name, detail in integrations %}<tr><td class="l">{{ t(name) }}</td><td class="l">{{ t(detail) }}</td><td><span class="chip chip-gray">{{ t('Ulanmagan') }}</span></td></tr>{% endfor %}</tbody></table></div><p class="notice">{{ t('Ushbu demo mahalliy namunaviy ma’lumotlar bilan ishlaydi. Tashqi xizmatlarga ma’lumot yuborilmaydi.') }}</p></section>
+{% elif tab == 'audit' %}<section class="card">{% call card_head('Sozlamalar auditi') %}<span class="muted">{{ audit_total|num }}</span>{% endcall %}<div class="settings-table"><table class="tbl"><thead><tr><th class="l">{{ t('Vaqt') }}</th><th class="l">{{ t('Kim') }}</th><th class="l">{{ t('Maydon') }}</th><th class="l">{{ t('Oldingi / yangi qiymat') }}</th><th class="l">{{ t('Tasdiqlovchi') }}</th></tr></thead><tbody>{% for entry in audits %}<tr><td class="l">{{ entry.ts|dt('%d.%m.%Y %H:%M') }}</td><td class="l">{{ entry.username }}</td><td class="l">{{ entry.key }}</td><td class="l"><details><summary>{{ t('Qiymatlarni ko‘rish') }}</summary><pre>{{ entry.old }}</pre><pre>{{ entry.new }}</pre></details></td><td class="l">{{ entry.approved_by or '—' }}</td></tr>{% else %}<tr><td colspan="5">{{ empty('Sozlamalar o‘zgarishlari hali yo‘q') }}</td></tr>{% endfor %}</tbody></table></div></section>{% endif %}
+{% if tab in ['foydalanuvchilar','audit'] and pages > 1 %}<nav class="pager">{% if page > 1 %}<a class="btn" href="/sozlamalar?tab={{ tab }}&q={{ q|urlencode }}&page={{ page-1 }}">{{ t('Oldingi') }}</a>{% endif %}<span>{{ page }} / {{ pages }}</span>{% if page < pages %}<a class="btn" href="/sozlamalar?tab={{ tab }}&q={{ q|urlencode }}&page={{ page+1 }}">{{ t('Keyingi') }}</a>{% endif %}</nav>{% endif %}
+{% endblock %}

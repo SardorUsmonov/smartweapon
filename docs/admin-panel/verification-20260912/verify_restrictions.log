@@ -1,0 +1,5 @@
+PASS: denied HTMX take shows escaped refusal text without success marker; allowed take retains success feedback
+PASS: existing healthy take/return, authenticated hold/status/AK+PM permit flows, authority/eligibility refusals, unchanged denial locks/custody
+PASS: mode denial keeps counters/custody stable; allowed step advances once; duplicate take refuses
+PASS: persisted self-test failure/success, time sync and service lifecycle; prior faults preserved; existing audit unchanged
+PASS: verification completed in C:\Users\atsha\AppData\Local\Temp\aq_restrictions_kpxyf623

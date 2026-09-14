@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hisobotlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t(spec.title) }}<small>{{ t(spec.desc) }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar">{{ icon("chev-left", 14, 2.2) }} {{ t("Barcha hisobotlar") }}</a>
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar/eksportlar">{{ icon("list", 14) }} {{ t("Eksportlar jurnali") }}</a>
+  </div>
+</div>
+{% if xato == "maqsad" %}<div class="notice red">{{ icon("alert", 15) }} {{ t("Eksport bajarilmadi: maqsad maydoni majburiy. Hisobot nima uchun eksport qilinayotganini yozing.") }}</div>
+{% elif xato == "format" %}<div class="notice red">{{ icon("alert", 15) }} {{ t("Eksport bajarilmadi: noma'lum format. CSV, XLSX yoki PDF tanlang.") }}</div>
+{% elif xato %}<div class="notice red">{{ icon("alert", 15) }} {{ t("Eksport bajarilmadi") }}: {{ xato }}</div>{% endif %}
+<div class="rep-layout">
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Filtrlar") %}
+        <span class="meta-item muted">{{ t("Qamrov") }}: {{ t(scope) }}</span>
+        {% if spec.dated %}<span class="meta-item muted">{{ t("Davr") }}: {{ f.period_label() }}</span>{% endif %}
+      {% endcall %}
+      <form method="get" class="filters" action="/hisobotlar/{{ slug }}">
+        {% if spec.dated %}
+        <label>{{ t("Dan") }} <input type="date" name="dan" value="{{ fq.dan }}" max="{{ now.strftime('%Y-%m-%d') }}"></label>
+        <label>{{ t("Gacha") }} <input type="date" name="gacha" value="{{ fq.gacha }}" max="{{ now.strftime('%Y-%m-%d') }}"></label>
+        {% endif %}
+        <label>{{ t("Hudud") }}
+          <select name="hudud" {% if f.scope_locked %}disabled{% endif %}>
+            <option value="">{{ t("Barcha hududlar") }}</option>
+            {% for r in regions %}<option value="{{ r.id }}" {% if r.id == f.hudud %}selected{% endif %}>{{ t(r.name) }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>{{ t("Bo'linma") }}
+          <select name="bolinma" {% if f.scope_locked in ("bolinma", "qurolxona") %}disabled{% endif %}>
+            <option value="">{{ t("Barcha bo'linmalar") }}</option>
+            {% for u in units %}<option value="{{ u.id }}" {% if u.id == f.bolinma %}selected{% endif %}>{% if not f.hudud %}{{ t(u.region.short) }} · {% endif %}{{ t(u.name) }}</option>{% endfor %}
+          </select>
+        </label>
+        {% if f.kesim %}<input type="hidden" name="kesim" value="{{ f.kesim }}">{% endif %}
+        <button class="btn btn-primary btn-sm">{{ icon("search", 14, 2.2) }} {{ t("Qo'llash") }}</button>
+        <a class="btn btn-ghost btn-sm" href="/hisobotlar/{{ slug }}{% if f.kesim %}?kesim={{ f.kesim }}{% endif %}">{{ t("Tozalash") }}</a>
+        {% if spec.dated %}
+        <span class="muted small">{{ t("Tez tanlash") }}:</span>
+        {% for choice in quick_dates %}
+        <a class="pill" href="/hisobotlar/{{ slug }}?{{ choice.qs }}" data-days="{{ choice.days }}">{{ t(choice.label) }}</a>
+        {% endfor %}
+        {% endif %}
+      </form>
+      {% if slug == "texnik-holat" %}
+      <div class="rep-sum">
+        <a class="pill {% if f.kesim != 'qurilma' %}on{% endif %}" href="/hisobotlar/{{ slug }}?{{ base_qs | replace('kesim=qurilma', '') }}">{{ t("Qurolxonalar kesimi") }}</a>
+        <a class="pill {% if f.kesim == 'qurilma' %}on{% endif %}" href="/hisobotlar/{{ slug }}?{{ base_qs | replace('kesim=qurilma', '') }}&kesim=qurilma">{{ t("Qurilmalar kesimi") }}</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      {% call card_head("Oldindan ko'rish") %}
+        <div class="rep-sum">
+          {% for label, value, tone in summary %}<span class="pill {{ tone }}">{{ t(label) }}<b>{{ value | num }}</b></span>{% endfor %}
+        </div>
+      {% endcall %}
+      <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>{% for c in cols %}<th class="{{ 'l' if c.kind != 'n' else '' }}">{{ t(c.label) }}</th>{% endfor %}</tr></thead>
+        <tbody>
+        {% for r in rows %}
+        <tr {% if r._href %}class="row-link" data-href="{{ r._href }}"{% endif %}>
+          {% for c in cols %}{% set v = r.get(c.key) %}
+          <td class="{{ 'l' if c.kind != 'n' else '' }}{% if c.kind == 'mono' %} mono{% endif %}{% if c.key in ('tafsilot', 'sarlavha', 'korsatkich', 'farq') %} wrap{% endif %}">
+            {%- if v is none or v == "" -%}<span class="muted">—</span>
+            {%- elif c.kind == "dt" -%}{{ v | dt("%d.%m.%Y %H:%M") }}
+            {%- elif c.kind == "chip" -%}{% if c.href and r.get(c.href) %}<a href="{{ r.get(c.href) }}"><span class="chip {{ v[0] }}">{{ t(v[1]) }}</span></a>{% else %}<span class="chip {{ v[0] }}">{{ t(v[1]) }}</span>{% endif %}
+            {%- elif c.kind == "n" -%}{{ v | num }}
+            {%- elif c.href and r.get(c.href) -%}<a href="{{ r.get(c.href) }}">{{ t(v) if v is string else v }}</a>
+            {%- elif c.kind == "mono" -%}{{ v }}
+            {%- else -%}{{ t(v) if v is string else v }}{%- endif -%}
+          </td>
+          {% endfor %}
+        </tr>
+        {% else %}
+        <tr><td colspan="{{ cols | length }}" class="l">{{ empty("Tanlangan filtrlar bo'yicha ma'lumot yo'q") }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      <div class="pager">
+        <span class="pg-info">{{ total | num }} {{ t("yozuv") }}{% if pages > 1 %} · {{ t("sahifa") }} {{ page }} / {{ pages }}{% endif %} · {{ t("sahifada") }} {{ per_page }}</span>
+        {% if pages > 1 %}
+        {% if page > 1 %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page=1">1</a><a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page={{ page - 1 }}">{{ icon("chev-left", 14, 2.2) }} {{ t("Oldingi") }}</a>{% endif %}
+        {% if page < pages %}<a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page={{ page + 1 }}">{{ t("Keyingi") }} {{ icon("chev", 14, 2.2) }}</a><a class="btn btn-ghost btn-sm" href="?{{ base_qs }}&page={{ pages }}">{{ pages }}</a>{% endif %}
+        {% endif %}
+      </div>
+    </section>
+  </div>
+
+  <aside class="stack">
+    <section class="card">
+      {% call card_head("Eksport") %}<span class="meta-item muted">CSV · XLSX · PDF</span>{% endcall %}
+      {% if ctx.can("eksport") %}
+      <form method="post" action="/hisobotlar/{{ slug }}/eksport" class="stack export-form">
+        {% for k, v in fq.items() %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+        <label class="fld"><span>{{ t("Format") }}</span>
+          <select name="fmt">{% for k, spec_f in formats.items() %}<option value="{{ k }}">{{ spec_f[0] }}{% if k == 'xlsx' %} · Excel{% elif k == 'pdf' %} · {{ t("chop etish uchun") }}{% endif %}</option>{% endfor %}</select></label>
+        <label class="fld"><span>{{ t("Maqsad") }} <b class="req">*</b></span>
+          <input name="maqsad" required maxlength="200" placeholder="{{ t('Masalan: oylik tekshiruv, IIV buyrug‘i № …') }}"></label>
+        <label class="fld"><span>{{ t("Amal qilish muddati") }}</span>
+          <select name="muddat">{% for d in valid_days %}<option value="{{ d }}" {% if d == 7 %}selected{% endif %}>{{ d }} {{ t("kun") }}</option>{% endfor %}</select></label>
+        <dl class="kv small">
+          <dt>{{ t("Qatorlar") }}</dt><dd>{{ total | num }}{% if total > export_max %} <span class="muted">({{ t("faylga birinchi") }} {{ export_max | num }})</span>{% endif %}</dd>
+          <dt>{{ t("Davr") }}</dt><dd>{{ f.period_label() }}</dd>
+          <dt>{{ t("Qamrov") }}</dt><dd>{{ t(scope) }}</dd>
+          <dt>{{ t("Kim") }}</dt><dd>{{ ctx.user.full_name if ctx.user else t("Mehmon") }}</dd>
+        </dl>
+        <button class="btn btn-primary" {% if not total %}disabled{% endif %}>{{ icon("download", 16, 2) }} {{ t("Eksport qilish") }}</button>
+        <div class="muted small">{{ t("Har eksport E-YYYY-NNNNNN raqami, kim, maqsad, amal qilish muddati va SHA-256 hash bilan eksportlar jurnaliga yoziladi; jurnalda XAVFSIZLIK darajasidagi «eksport qilindi» hodisasi hosil bo'ladi.") }}</div>
+      </form>
+      {% else %}
+      <div class="notice yellow">{{ t("Sizning rolingizda eksportga ruxsat yo'q.") }}</div>
+      {% endif %}
+    </section>
+    <section class="card">
+      {{ card_head("Izoh") }}
+      <div class="small muted">
+        {% if slug == "berish-qaytarish" %}{{ t("Manba: custody yozuvlari (olish → qaytarish). Davr olingan vaqt bo'yicha. Holat: qaytarildi, xodimda, kechikkan, kech qaytarildi, nomuvofiq (RFID mos emas).") }}
+        {% elif slug == "qurollanganlik" %}{{ t("Manba: qaytarilmagan custody yozuvlari — hozir xodimlar qo'lidagi qurollar. Qolgan vaqt manfiy bo'lsa muddat o'tgan.") }}
+        {% elif slug == "insidentlar" %}{{ t("Manba: OGOHLANTIRISH, SIGNAL va XAVFSIZLIK darajasidagi hodisalar (administrator harakatlaridan tashqari). Signal ustuni hodisa bo'yicha ochilgan signalning holati.") }}
+        {% elif slug == "admin-harakatlari" %}{{ t("Manba: sozlamalar auditi (faqat respublika kesimida) va XAVFSIZLIK darajasidagi hodisalar: huquq berish, eksport, bloklash, rejimlar, favqulodda ochish, mexanik kalit.") }}
+        {% elif slug == "texnik-holat" %}{{ t("Manba: qurolxona telemetriyasi (aloqa, sinxron, WAN, UPS, kutilayotgan hodisalar), qurilmalar (server, kommutator, UPS, NAS, kamera, terminal) va yacheyka kontrollerlari (onlayn, batareya < 20 %, harorat).") }}
+        {% elif slug == "kechikishlar" %}{{ t("Manba: muddati (due) davr ichida bo'lgan custody yozuvlari: hali qaytarilmagan (muddat o'tgan) va kech qaytarilganlar. Kechikish = (qaytarilgan vaqt yoki hozir) − muddat.") }}
+        {% elif slug == "inventar-farqlari" %}{{ t("Manba: qaytarishda mos kelmagan (match_ok = yo'q) custody yozuvlari. Holat nomuvofiqlik signalining yechilganligi bo'yicha.") }}{% endif %}
+      </div>
+    </section>
+  </aside>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

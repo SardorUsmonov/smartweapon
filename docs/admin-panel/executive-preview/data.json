@@ -1,0 +1,275 @@
+{
+  "captured_at": "2026-09-12T16:16:17+05:00",
+  "source_label": "Mahalliy demo bazasi",
+  "source_latest_event": "2026-09-12T16:11:48+05:00",
+  "armory_sync": {
+    "oldest": "2026-09-10T15:08:14+05:00",
+    "newest": "2026-09-10T15:41:09+05:00"
+  },
+  "summary": {
+    "regions": 14,
+    "armories": 18,
+    "cabinets": 321,
+    "weapons": 590,
+    "issued": 182,
+    "overdue": 182,
+    "open_records": 183,
+    "active_alarms": 9,
+    "serious_alarms": 4,
+    "warnings": 5,
+    "pending_ack": 4,
+    "online": 15,
+    "offline": 3,
+    "attention_regions": 6
+  },
+  "regions": [
+    {
+      "id": 1,
+      "code": "UZ-TK",
+      "name": "Toshkent sh.",
+      "armories": 3,
+      "cabinets": 55,
+      "issued": 30,
+      "overdue": 30,
+      "active_alarms": 3,
+      "serious_alarms": 3,
+      "warnings": 0,
+      "offline": 0,
+      "online": 3
+    },
+    {
+      "id": 2,
+      "code": "UZ-TO",
+      "name": "Toshkent vil.",
+      "armories": 1,
+      "cabinets": 18,
+      "issued": 9,
+      "overdue": 9,
+      "active_alarms": 1,
+      "serious_alarms": 0,
+      "warnings": 1,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 3,
+      "code": "UZ-SA",
+      "name": "Samarqand",
+      "armories": 1,
+      "cabinets": 20,
+      "issued": 12,
+      "overdue": 12,
+      "active_alarms": 3,
+      "serious_alarms": 0,
+      "warnings": 3,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 4,
+      "code": "UZ-FA",
+      "name": "Farg'ona",
+      "armories": 2,
+      "cabinets": 34,
+      "issued": 22,
+      "overdue": 22,
+      "active_alarms": 1,
+      "serious_alarms": 0,
+      "warnings": 1,
+      "offline": 1,
+      "online": 1
+    },
+    {
+      "id": 5,
+      "code": "UZ-AN",
+      "name": "Andijon",
+      "armories": 1,
+      "cabinets": 16,
+      "issued": 6,
+      "overdue": 6,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 6,
+      "code": "UZ-NG",
+      "name": "Namangan",
+      "armories": 1,
+      "cabinets": 15,
+      "issued": 11,
+      "overdue": 11,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 7,
+      "code": "UZ-QA",
+      "name": "Qashqadaryo",
+      "armories": 1,
+      "cabinets": 17,
+      "issued": 10,
+      "overdue": 10,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 1,
+      "online": 0
+    },
+    {
+      "id": 8,
+      "code": "UZ-SU",
+      "name": "Surxondaryo",
+      "armories": 1,
+      "cabinets": 16,
+      "issued": 10,
+      "overdue": 10,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 9,
+      "code": "UZ-BU",
+      "name": "Buxoro",
+      "armories": 1,
+      "cabinets": 16,
+      "issued": 11,
+      "overdue": 11,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 10,
+      "code": "UZ-QR",
+      "name": "Qoraqalpog'iston R.",
+      "armories": 2,
+      "cabinets": 36,
+      "issued": 18,
+      "overdue": 18,
+      "active_alarms": 1,
+      "serious_alarms": 1,
+      "warnings": 0,
+      "offline": 1,
+      "online": 1
+    },
+    {
+      "id": 11,
+      "code": "UZ-XO",
+      "name": "Xorazm",
+      "armories": 1,
+      "cabinets": 19,
+      "issued": 8,
+      "overdue": 8,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 12,
+      "code": "UZ-JI",
+      "name": "Jizzax",
+      "armories": 1,
+      "cabinets": 15,
+      "issued": 11,
+      "overdue": 11,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 13,
+      "code": "UZ-NW",
+      "name": "Navoiy",
+      "armories": 1,
+      "cabinets": 24,
+      "issued": 11,
+      "overdue": 11,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    },
+    {
+      "id": 14,
+      "code": "UZ-SI",
+      "name": "Sirdaryo",
+      "armories": 1,
+      "cabinets": 20,
+      "issued": 13,
+      "overdue": 13,
+      "active_alarms": 0,
+      "serious_alarms": 0,
+      "warnings": 0,
+      "offline": 0,
+      "online": 1
+    }
+  ],
+  "daily_ops": [
+    {
+      "date": "2026-09-06",
+      "label": "Ya",
+      "value": 416,
+      "today": false
+    },
+    {
+      "date": "2026-09-07",
+      "label": "Du",
+      "value": 390,
+      "today": false
+    },
+    {
+      "date": "2026-09-08",
+      "label": "Se",
+      "value": 428,
+      "today": false
+    },
+    {
+      "date": "2026-09-09",
+      "label": "Ch",
+      "value": 394,
+      "today": false
+    },
+    {
+      "date": "2026-09-10",
+      "label": "Pa",
+      "value": 201,
+      "today": false
+    },
+    {
+      "date": "2026-09-11",
+      "label": "Ju",
+      "value": 0,
+      "today": false
+    },
+    {
+      "date": "2026-09-12",
+      "label": "Sh",
+      "value": 0,
+      "today": true
+    }
+  ],
+  "notes": [
+    "Demo ma’lumotlari: 24 430 hodisadan 24 430 tasi simulyatsiya sifatida belgilangan.",
+    "Bu jonli kuzatuv emas; ko‘rsatkichlar mahalliy bazaning o‘qish orqali olingan holat nusxasidir.",
+    "182 ta alohida qurolga 183 ta ochiq berish qaydi tegishli; 1 ta ortiqcha takroriy qayd bor. Tarixiy qaydlar o‘zgartirilmagan.",
+    "Aloqa holati va berilmagan qurollar hisobi tayyorlik yoki foydalanishga ruxsatni tasdiqlamaydi.",
+    "Faol signallar barcha hal qilinmagan qaydlarni; jiddiy signallar CRITICAL va SECURITY darajalarini hisoblaydi.",
+    "Haftalik operatsiyalar faqat bazadagi olish va qaytarish hodisalaridan hisoblangan; bugungi kun hali tugamagan. 0 qiymat shu kuni bazada qayd yo‘qligini bildiradi."
+  ]
+}

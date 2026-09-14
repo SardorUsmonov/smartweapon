@@ -1,0 +1,5 @@
+PASS: scoped current/prior counts, SECURITY classification, null vs zero, oldest/stale telemetry and unmapped totals
+PASS: overview/snapshot cutoff consistency, pending acknowledgements, INFO distinction and authoritative attention locations
+PASS: anonymous denial, central/region/unit/armory authenticated API scopes, no-store and Cyrillic labels
+PASS: map counts match regional signal lists/partials/history; null/stale metadata uses authoritative region labels and links
+LEADERSHIP_TEST_DB C:\Users\atsha\AppData\Local\Temp\aq_leadership_5xb2xi91\test.sqlite3

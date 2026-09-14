@@ -1,0 +1,44 @@
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+<div class="yc-live-grid">
+  <section class="card">
+    {% call card_head("Raqamli egizak") %}{{ cab_status(cab.status) }}{% endcall %}
+    {% if not cab.controller_online %}<div class="notice red">{{ t("Kontroller oflayn. Oxirgi olingan holat ko'rsatilmoqda.") }} {{ cab.last_seen | dt("%d.%m.%Y %H:%M:%S") }}</div>{% endif %}
+    <div class="yc-twin-layout">
+      {% include "yacheykalar/_twin.html" %}
+      <div class="yc-zone-list">
+        {% for z in twin.zones | reverse %}<section class="yc-zone-row"><h3>{{ t(z.label) }} <small>{{ z.y0 }}–{{ z.y1 }} mm</small></h3>
+          {% if z.slots %}{% for slot in z.slots %}<div class="yc-slot-row"><div>{% if slot.item %}<a href="/jihoz/{{ slot.item.id }}">{{ t(slot.label) }}</a>{% else %}<span>{{ t(slot.label) }}</span>{% endif %}
+            {% if slot.item %}<span class="yc-sub mono">{{ slot.item.serial }}{% if slot.item.qty > 1 %} · {{ slot.item.qty }} {{ t("dona") }}{% endif %}</span>{% endif %}
+            {% if slot.lock is not none %}<span class="yc-sub">{{ icon("lock" if slot.lock else "unlock", 11) }} {{ t(slot.lock_label) }}: {{ t("qulflangan") if slot.lock else t("qulf bo'sh") }}</span>{% endif %}</div>
+            <span class="yc-state yc-tone-{{ slot.tone }}">{{ t(slot.state_label) }}{% if slot.hold %}<span class="yc-sub n-red">{{ t("Ushlab turilgan") }}</span>{% endif %}</span></div>{% endfor %}
+          {% else %}<p class="muted">{{ t(z.desc) }}</p>{% endif %}
+        </section>{% endfor %}
+      </div>
+    </div>
+  </section>
+  <div class="stack">
+    <section class="card">
+      {% call card_head("Terminal ko'zgusi") %}<span class="yc-state yc-tone-{{ terminal.tone }}">{{ t(terminal.label) }}</span>{% endcall %}
+      <div class="yc-terminal yc-tone-{{ terminal.tone }}"><span class="yc-terminal-led" aria-hidden="true"></span><span class="yc-terminal-heading">{{ cab.label }}</span><div class="yc-terminal-screen"><strong>{{ t(terminal.line1) }}</strong><span>{{ t(terminal.line2) }}</span></div><span class="yc-sub">{{ t("Terminaldagi joriy xabar") }}</span></div>
+    </section>
+    <section class="card">
+      {% call card_head("Telemetriya") %}<span class="chip chip-{{ 'green' if cab.controller_online else 'red' }}">{{ icon("wifi" if cab.controller_online else "wifi-off", 12) }} {{ t("onlayn") if cab.controller_online else t("oflayn") }}</span>{% endcall %}
+      <dl class="kv yc-telemetry">
+        <dt>{{ t("Eshik") }}</dt><dd><span class="chip chip-{{ 'yellow' if cab.door_open else 'green' }}">{{ t("Ochiq") if cab.door_open else t("Yopiq") }}</span></dd>
+        <dt>{{ t("Eshik qulfi") }}</dt><dd>{{ icon("lock" if cab.door_locked else "unlock", 13) }} {{ t("Qulflangan") if cab.door_locked else t("Qulf bo'sh") }}</dd>
+        <dt>{{ t("AK qisqichi") }}</dt><dd>{{ t("Qulflangan") if cab.ak_clamp_locked else t("Qulf bo'sh") }}</dd>
+        <dt>{{ t("PM qutisi") }}</dt><dd>{{ t("Qulflangan") if cab.pm_box_locked else t("Qulf bo'sh") }}</dd>
+        <dt>{{ t("Elektr tarmog'i") }}</dt><dd class="{{ 'n-yellow' if not cab.mains_ok else '' }}">{{ icon("power", 13) }} {{ t("Ulangan") if cab.mains_ok else t("Batareyadan ishlamoqda") }}</dd>
+        <dt>{{ t("Batareya") }}</dt><dd><span class="{% if cab.battery_pct < 30 %}n-red{% endif %}">{{ cab.battery_pct }} %</span><meter min="0" max="100" low="30" optimum="100" value="{{ cab.battery_pct }}" aria-label="{{ t('Batareya quvvati') }}">{{ cab.battery_pct }} %</meter></dd>
+        <dt>{{ t("Harorat") }}</dt><dd>{{ '%.1f' | format(cab.temp_c) }} °C</dd>
+        <dt>{{ t("Oxirgi aloqa") }}</dt><dd class="mono">{{ cab.last_seen | dt("%d.%m.%Y %H:%M:%S") or t("Ma'lumot yo'q") }}</dd>
+      </dl>
+    </section>
+    <section class="card">
+      {% call card_head("Joriy nazorat") %}<span class="muted">{{ now | dt("%H:%M:%S") }}</span>{% endcall %}
+      <div class="yc-stats"><div><b>{{ ops_today | num }}</b><span>{{ t("Bugungi olish-qaytarish") }}</span></div><div><b class="{{ 'n-yellow' if denied_7d else '' }}">{{ denied_7d | num }}</b><span>{{ t("Rad etish · 7 kun") }}</span></div></div>
+      {% if open_custody %}<div class="yc-custody-list">{% for c, it in open_custody %}<div class="yc-custody-row"><a href="/jihoz/{{ it.id }}">{{ it.model }} <span class="mono">{{ it.serial }}</span></a><span class="yc-sub">{{ t(officer_names.get(c.officer_id, "Xodim")) }} · {{ t("Olindi") }} {{ c.taken_at | dt("%d.%m %H:%M") }}</span><span class="chip chip-{{ 'red' if c.due_at < now else 'yellow' }}">{{ t("Kechikkan") if c.due_at < now else t("Xodimda") }} · {{ t("Muddat") }} {{ c.due_at | dt("%d.%m %H:%M") }}</span></div>{% endfor %}</div>{% else %}<p class="muted">{{ t("Qaytarilishi kutilayotgan jihoz yo'q.") }}</p>{% endif %}
+      {% if alarms %}<div class="yc-alarm-list">{% for alarm in alarms %}<a href="/signal/{{ alarm.id }}" class="notice {{ 'red' if alarm.level in ['CRITICAL', 'SECURITY'] else 'yellow' }}">{{ icon("bell", 14) }} {{ t(alarm.title) }}<span class="yc-sub">{{ alarm.opened_at | dt("%d.%m %H:%M") }} · {{ t("Tasdiqlangan") if alarm.acked_at else t("Tasdiq kutilmoqda") }}</span></a>{% endfor %}</div>{% endif %}
+    </section>
+  </div>
+</div>

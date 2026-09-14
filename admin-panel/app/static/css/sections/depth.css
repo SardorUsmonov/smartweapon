@@ -1,0 +1,80 @@
+/* Raised surfaces for the executive overview; tables keep their reading plane. */
+:root { --depth-side: #0a1420; --depth-shadow: #0006; --depth-highlight: #7492ac20; --map-label-bg: #0b1923de; }
+:root[data-theme="light"] { --depth-side: #c4cfd8; --depth-shadow: #203c561c; --depth-highlight: #fff; --map-label-bg: #fffffff0; }
+.executive-kpis { perspective: 1200px; gap: 18px; padding-bottom: 7px; }
+[data-theme] .executive-kpi {
+  position: relative; border-radius: 7px; border-top: 2px solid var(--accent);
+  background: linear-gradient(135deg, var(--panel-2), var(--panel) 65%);
+  box-shadow: inset 0 1px 0 var(--depth-highlight), 0 4px 0 var(--depth-side), 0 12px 20px var(--depth-shadow);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.executive-kpi-label > svg {
+  flex-shrink: 0; width: 29px; height: 29px; padding: 6px; border-radius: 6px;
+  box-sizing: content-box; background: var(--accent-soft); opacity: 1;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: inset 1px 1px 0 var(--depth-highlight), 2px 3px 0 var(--depth-side);
+  transform: perspective(150px) rotateY(-14deg) rotateX(9deg);
+}
+.executive-kpi-value { text-shadow: 0 2px 1px var(--depth-shadow); }
+[data-theme] .situation-attention {
+  border: 1px solid var(--border); border-top: 2px solid var(--accent); padding: 17px 18px 12px;
+  border-radius: 7px; background: var(--panel);
+  box-shadow: inset 0 1px 0 var(--depth-highlight), 0 3px 0 var(--depth-side), 0 10px 18px var(--depth-shadow);
+}
+.attention-heading { gap: 6px; }
+.attention-heading h2 { font-size: 12px; }
+.attention-item { padding: 10px 0; }
+.attention-item-status { flex-wrap: wrap; }
+.attention-summary { padding: 13px 0; }
+@media (hover: hover) and (pointer: fine) {
+  [data-theme] .executive-kpi:hover { transform: translateY(-4px) rotateX(2deg); box-shadow: inset 0 1px 0 var(--depth-highlight), 0 5px 0 var(--depth-side), 0 18px 24px var(--depth-shadow); }
+}
+
+/* The SVG stays available when WebGL or the local 3D module is unavailable. */
+.map3d-heading, .map3d-tools, .map3d-hint { display: none; }
+.executive-map.is-3d > .uzmap, .executive-map.is-3d > .map-grid, .executive-map.is-3d > .map-zoom { display: none; }
+.map3d-surface { position: absolute; inset: 0; overflow: hidden; }
+.map3d-surface canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; outline-offset: -3px; }
+.map3d-surface.is-dragging canvas { cursor: grabbing; }
+.map3d-labels { position: absolute; inset: 0; pointer-events: none; }
+.map3d-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+.map3d-leaders line { stroke: var(--muted); stroke-width: .7; }
+.map3d-label {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); pointer-events: auto;
+  padding: 2px 4px; color: var(--text); background: var(--map-label-bg); border-radius: 3px;
+  white-space: nowrap; font-size: 9px; font-weight: 500; line-height: 1.3;
+  box-shadow: 0 1px 3px var(--depth-shadow); border: 1px solid transparent;
+}
+.map3d-label.is-active, .map3d-label:focus-visible { color: var(--accent-text); border-color: var(--accent); z-index: 2; outline: none; }
+.map3d-label[aria-disabled="true"] { pointer-events: none; color: var(--muted); }
+.map3d-label:empty { display: none; }
+.is-3d .map3d-heading {
+  display: flex; position: absolute; top: 10px; left: 10px; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--accent-text); font-weight: 600; pointer-events: none;
+}
+.map3d-heading > span:last-child { font-size: 10px; color: var(--muted); font-weight: 400; }
+.map3d-cube { display: inline-flex; transform: rotate(-8deg); }
+.is-3d .map3d-tools {
+  display: flex; align-items: center; gap: 2px; position: absolute; bottom: 12px; right: 12px; z-index: 3;
+  padding: 4px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--panel); box-shadow: 0 3px 0 var(--depth-side), 0 6px 12px var(--depth-shadow);
+}
+.map3d-tools button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--muted); font: 600 10px var(--font); }
+.map3d-tools button:hover, .map3d-tools button[aria-pressed="true"] { color: var(--accent-text); background: var(--accent-soft); border-color: var(--border); }
+.map3d-tools-divider { width: 1px; height: 18px; margin: 0 3px; background: var(--border); }
+.is-3d .map3d-hint { display: block; position: absolute; bottom: 21px; left: 10px; margin: 0; font-size: 9px; color: var(--muted); pointer-events: none; }
+[data-theme] .executive-map.is-3d { min-height: 365px; border-radius: 8px; background: radial-gradient(ellipse at 50% 50%, var(--panel-2), var(--bg) 76%); }
+.executive-map.is-3d .map-tip { z-index: 5; }
+@media (max-width: 1200px) { .is-3d .map3d-hint { display: none; } }
+@media (max-width: 1000px) { [data-theme] .executive-map.is-3d { height: 390px; } }
+@media (max-width: 700px) {
+  [data-theme] .executive-map.is-3d { min-height: 300px; height: 330px; }
+  .executive-kpis { gap: 15px 12px; }
+  .executive-kpi-label > svg { width: 19px; height: 19px; padding: 4px; }
+  .map3d-label { font-size: 8px; padding: 1px 3px; }
+  [data-theme] .situation-attention { padding: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme] .executive-kpi { transition: none; }
+  [data-theme] .executive-kpi:hover { transform: none; }
+}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, level_icon, level_badge, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/rejimlar.css">{% endblock %}
+{% block content %}
+{% set m = v.m %}
+<div class="page-head">
+  <h1 class="page-title"><span class="badge {{ 'b-red-fill' if m.kind == 'trevoga' else 'b-yellow' }}" style="vertical-align: middle">{{ t(v.kind) }}</span> {{ t(v.where) }}
+    <small>{{ t("Rejim") }} #{{ m.id }} · {{ t("boshlandi") }} {{ m.started_at | dt("%d.%m.%Y %H:%M") }}{% if m.ended_at %} · {{ t("tugadi") }} {{ m.ended_at | dt("%d.%m.%Y %H:%M") }}{% else %} · {{ t("davom etmoqda") }} {{ v.duration }}{% endif %}</small></h1>
+  <div class="page-actions">
+    {% if v.active %}<span class="chip chip-red"><span class="dot dot-red"></span> {{ t("FAOL") }}</span>{% else %}<span class="chip chip-gray">{{ icon("check", 13, 2.4) }} {{ t("Tugatilgan") }}</span>{% endif %}
+    {% if v.arm %}<a class="btn btn-ghost" href="/qurolxona/{{ v.arm.id }}">{{ icon("building", 15) }} {{ t("Qurolxona") }}</a>{% endif %}
+    <a class="btn btn-ghost" href="/rejimlar">{{ icon("chev-left", 15) }} {{ t("Rejimlar") }}</a>
+    {% if v.active and ctx.can("rejim") %}<a class="btn btn-danger" href="#tugatish">{{ icon("stop", 14, 2.2) }} {{ t("Tugatish") }}</a>{% endif %}
+  </div>
+</div>
+{% if request.query_params.get("xato") == "tasdiq" %}<div class="notice red" style="margin-bottom: 12px">{{ icon("alert", 15, 2.2) }} {{ t("Tugatish tasdiqlanmadi: tasdiq belgisini qo'ying.") }}</div>{% endif %}
+<div class="rj-grid rj-grid-detail">
+  <div class="stack">
+    <section class="card">
+      {{ card_head("Rejim ma'lumotlari") }}
+      <dl class="kv">
+        <dt>{{ t("Tur") }}</dt><dd><b>{{ t(v.kind_title) }}</b></dd>
+        <dt>{{ t("Qamrov") }}</dt><dd>{% if v.arm %}<a href="/hudud/{{ v.arm.region_id }}">{{ t(v.arm.region) }}</a> › {{ t(v.arm.unit) }} › <a href="/qurolxona/{{ v.arm.id }}">{{ t(v.arm.name) }}</a>{% if not v.arm.online %} <span class="chip chip-red">{{ icon("wifi-off", 12) }} {{ t("oflayn") }}</span>{% endif %}{% else %}{{ t("Respublika") }}{% endif %}</dd>
+        <dt>{{ t("Boshlagan") }}</dt><dd>{{ m.started_by }}</dd>
+        <dt>{{ t("Ikkinchi tasdiqlovchi") }}</dt><dd>{{ m.approver2 or "—" }}</dd>
+        <dt>{{ t("Boshlanish") }}</dt><dd>{{ m.started_at | dt("%d.%m.%Y %H:%M:%S") }}</dd>
+        <dt>{{ t("Tugash") }}</dt><dd>{% if m.ended_at %}{{ m.ended_at | dt("%d.%m.%Y %H:%M:%S") }}{% else %}<span class="chip chip-red">{{ t("davom etmoqda") }}</span>{% endif %}</dd>
+        <dt>{{ t("Davomiylik") }}</dt><dd>{{ v.duration }}</dd>
+        <dt>{{ t("Sabab") }}</dt><dd>{{ t(m.reason) if m.reason else "—" }}</dd>
+      </dl>
+    </section>
+    {% if v.active %}
+    <section class="card" id="tugatish">
+      {{ card_head("Rejimni tugatish") }}
+      {% if ctx.can("rejim") %}
+      <form method="post" action="/rejim/{{ m.id }}/tugatish" class="stack rj-stop">
+        <div class="notice yellow">{{ t("Tugatishdan so'ng qurolxona oddiy rejimga qaytadi: berish faqat navbat va ruxsatlar bo'yicha, qaytarish muddati nazorati tiklanadi.") }} {{ t("Hozir berilgan") }}: <b>{{ m.issued_count | num }} / {{ m.target_count | num }}</b>, {{ t("navbatda") }}: <b>{{ m.queue_count | num }}</b>.</div>
+        <div class="rj-field"><label for="note">{{ t("Yakuniy izoh (ixtiyoriy)") }}</label><input id="note" name="note" maxlength="120" placeholder="{{ t('Masalan: mashg‘ulot yakunlandi, barcha qurollar qaytarildi') }}"></div>
+        <label class="rj-check"><input type="checkbox" name="confirm" value="1" required><span>{{ t("Tasdiqlayman: rejim tugatiladi, harakat jurnalga yoziladi") }} ({{ who }})</span></label>
+        <div class="form-row" style="margin: 0"><button class="btn btn-danger">{{ icon("stop", 14, 2.2) }} {{ t("Rejimni tugatish") }}</button></div>
+      </form>
+      {% else %}
+      <div class="notice">{{ icon("lock", 14) }} {{ t("Rejimni faqat navbatchi/operator roli tugatadi. Siz kuzatuvchi sifatida ko'rmoqdasiz.") }}</div>
+      {% endif %}
+    </section>
+    {% endif %}
+    <section class="card">
+      {% call card_head("Rejim davomidagi hodisalar") %}<a class="btn btn-ghost btn-sm" href="/jurnal">{{ t("Jurnal") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      <div class="feed rj-feed">
+        {% for e in events %}
+        <a class="feed-row lv-{{ e.level | lower }}" href="/jurnal/{{ e.id }}">
+          <span class="feed-time">{{ e.ts_server | dt }}</span>
+          {{ level_icon(e.level) }}
+          <span class="feed-body"><span class="feed-title">{{ t(e.title) }}</span><span class="feed-detail">{{ t(e.detail) }}{% if e.approver1 %} · {{ e.approver1 }}{% endif %}{% if e.approver2 %} + {{ e.approver2 }}{% endif %}</span></span>
+          {{ level_badge({"CRITICAL": "SIGNAL", "WARNING": "OGOHLANTIRISH", "SECURITY": "XAVFSIZLIK"}.get(e.level, "AXBOROT")) }}
+        </a>
+        {% else %}
+        {{ empty("Bu oraliqda hodisa yo'q") }}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+  <section class="card" id="rj-holat" {% if v.active %}hx-get="/rejim/{{ m.id }}/partials/holat" hx-trigger="live from:body, every 10s" hx-swap="innerHTML"{% endif %}>
+    {% include "rejimlar/_holat.html" %}
+  </section>
+</div>
+{% endblock %}

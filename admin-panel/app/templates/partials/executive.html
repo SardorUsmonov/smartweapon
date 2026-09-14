@@ -1,0 +1,83 @@
+{% from "macros.html" import icon with context %}
+{% macro value(n) %}{% if n is not none %}{{ n|num }}{% else %}—{% endif %}{% endmacro %}
+{% set ns = namespace(first_critical=none, first_missing=none, stale=0, missing=0) %}
+{% for r in leadership.regions %}
+  {% if r.critical and (ns.first_critical is none or r.critical > ns.first_critical.critical) %}{% set ns.first_critical = r %}{% endif %}
+  {% if r.updatedAt is none %}{% set ns.missing = ns.missing + 1 %}{% if ns.first_missing is none %}{% set ns.first_missing = r %}{% endif %}{% endif %}
+  {% if r.stale %}{% set ns.stale = ns.stale + 1 %}{% endif %}
+{% endfor %}
+<div class="leadership" data-leadership>
+  <script type="application/json" data-lm-data>{{ leadership|tojson }}</script>
+  <script type="application/json" data-lm-strings>{{ {
+    'national':t('O‘zbekiston Respublikasi'), 'nationalCategory':t('Respublika bo‘yicha'), 'selectedCategory':t('Tanlangan hudud'),
+    'stable':t('Barqaror'), 'critical':t('Jiddiy signal mavjud'), 'warning':t('Ogohlantirish yoki aloqa uzilishi'), 'unknown':t('Ma’lumot to‘liq emas'),
+    'noData':t('Ma’lumot yo‘q'), 'stale':t('Eskirgan'), 'signal':t('signal'), 'criticalLabel':t('Jiddiy'), 'warningLabel':t('Ogohlantirish'),
+    'oldestMessage':t('Eng eski obyekt xabari'), 'noMessage':t('Obyektlardan ma’lumot to‘liq kelmagan'), 'noSites':t('Ro‘yxatga olingan obyekt yo‘q'),
+    'snapshot':t('Hisob yangilandi'), 'staleRegions':t('hududda ma’lumot eskirgan'), 'missingRegions':t('hududda ma’lumot to‘liq emas'),
+    'noComparison':t('Taqqoslash uchun tarix yo‘q'), 'noChange':t('O‘zgarish yo‘q'), 'previousDay':t('24 soat oldingi holatga nisbatan'),
+    'connectionNote':t('Aloqa hisobi signallardan alohida'), 'connectionMissing':t('Aloqa holati to‘liq aniqlanmagan'), 'knownOffline':t('oflaynligi ma’lum'), 'missingSites':t('obyektdan xabar yo‘q'),
+    'registeredNote':t('Bazadagi ro‘yxatga olingan obyektlar'), 'staleNote':t('Oxirgi ma’lum holat. Yangi xabar kutilmoqda.'),
+    'oldestNote':t('Yangilik eng eski obyekt xabari bo‘yicha baholanadi.'), 'minutes':t('daqiqa'), 'staleLimit':t('Eskirish chegarasi'),
+    'selection':t('Tanlangan'), 'nationalView':t('Respublika ko‘rinishi'), 'zoom':t('Tanlangan hudud'), 'zoomBack':t('Masshtabni qaytarish'),
+    'zoomLabel':t('Tanlangan hududni kattalashtirish'), 'zoomBackLabel':t('Xarita masshtabini qaytarish'),
+    'openRegion':t('Hudud tafsilotlari'), 'openRegions':t('Barcha hududlar'), 'details':t('tafsilotlari'), 'mapUnavailable':t('Xarita yuklanmadi. Hududlar ro‘yxatidan foydalaning.'),
+    'comparisonPeriod':t('Taqqoslash davri'), 'noOfflineHistory':t('Aloqa bo‘yicha oldingi davr tarixi yo‘q'),
+    'mapLabel':t('O‘zbekiston hududlari. Tafsilot uchun hududni tanlang.'), 'rotateHint':t('Surib aylantiring. Balandlik bir xil, faqat ko‘rinish uchun.'),
+    'tiltView':t('Qiya ko‘rinish'), 'topView':t('Yuqoridan ko‘rinish'), 'zoomIn':t('Yaqinlashtirish'), 'zoomOut':t('Uzoqlashtirish'), 'resetView':t('Boshlang‘ich ko‘rinish')
+  }|tojson }}</script>
+
+  <header class="lm-heading">
+    <div><p class="lm-eyebrow">{{ t('O‘zbekiston Respublikasi · vaziyat markazi') }}</p><h1>{{ t('Respublika bo‘yicha holat') }}</h1></div>
+    <div class="lm-coverage"><b>{{ leadership.regions|length }}</b><span>{{ t('hudud') }}<small>{{ t('vakolat doirasida') }}</small></span></div>
+  </header>
+
+  <section class="lm-workspace" aria-label="{{ t('Hudud xaritasi va tafsilotlari') }}">
+    <div class="lm-map-panel">
+      <div class="lm-map-heading"><div><h2>{{ t('Hududlar holati') }}</h2><p>{{ t('Belgi raqami — jiddiy va ogohlantirish signallari soni') }}</p></div><div><button type="button" class="lm-quiet" data-lm-filter data-lm-js aria-pressed="false" hidden>{{ icon('alert',15) }}{{ t('Muammoli hududlar') }}</button><div class="lm-view" role="group" aria-label="{{ t('Xarita ko‘rinishi') }}" data-lm-js hidden><button type="button" data-lm-view="3d" aria-pressed="true">{{ icon('layers',14) }}{{ t('Hajmli') }}</button><button type="button" data-lm-view="2d" aria-pressed="false">{{ icon('map',14) }}{{ t('Tekis') }}</button></div></div></div>
+      <div class="lm-map-stage"><svg data-lm-map viewBox="-28 -36 944 600" role="group" aria-label="{{ t('O‘zbekiston hududlari. Tafsilot uchun hududni tanlang.') }}" hidden></svg><p class="lm-map-fallback" data-lm-map-fallback>{{ t('Hududlar holatini quyidagi ro‘yxatda ko‘rish mumkin.') }}</p><div class="lm-north" aria-hidden="true"><b>{{ t('SH') }}</b><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V3M7 8l5-5 5 5"/></svg></div></div>
+      <div class="lm-map-tools" data-lm-js hidden><span data-lm="selection">{{ t('Respublika ko‘rinishi') }}</span><div><button type="button" class="lm-quiet" data-lm-zoom disabled aria-pressed="false">{{ icon('search',15) }}<span data-lm="zoom-label">{{ t('Tanlangan hudud') }}</span></button><button type="button" class="lm-quiet" data-lm-reset>{{ icon('target',15) }}{{ t('Umumiy holat') }}</button></div></div>
+      <div class="lm-small-nav"><span>{{ t('Kichik hududlarni tanlash') }}</span><div>{% for r in leadership.regions %}{% if r.code in ['UZ-TK','UZ-NG','UZ-AN','UZ-FA'] %}<a href="{{ r.href }}" data-lm-region="{{ r.code }}" class="lm-small-region">{{ r.short }}</a>{% endif %}{% endfor %}</div></div>
+      <div class="lm-legend" aria-label="{{ t('Xarita ranglari ma’nosi') }}"><span><i class="lm-swatch stable"></i>{{ t('Barqaror') }}</span><span><i class="lm-swatch warning"></i>{{ t('Ogohlantirish / aloqa uzilishi') }}</span><span><i class="lm-swatch critical"></i>{{ t('Jiddiy signal') }}</span><span><i class="lm-swatch unknown"></i>{{ t('Ma’lumot to‘liq emas') }}</span><span><i class="lm-swatch selection"></i>{{ t('Tanlangan hudud') }}</span></div>
+      <div class="lm-map-source"><span>{{ t('Chegaralar') }}: <a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">geoBoundaries</a> · {{ t('soddalashtirilgan konturlar') }}</span><span>{{ t('Holat bazadagi yozuvlar asosida') }}</span></div>
+    </div>
+
+    <aside class="lm-details" tabindex="-1" aria-labelledby="lm-detail-name">
+      <div class="lm-detail-header"><div><p class="lm-eyebrow" data-lm="category">{{ t('Respublika bo‘yicha') }}</p><h2 id="lm-detail-name" data-lm="name">{{ t('O‘zbekiston Respublikasi') }}</h2></div><div class="lm-picker-wrap" data-lm-js hidden><label class="lm-sr-only" for="lm-region-picker">{{ t('Hududni tanlang') }}</label><select id="lm-region-picker"><option value="all">{{ t('Respublika bo‘yicha') }}</option>{% for r in leadership.regions %}<option value="{{ r.code }}">{{ r.name }}</option>{% endfor %}</select></div></div>
+      <div class="lm-freshness"><span data-lm="status">{{ t('Vakolat doirasidagi umumiy hisob') }}</span><span data-lm="time">{{ ns.stale }} {{ t('hududda ma’lumot eskirgan') }} · {{ ns.missing }} {{ t('hududda ma’lumot to‘liq emas') }}</span></div>
+      <section class="lm-block lm-signals"><h3 title="{{ t('Jiddiy va ogohlantirish signallari') }}">{{ icon('bell',15) }}{{ t('Muhim signallar') }}<b data-lm="signal-total">{% if leadership.totals.critical is not none and leadership.totals.warning is not none %}{{ leadership.totals.critical + leadership.totals.warning }}{% else %}—{% endif %}</b></h3><div class="lm-paired"><a href="/signallar" data-lm-link="critical" title="{{ t('Barcha faol signallarni ochish') }}"><strong class="lm-critical-text" data-lm="critical">{{ value(leadership.totals.critical) }}</strong><small>{{ t('jiddiy') }}</small></a><a href="/signallar?daraja=WARNING" data-lm-link="warning"><strong class="lm-warning-text" data-lm="warning">{{ value(leadership.totals.warning) }}</strong><small>{{ t('ogohlantirish') }}</small></a></div><p class="lm-note" data-lm="signal-change">{{ t('24 soat oldingi holat') }}: {{ value(leadership.previousTotals.critical) }} {{ t('jiddiy') }} · {{ value(leadership.previousTotals.warning) }} {{ t('ogohlantirish') }}</p></section>
+      <section class="lm-block lm-connection"><h3>{{ icon('wifi',15) }}{{ t('Aloqa holati') }}</h3><div class="lm-paired"><a href="/qurolxonalar?holat=onlayn" data-lm-link="online"><strong data-lm="online">{{ value(leadership.totals.online) }}</strong><small>{{ t('onlayn obyekt') }}</small></a><a href="/qurolxonalar?holat=oflayn" data-lm-link="offline"><strong class="lm-warning-text" data-lm="offline">{{ value(leadership.totals.offline) }}</strong><small>{{ t('oflayn obyekt') }}</small></a></div><p class="lm-note" data-lm="connection-note">{{ t('Aloqa hisobi signallardan alohida') }}</p></section>
+      <section class="lm-block lm-inventory"><h3>{{ icon('building',15) }}{{ t('Hisobdagi obyektlar') }}</h3><div class="lm-paired"><a href="/qurolxonalar" data-lm-link="sites"><strong data-lm="sites">{{ value(leadership.totals.sites) }}</strong><small>{{ t('qurolxona') }}</small></a><a href="/inventar" data-lm-link="stock"><strong data-lm="stock">{{ value(leadership.totals.stock) }}</strong><small>{{ t('qurol') }}</small></a></div><p class="lm-note" data-lm="inventory-note">{{ t('Bazadagi ro‘yxatga olingan obyektlar') }}</p></section>
+      <div class="lm-detail-footer"><p data-lm="comparison">{{ t('Yangilik eng eski obyekt xabari bo‘yicha baholanadi.') }} {{ t('Eskirish chegarasi') }}: {{ leadership.staleMinutes }} {{ t('daqiqa') }}.</p><a href="/hududlar" class="lm-detail-open" data-lm-link="detail"><span data-lm="detail-link-label">{{ t('Barcha hududlar') }}</span>{{ icon('chev',15) }}</a></div>
+      <span class="lm-sr-only" role="status" aria-live="polite" data-lm-announcement></span>
+    </aside>
+  </section>
+
+  <div class="lm-snapshot"><span>{{ icon('clock',14) }}<b>{{ t('Hisob yangilandi') }}:</b> <time datetime="{{ leadership.asOf }}" data-lm-snapshot>{{ leadership.asOf[:16]|replace('T',' ') }} (UTC+5)</time></span><span>{% if leadership.demo %}<b class="lm-demo">{{ t('Demo ma’lumotlar') }}</b> · {% endif %}{{ t('Yangilanish') }}: 30 {{ t('soniya') }}</span></div>
+  <p class="lm-refresh-error" data-lm-refresh-error role="status" hidden>{{ t('Yangilanish uzildi. Quyida oxirgi olingan ma’lumot ko‘rsatilmoqda.') }}</p>
+
+  <section class="lm-briefing" aria-labelledby="lm-briefing-title">
+    <div class="lm-briefing-title">{{ icon('alert',18) }}<h2 id="lm-briefing-title">{{ t('Birinchi navbatda') }}</h2><span>{{ t('Rahbariyat uchun qisqa xulosa') }}</span></div>
+    <div class="lm-priorities">
+      <a class="lm-priority" href="{% if ns.first_critical %}{{ ns.first_critical.href }}{% else %}/signallar{% endif %}" {% if ns.first_critical %}data-lm-region="{{ ns.first_critical.code }}"{% endif %}>
+        <span><b class="lm-critical-text">{% if ns.first_critical %}{{ ns.first_critical.short }}: {{ ns.first_critical.critical }} {{ t('jiddiy signal') }}{% elif leadership.totals.critical %}{{ leadership.totals.critical }} {{ t('jiddiy signal') }} · {{ t('Hududga biriktirilmagan') }}{% else %}{{ t('Jiddiy signallar qayd etilmagan') }}{% endif %}</b><small>{{ t('Jami') }}: {{ value(leadership.totals.critical) }} {{ t('jiddiy') }} · {{ value(leadership.totals.warning) }} {{ t('ogohlantirish') }}</small></span>{{ icon('chev',15) }}
+      </a>
+      <a class="lm-priority" href="/qurolxonalar?holat=oflayn">
+        <span><b class="lm-warning-text">{% if leadership.totals.offline is not none %}{{ leadership.totals.offline }} {{ t('qurolxona oflayn') }}{% else %}{{ t('Aloqa holati to‘liq aniqlanmagan') }}{% endif %}</b><small>{% if leadership.totals.offline is not none %}{{ value(leadership.totals.online) }} {{ t('obyekt onlayn') }} · {{ t('alohida obyekt hisobi') }}{% elif not leadership.totals.sites %}{{ t('Ro‘yxatga olingan obyekt yo‘q') }}{% else %}{{ leadership.totals.knownOffline }} {{ t('oflaynligi ma’lum') }} · {{ leadership.totals.missingTelemetrySites }} {{ t('obyektdan xabar yo‘q') }}{% endif %}</small></span>{{ icon('chev',15) }}
+      </a>
+      <a class="lm-priority" href="{% if ns.first_missing %}{{ ns.first_missing.href }}{% else %}/hududlar{% endif %}" {% if ns.first_missing %}data-lm-region="{{ ns.first_missing.code }}"{% endif %}>
+        <span><b>{{ ns.stale }} {{ t('hududda ma’lumot eskirgan') }}</b><small>{{ ns.missing }} {{ t('hududda ma’lumot to‘liq emas') }}</small></span>{{ icon('chev',15) }}
+      </a>
+    </div>
+    {% if attention %}<p class="lm-briefing-foot">{{ t('Dolzarb signal') }}: <a href="{{ attention[0].href }}">{{ t(attention[0].location) }} — {{ t(attention[0].title) }}{{ icon('chev',12) }}</a></p>{% endif %}
+  </section>
+
+  <section class="lm-kpis" aria-label="{{ t('Umumiy ko‘rsatkichlar') }}">
+    <a class="lm-kpi" href="/qurolxonalar"><span>{{ t('Qurolxonalar') }}{{ icon('building',17) }}</span><div><b>{{ value(leadership.totals.sites) }}</b><small>{{ t('obyekt') }}</small></div><footer>{{ value(leadership.totals.online) }} {{ t('onlayn') }} · {{ value(leadership.totals.offline) }} {{ t('oflayn') }}</footer></a>
+    <a class="lm-kpi" href="/inventar"><span>{{ t('Hisobdagi qurollar') }}{{ icon('layers',17) }}</span><div><b>{{ value(leadership.totals.stock) }}</b><small>{{ t('birlik') }}</small></div><footer>{{ k.berilgan|num }} {{ t('tasi xodimlarda') }}</footer></a>
+    <a class="lm-kpi lm-kpi-critical" href="/signallar" title="{{ t('Barcha faol signallarni ochish') }}"><span>{{ t('Jiddiy signallar') }}{{ icon('bell',17) }}</span><div><b>{{ value(leadership.totals.critical) }}</b><small>{{ t('signal') }}</small></div><footer data-lm-critical-change>{{ t('24 soat oldingi holat') }}: {{ value(leadership.previousTotals.critical) }}</footer></a>
+    <a class="lm-kpi" href="/inventar?kechikish=1"><span>{{ t('Qaytarish muddati o‘tgan') }}{{ icon('clock',17) }}</span><div><b>{{ k.kechikish|num }}</b><small>{{ t('qurol') }}</small></div><footer>{{ t('Kechikkan qaytarishlarni ko‘rish') }}</footer></a>
+  </section>
+
+  <section class="lm-region-strip" aria-labelledby="lm-region-title"><div class="lm-strip-heading"><h2 id="lm-region-title">{{ t('Hududlar kesimida') }}</h2><span>{{ t('Holat va ma’lumot yangiligi') }}</span></div><div class="lm-region-buttons">{% for r in leadership.regions %}<a class="lm-region" href="{{ r.href }}" data-lm-region="{{ r.code }}"><i class="lm-swatch {{ r.state }}" aria-hidden="true"></i><span><b>{{ r.short }}</b><small>{% if r.updatedAt is none %}{{ t('Ma’lumot to‘liq emas') }}{% elif r.stale %}{{ t('Eskirgan') }} · {{ r.updatedAt[11:16] }}{% else %}{{ r.updatedAt[11:16] }} · {% if r.critical is not none and r.warning is not none %}{{ r.critical + r.warning }} {{ t('signal') }}{% else %}{{ t('Ma’lumot yo‘q') }}{% endif %}{% endif %}</small></span></a>{% else %}<p class="lm-note">{{ t('Vakolat doirasida hudud topilmadi') }}</p>{% endfor %}</div></section>
+  <footer class="lm-source-note"><span>{{ leadership.sourceNote }}</span>{% if leadership.unassigned.critical or leadership.unassigned.warning or leadership.unassigned.stock %}<span>{{ t('Hududga biriktirilmagan yozuvlar umumiy hisobga kiritilgan') }}: {{ leadership.unassigned.critical }} {{ t('jiddiy') }}, {{ leadership.unassigned.warning }} {{ t('ogohlantirish') }}, {{ leadership.unassigned.stock }} {{ t('qurol') }}.</span>{% endif %}</footer>
+</div>

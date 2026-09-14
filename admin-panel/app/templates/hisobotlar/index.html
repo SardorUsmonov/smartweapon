@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/hisobotlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Hisobotlar") }}<small>{{ t("7 ta hisobot: oldindan ko'rish, filtrlar (sana oralig'i, hudud, bo'linma) va CSV / XLSX / PDF eksport. Har eksport raqamlanadi, hash bilan jurnalga yoziladi.") }}</small></h1>
+  <div class="page-actions">
+    <span class="pill on">{{ t("Qamrov") }}: {{ t(scope) }}</span>
+    <a class="btn btn-ghost" href="/hisobotlar/eksportlar">{{ icon("list", 16) }} {{ t("Eksportlar jurnali") }} · {{ n_exports | num }}</a>
+  </div>
+</div>
+<div class="rep-grid">
+  {% for c in cards %}
+  <a class="rep-card tone-{{ c.tone }}" href="/hisobotlar/{{ c.slug }}">
+    <div class="rep-head"><span class="rep-ic">{{ icon(c.icon, 20, 1.9) }}</span><span class="rep-title">{{ t(c.title) }}</span></div>
+    <div class="rep-desc">{{ t(c.desc) }}</div>
+    <div class="rep-foot"><span class="rep-val">{{ c.count | num }}</span><span class="rep-sub">{{ t(c.sub) }}</span><span class="rep-go">{{ t("Ochish") }} {{ icon("chev", 14, 2.2) }}</span></div>
+  </a>
+  {% endfor %}
+</div>
+<section class="card rep-recent">
+  {% call card_head("So'nggi eksportlar") %}
+    <span class="meta-item muted">{{ t("Raqam, kim, maqsad va amal qilish muddati bilan") }}</span>
+    <a class="btn btn-ghost btn-sm" href="/hisobotlar/eksportlar">{{ t("Barchasi") }} {{ icon("chev", 14, 2.2) }}</a>
+  {% endcall %}
+  {% if recent %}
+  <div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th class="l">{{ t("Raqam") }}</th><th class="l">{{ t("Vaqt") }}</th><th class="l">{{ t("Kim") }}</th><th class="l">{{ t("Hisobot") }}</th><th class="l">{{ t("Format") }}</th><th class="l">{{ t("Maqsad") }}</th><th class="l">{{ t("Amal qilish muddati") }}</th></tr></thead>
+    <tbody>
+    {% for e in recent %}
+    <tr class="row-link" data-href="/hisobotlar/eksportlar/{{ e.id }}">
+      <td class="l mono"><a href="/hisobotlar/eksportlar/{{ e.id }}">{{ e.number }}</a></td>
+      <td class="l">{{ e.ts | dt("%d.%m.%Y %H:%M") }}</td>
+      <td class="l">{{ e.username }}</td>
+      <td class="l">{{ t(reports[e.report].title if e.report in reports else e.report) }}</td>
+      <td class="l">{{ e.fmt | upper }}</td>
+      <td class="l wrap">{{ e.purpose }}</td>
+      <td class="l">{% if e.valid_until and e.valid_until >= now %}<span class="chip chip-green">{{ icon("check", 12, 2.4) }} {{ e.valid_until | dt("%d.%m.%Y") }}</span>{% else %}<span class="chip chip-gray">{{ t("muddati o'tgan") }}</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  {{ empty("Hali eksport qilinmagan. Hisobotni oching, filtrlarni tanlang va eksport qiling.") }}
+  {% endif %}
+</section>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

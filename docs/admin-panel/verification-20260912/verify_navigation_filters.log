@@ -1,0 +1,4 @@
+PASS: followed 18 actual armory/unit/officer detail links
+PASS: exact per-armory totals and location intersections across central, regional and armory users; real filter forms preserve selections
+PASS: pagination, all-items tab, employee filter, HTMX/KPI preservation and signal POST return URL
+Temporary DB: C:\Users\atsha\AppData\Local\Temp\aq_navigation_filters_4fcfiwoj\test.sqlite3

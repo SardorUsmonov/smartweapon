@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "code": "UZ-TK",
+    "name": "Toshkent sh.",
+    "armories": 3,
+    "cabinets": 55,
+    "issued": 30,
+    "signals": 3,
+    "offline": 0
+  },
+  {
+    "id": 10,
+    "code": "UZ-QR",
+    "name": "Qoraqalpog'iston R.",
+    "armories": 2,
+    "cabinets": 36,
+    "issued": 18,
+    "signals": 1,
+    "offline": 1
+  },
+  {
+    "id": 4,
+    "code": "UZ-FA",
+    "name": "Farg'ona",
+    "armories": 2,
+    "cabinets": 34,
+    "issued": 22,
+    "signals": 0,
+    "offline": 1
+  },
+  {
+    "id": 13,
+    "code": "UZ-NW",
+    "name": "Navoiy",
+    "armories": 1,
+    "cabinets": 24,
+    "issued": 11,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 3,
+    "code": "UZ-SA",
+    "name": "Samarqand",
+    "armories": 1,
+    "cabinets": 20,
+    "issued": 12,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 14,
+    "code": "UZ-SI",
+    "name": "Sirdaryo",
+    "armories": 1,
+    "cabinets": 20,
+    "issued": 13,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 11,
+    "code": "UZ-XO",
+    "name": "Xorazm",
+    "armories": 1,
+    "cabinets": 19,
+    "issued": 8,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 2,
+    "code": "UZ-TO",
+    "name": "Toshkent vil.",
+    "armories": 1,
+    "cabinets": 18,
+    "issued": 9,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 7,
+    "code": "UZ-QA",
+    "name": "Qashqadaryo",
+    "armories": 1,
+    "cabinets": 17,
+    "issued": 10,
+    "signals": 0,
+    "offline": 1
+  },
+  {
+    "id": 5,
+    "code": "UZ-AN",
+    "name": "Andijon",
+    "armories": 1,
+    "cabinets": 16,
+    "issued": 6,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 8,
+    "code": "UZ-SU",
+    "name": "Surxondaryo",
+    "armories": 1,
+    "cabinets": 16,
+    "issued": 10,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 9,
+    "code": "UZ-BU",
+    "name": "Buxoro",
+    "armories": 1,
+    "cabinets": 16,
+    "issued": 11,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 6,
+    "code": "UZ-NG",
+    "name": "Namangan",
+    "armories": 1,
+    "cabinets": 15,
+    "issued": 11,
+    "signals": 0,
+    "offline": 0
+  },
+  {
+    "id": 12,
+    "code": "UZ-JI",
+    "name": "Jizzax",
+    "armories": 1,
+    "cabinets": 15,
+    "issued": 11,
+    "signals": 0,
+    "offline": 0
+  }
+]

@@ -1,0 +1,32 @@
+{% from "macros.html" import icon, card_head, cab_status, empty with context %}
+{% from "xodimlar/macros.html" import armed_chip with context %}
+{% call card_head("Joriy holat · jonli") %}<span class="meta-item muted">{{ icon("clock", 13) }} {{ now.strftime('%H:%M:%S') }}</span>{% endcall %}
+<dl class="kv">
+  <dt>{{ t("Yacheyka") }}</dt>
+  <dd>{% if cab %}<a href="/yacheyka/{{ cab.id }}"><b>{{ cab.label }}</b></a> · {{ cab_status(cab.status) }}{% else %}<span class="muted">{{ t("Biriktirilmagan") }}</span>{% endif %}</dd>
+  {% if cab %}
+  <dt>{{ t("Uyalar") }}</dt>
+  <dd>AK: {% if cab.ak_present %}<span class="chip chip-green">{{ t("uyada") }}</span>{% else %}<span class="chip chip-yellow">{{ t("xodimda") }}</span>{% endif %}
+      · PM: {% if cab.pm_present %}<span class="chip chip-green">{{ t("uyada") }}</span>{% else %}<span class="chip chip-yellow">{{ t("xodimda") }}</span>{% endif %}</dd>
+  <dt>{{ t("Eshik / qulf") }}</dt>
+  <dd>{{ t("ochiq") if cab.door_open else t("yopiq") }} · {{ t("qulflangan") if cab.door_locked else t("qulf ochiq") }}
+      {% if not cab.controller_online %}<span class="chip chip-red">{{ icon("wifi-off", 12, 2.2) }} {{ t("oflayn") }}</span>{% endif %}</dd>
+  {% endif %}
+  <dt>{{ t("Qurollangan") }}</dt>
+  <dd>{{ armed_chip(armed) }}</dd>
+</dl>
+{% if open_rows %}
+<div class="xd-open">
+  {% for r in open_rows %}
+  <div class="notice {{ 'red' if r.overdue else 'yellow' }}">
+    <b><a href="/jihoz/{{ r.item.id }}">{{ r.item.model }} · {{ r.item.serial }}</a></b>
+    <span class="muted">· {{ t("olindi") }} {{ r.c.taken_at | dt("%d.%m %H:%M") }} · {{ t("muddat") }} {{ r.c.due_at | dt("%d.%m %H:%M") }}</span>
+    {% if r.overdue %}<span class="chip chip-red">{{ icon("clock", 12, 2.4) }} {{ t("Kechikish") }} {{ r.c.due_at | ago }}</span>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="xd-lastev">
+  <span class="muted">{{ t("So'nggi hodisa") }}:</span>
+  {% if last_ev %}<a href="/jurnal/{{ last_ev.id }}">{{ t(last_ev.title) }}</a> <span class="muted">· {{ last_ev.ts_server | dt("%d.%m.%Y %H:%M") }} ({{ last_ev.ts_server | ago }} {{ t("oldin") }})</span>{% else %}<span class="muted">—</span>{% endif %}
+</div>

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon, kpi, card_head, empty with context %}
+{% block head %}<link rel="stylesheet" href="/static/css/sections/rejimlar.css">{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">{{ t("Rejimlar") }}<small>{{ t("Yig'ilish va trevoga rejimlari: faol rejimlar jonli holati, har yacheyka bo'yicha berish, boshlash va tugatish, tarix") }}</small></h1>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/rejimlar/tarix">{{ icon("list", 15) }} {{ t("Tarix") }}</a>
+    {% if ctx.can("rejim") %}<a class="btn btn-primary" href="/rejimlar/boshlash">{{ icon("siren", 15, 2) }} {{ t("Rejim boshlash") }}</a>
+    {% else %}<span class="pill" title="{{ t('Rejimni faqat navbatchi/operator boshlaydi va tugatadi') }}">{{ icon("lock", 12) }} {{ t("faqat navbatchi") }}</span>{% endif %}
+  </div>
+</div>
+<div class="rj-kpis">
+  {{ kpi("Faol rejimlar", stats.faol, "hozir davom etmoqda", "siren", "red" if stats.faol else "", "/rejimlar/tarix?holat=faol") }}
+  {{ kpi("Bugun boshlangan", stats.bugun, "trevoga va yig'ilish", "flag", "", "/rejimlar/tarix?dan=" ~ stats.today) }}
+  {{ kpi("30 kunda jami", stats.oy, stats.oy_tugagan | num ~ " tugatilgan", "clock", "", "/rejimlar/tarix") }}
+  {{ kpi("O'rtacha berish vaqti", stats.avg, "soniya, bir yacheyka uchun (30 kun)", "swap", "", "/rejimlar/tarix") }}
+</div>
+<div class="rj-grid">
+  <section class="card" id="rj-faol" hx-get="/rejimlar/partials/faol" hx-trigger="live from:body, every 10s" hx-swap="innerHTML">
+    {% include "rejimlar/_faol.html" %}
+  </section>
+  <div class="stack">
+    <section class="card">
+      {% call card_head("So'nggi tugatilgan rejimlar") %}<a class="btn btn-ghost btn-sm" href="/rejimlar/tarix">{{ t("To'liq tarix") }} {{ icon("chev", 14, 2.2) }}</a>{% endcall %}
+      {% if recent %}
+      <table class="tbl">
+        <thead><tr><th class="l">{{ t("Tur") }}</th><th class="l">{{ t("Hudud · bo'linma") }}</th><th>{{ t("Boshlanish") }}</th><th>{{ t("Davomiylik") }}</th><th>{{ t("Berildi") }}</th></tr></thead>
+        <tbody>
+        {% for r in recent %}
+        <tr class="row-link" data-href="/rejim/{{ r.m.id }}">
+          <td class="l"><span class="badge {{ 'b-red' if r.m.kind == 'trevoga' else 'b-yellow' }}">{{ t(r.kind) }}</span></td>
+          <td class="l"><a href="/rejim/{{ r.m.id }}">{{ t(r.where) }}</a></td>
+          <td>{{ r.m.started_at | dt("%d.%m %H:%M") }}</td>
+          <td>{{ r.duration }}</td>
+          <td>{{ r.m.issued_count | num }} / {{ r.m.target_count | num }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}{{ empty("Tugatilgan rejimlar hali yo'q") }}{% endif %}
+    </section>
+    <section class="card">
+      {{ card_head("Rejim turlari va qoidalar") }}
+      <div class="stack rj-rules">
+        <div class="notice red"><b>TREVOGA</b> — {{ t(kind_desc.trevoga) }}</div>
+        <div class="notice yellow"><b>{{ t("YIG'ILISH") }}</b> — {{ t(kind_desc.yigilish) }}</div>
+        <div class="notice">{{ icon("shield", 14) }} {{ t("Rejim ikki shaxs tasdig'i bilan boshlanadi (boshlovchi + ikkinchi tasdiqlovchi) va SECURITY darajasida jurnalga yoziladi. Nazorat markazi hech qachon qulf ochmaydi: har xodim o'z yacheykasida yuz va barmoq izi orqali autentifikatsiyadan o'tadi.") }}</div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="sample-note">{{ t("NAMUNAVIY MA'LUMOT · simulyator") }}</div>
+{% endblock %}

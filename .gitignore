@@ -1,0 +1,35 @@
+# Ishchi ma'lumotlar va lokal vositalar (repozitoriyga kirmaydi)
+admin-panel/data/
+admin-panel/.tools/
+admin-panel/.backups/
+
+# Loyiha ildizidagi zaxira nusxalar: faqat testlar ishlatadigan boshlang'ich baza saqlanadi
+.backups/*
+!.backups/admin-panel-20260912-141835/
+.backups/admin-panel-20260912-141835/*
+!.backups/admin-panel-20260912-141835/aq_central.sqlite3
+!.backups/admin-panel-20260912-141835/manifest.json
+
+# Server loglari (tekshiruv dalillari verify_*.log saqlanadi)
+*.out.log
+*.err.log
+*-server.log
+*-server-error.log
+*-tunnel*.log
+share-preview*.log
+share-preview.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Muharrir va tizim fayllari
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

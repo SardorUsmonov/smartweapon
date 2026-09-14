@@ -1,0 +1,24 @@
+{% from "macros.html" import icon, card_head, empty with context %}
+{% call card_head("Qurilmalar holati") %}
+  {% set n_off = devices | rejectattr("status", "equalto", "onlayn") | list | length %}
+  {% if n_off %}<span class="meta-item n-red">{{ icon("alert", 14, 2.2) }} {{ n_off }} {{ t("muammo") }}</span>{% else %}<span class="meta-item"><span class="dot dot-green"></span>{{ devices | length }} {{ t("onlayn") }}</span>{% endif %}
+  <a class="btn btn-ghost btn-sm" href="/qurilmalar?qurolxona={{ a.id }}">{{ t("Batafsil") }} {{ icon("chev", 14, 2.2) }}</a>
+{% endcall %}
+{% set icons = {"server": "cpu", "kommutator": "wifi", "ups": "battery", "nas": "box", "kamera": "camera", "terminal": "eye", "kontroller": "cpu"} %}
+{% if devices %}
+<div class="dev-list">
+  {% for d in devices %}
+  {% set tone = device_tone(d) %}
+  <a class="dev-row tone-{{ tone }}" href="/qurilma/{{ d.id }}">
+    <span class="dev-ic">{{ icon(icons.get(d.kind, "cpu"), 15, 2) }}</span>
+    <span style="min-width:0"><span class="dev-name">{{ t(d.name) }} <span class="muted" style="font-weight:400">· {{ t(kind_label.get(d.kind, d.kind)) }}</span></span><br><span class="dev-metrics">{{ t(metrics_text(d)) }}</span></span>
+    <span class="dev-right">
+      {% if d.status == "onlayn" %}<span class="chip {{ 'chip-yellow' if tone == 'yellow' else 'chip-green' }}">{{ t("onlayn") }}</span>{% elif d.status == "oflayn" %}<span class="chip chip-red">{{ t("oflayn") }}</span>{% else %}<span class="chip chip-yellow">{{ t("ogohlantirish") }}</span>{% endif %}
+      <span class="mono">{{ d.last_seen | dt("%d.%m %H:%M") }}</span>
+    </span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+{{ empty("Qurilmalar ro'yxati bo'sh") }}
+{% endif %}

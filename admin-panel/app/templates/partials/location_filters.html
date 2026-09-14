@@ -1,0 +1,7 @@
+{% for field in location_fields %}
+<select name="{{ field.name }}" aria-label="{{ t(field.label) }}" style="max-width: 280px">
+  <option value="">{{ t(field.all_label) }}</option>
+  {% if field.value and not field.known %}<option value="{{ field.value }}" selected>{{ t(field.label) }} #{{ field.value }} · {{ t("Topilmadi yoki vakolatdan tashqarida") }}</option>{% endif %}
+  {% for value, label in field.options %}<option value="{{ value }}" {% if field.value == value %}selected{% endif %}>{{ t(label) }}</option>{% endfor %}
+</select>
+{% endfor %}
