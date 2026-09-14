@@ -5,10 +5,13 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import config
 from .db import Base, SessionLocal, engine
@@ -16,7 +19,7 @@ from .i18n import t as translate
 from .models import Alarm, Mode, Region
 from . import security_models  # registers additive tables before startup
 from . import backup_models
-from .deps import get_ctx
+from .deps import ROLE_LABEL, SCOPE_LABEL, Ctx, get_ctx
 from .security import csrf_middleware, protect_forms
 from .services.live import hub
 
@@ -119,6 +122,89 @@ def render(request: Request, name: str, ctx, **kw) -> HTMLResponse:
     }
     base.update(kw)
     return protect_forms(templates.TemplateResponse(name, base), base["csrf_token"])
+
+
+# ---- Xato sahifalari: brauzer uchun HTML, API va HTMX uchun avvalgidek JSON ----
+ERROR_TEXT = {
+    400: ("So‘rov noto‘g‘ri", "So‘rov ma’lumotlari qabul qilinmadi."),
+    401: ("Kirish talab qilinadi", "Bu sahifani ko‘rish uchun tizimga kiring."),
+    403: ("Ruxsat yo‘q", "Bu amal yoki sahifa sizning rolingiz uchun ochilmagan."),
+    404: ("Sahifa topilmadi", "So‘ralgan manzil yoki yozuv mavjud emas."),
+    405: ("Usul ruxsat etilmagan", "Bu manzil bunday so‘rovni qabul qilmaydi."),
+    409: ("Ziddiyat", "Yozuv holati o‘zgargan. Sahifani yangilab, qayta urinib ko‘ring."),
+    410: ("Muddati o‘tgan", "Bu havolaning amal qilish muddati tugagan."),
+    422: ("So‘rov noto‘g‘ri", "Kiritilgan qiymatlar tekshiruvdan o‘tmadi."),
+    500: ("Ichki xato", "Server so‘rovni bajara olmadi."),
+}
+_DEFAULT_DETAILS = {"Not Found", "Forbidden", "Unauthorized", "Method Not Allowed", "Internal Server Error", "Not Authenticated", ""}
+
+
+def _wants_html(request: Request) -> bool:
+    if request.headers.get("HX-Request") or request.url.path.startswith("/api/"):
+        return False
+    return "text/html" in request.headers.get("accept", "")
+
+
+def _error_page(request: Request, status: int, detail) -> HTMLResponse:
+    title, generic = ERROR_TEXT.get(status, ERROR_TEXT[500] if status >= 500 else ("Xato", "So‘rov bajarilmadi."))
+    message = detail if isinstance(detail, str) and detail not in _DEFAULT_DETAILS else generic
+    lang = request.cookies.get("aq_lang", config.DEFAULT_LANG)
+    lang = lang if lang in ("lat", "cyr") else "lat"
+    user = None
+    try:
+        from .services.auth_svc import COOKIE, session_user
+        db = SessionLocal()
+        try:
+            user, _ = session_user(db, request.cookies.get(COOKIE))
+        finally:
+            db.close()
+    except Exception:  # noqa: BLE001 - xato sahifasi hech qachon o'zi xato bermasin
+        user = None
+    referer = request.headers.get("referer", "")
+    origin = str(request.base_url).rstrip("/")
+    back = referer if referer.startswith(origin + "/") and referer != str(request.url) else ""
+    try:
+        if user is not None:
+            ctx = Ctx(user=user, lang=lang)
+            resp = render(request, "xato.html", ctx, active="", title=title, message=message, status=status, back=back,
+                          role_label=ROLE_LABEL.get(user.role, user.role), scope_label=SCOPE_LABEL.get(user.scope_kind, user.scope_kind))
+        else:
+            def t(s):
+                return translate(s, lang)
+            resp = templates.TemplateResponse("auth/xato.html", {
+                "request": request, "t": t, "lang": lang, "cfg": config, "csrf_token": getattr(request.state, "csrf_token", ""),
+                "title": title, "message": message, "status": status})
+        resp.status_code = status
+        return resp
+    except Exception:  # noqa: BLE001
+        return HTMLResponse(f"<!doctype html><meta charset='utf-8'><h1>{status}</h1><p>{translate(title, lang)}</p>", status_code=status)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _http_exception(request: Request, exc: StarletteHTTPException):
+    headers = dict(getattr(exc, "headers", None) or {})
+    if 300 <= exc.status_code < 400:
+        return Response(status_code=exc.status_code, headers=headers)
+    if not _wants_html(request):
+        return JSONResponse({"detail": exc.detail}, status_code=exc.status_code, headers=headers)
+    page = _error_page(request, exc.status_code, exc.detail)
+    for key, value in headers.items():
+        page.headers[key] = value
+    return page
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation_exception(request: Request, exc: RequestValidationError):
+    if not _wants_html(request):
+        return JSONResponse({"detail": jsonable_encoder(exc.errors())}, status_code=422)
+    return _error_page(request, 422, None)
+
+
+@app.exception_handler(Exception)
+async def _unhandled_exception(request: Request, exc: Exception):
+    if not _wants_html(request):
+        return JSONResponse({"detail": "Ichki xato"}, status_code=500)
+    return _error_page(request, 500, None)
 
 
 @app.on_event("startup")

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "macros.html" import icon, card_head, cab_status with context %}
 {% block content %}
-<div class="page-head"><h1 class="page-title">{{ t("Simulyator") }}<small>{{ t("Apparat o'rnida: yacheyka va qurolxona hodisalarini qo'lda chaqirish. Barcha hodisalar 'simulyatsiya' belgisi bilan yoziladi.") }}</small></h1>
+<div class="page-head"><h1 class="page-title">{{ t("Simulyator") }}<small>{{ t("Apparat o'rnida: yacheyka va qurolxona hodisalarini qo'lda chaqirish. Barcha hodisalar 'simulyatsiya' belgisi bilan yoziladi. Avto-rejimda onlayn obyektlar har intervalda sinxron xabar ham yuboradi, shu sabab xarita 'eskirgan' holatga tushmaydi.") }}</small></h1>
   <div class="page-actions">
     {% if auto.running %}
     <form method="post" action="/simulyator/avto/off"><button class="btn btn-danger">{{ icon("stop", 14, 2.2) }} {{ t("Avto-rejimni to'xtatish") }} ({{ auto.interval }} s)</button></form>

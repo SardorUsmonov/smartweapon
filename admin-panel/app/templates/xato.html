@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros.html" import icon with context %}
+{% block content %}
+<div class="page-head"><h1 class="page-title">{{ t(title) }}<small>{{ t("Xato kodi") }}: {{ status }}</small></h1></div>
+<section class="card xato-card">
+  <div class="notice red">{{ icon("alert", 18) }} {{ t(message) }}</div>
+  {% if status == 403 and ctx and ctx.user %}
+  <p class="muted">{{ t("Sizning rolingiz") }}: <b>{{ t(role_label) }}</b> · {{ t("vakolat doirasi") }}: {{ t(scope_label) }}. {{ t("Bu amal boshqa rol yoki kengroq vakolat talab qiladi.") }}</p>
+  {% elif status == 404 %}
+  <p class="muted">{{ t("Manzil noto‘g‘ri yozilgan yoki bunday yozuv bazada yo‘q. Bo‘limlar menyusi yoki qidiruvdan foydalaning.") }}</p>
+  {% elif status >= 500 %}
+  <p class="muted">{{ t("Xato jurnalga yozildi. Sahifani yangilang; takrorlansa administratorga murojaat qiling.") }}</p>
+  {% endif %}
+  <p class="xato-actions">
+    <a class="btn btn-primary" href="/">{{ icon("dashboard", 14) }} {{ t("Bosh sahifa") }}</a>
+    {% if back %}<a class="btn btn-ghost" href="{{ back }}">{{ icon("chev-left", 14) }} {{ t("Orqaga") }}</a>{% endif %}
+    {% if status == 403 %}<a class="btn btn-ghost" href="/profil">{{ icon("user", 14) }} {{ t("Mening profilim") }}</a>{% endif %}
+  </p>
+</section>
+{% endblock %}

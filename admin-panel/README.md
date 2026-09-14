@@ -26,6 +26,19 @@ python -B -X utf8 run.py
 
 Standart bazaga qaytish uchun serverni to‘xtating, shu terminalda `Remove-Item Env:AQ_DB -ErrorAction SilentlyContinue` va `Remove-Item Env:AQ_PORT -ErrorAction SilentlyContinue` bajaring, so‘ng `run.py` ni qayta ishga tushiring.
 
+## Namoyish oldidan
+
+Namoyishdan 5–10 daqiqa oldin, server to‘xtatilgan holda:
+
+```powershell
+python -B -X utf8 scripts\demo_reset.py
+python -B -X utf8 run.py
+```
+
+Skript joriy bazani `data\arxiv\` ga vaqt belgisi bilan ko‘chiradi va yangi demo ma’lumot kiritadi (30 kunlik tarix, yangi sinxron vaqtlari, Yunusobodda faol o‘quv trevoga). Server ishlayotgan bo‘lsa skript bazaga tegmaydi va to‘xtatishni so‘raydi.
+
+Kirgandan so‘ng **Simulyator → Avto-rejim** ni yoqing: har intervalda tasodifiy hodisa yoziladi va onlayn obyektlar sinxron xabar yuboradi, shu sabab xaritadagi hududlar 15 daqiqadan keyin «eskirgan» holatga tushmaydi. Bosish yo‘li va vaqt taqsimoti: `../docs/admin-panel/16-prezentatsiya-ssenariysi.md`.
+
 ## Demo kirish
 
 Barcha boshlang‘ich demo hisoblar uchun **parol: `demo`**, **MFA kodi: `123456`**.

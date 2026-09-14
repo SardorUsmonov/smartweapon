@@ -61,6 +61,12 @@
 [data-theme] .theme-toggle, [data-theme] .lang-switch, [data-theme] .user-chip { box-shadow: 0 1px 0 var(--rl-hi) inset, 0 2px 0 var(--rl-side); }
 [data-theme] .pill.on { box-shadow: 0 1px 0 var(--rl-side); }
 
+/* Error pages share the shell; the message is the only loud element. */
+.xato-card { max-width: 720px; }
+.xato-card .notice { margin-bottom: 12px; font-size: 14px; }
+.xato-card .muted { margin: 0 0 6px; line-height: 1.5; }
+.xato-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+
 /* Login card floats above the shell. */
 [data-theme] .auth-card { border-radius: 10px; box-shadow: 0 1px 0 var(--rl-hi) inset, 0 4px 0 var(--rl-side), 0 30px 50px -24px var(--rl-shadow); }
 [data-theme] .auth-brand img { box-shadow: 0 0 0 1px var(--border-strong), 0 8px 18px -8px var(--rl-shadow); }

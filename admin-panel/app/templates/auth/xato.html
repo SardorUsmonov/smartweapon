@@ -1,0 +1,7 @@
+{% extends "auth/base.html" %}
+{% block auth_content %}
+<div class="auth-heading"><span class="auth-step">{{ t("Xato kodi") }} {{ status }}</span><h2>{{ t(title) }}</h2><p>{{ t(message) }}</p></div>
+<div class="auth-form">
+  <a class="btn btn-primary" href="/kirish">{{ t("Tizimga kirish") }}</a>
+</div>
+{% endblock %}

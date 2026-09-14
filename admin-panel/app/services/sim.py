@@ -4,10 +4,10 @@ from __future__ import annotations
 import random
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
-from ..models import Alarm, Armory, Cabinet, Custody, Eligibility, Item, Mode, Officer
+from ..models import Alarm, Armory, Cabinet, Custody, Device, Eligibility, Item, Mode, Officer
 from .events import record_event
 from .live import hub
 
@@ -197,6 +197,20 @@ def armory_action(db: Session, armory: Armory, action: str):
     ev = record_event(db, typ, armory=armory, title=title, detail=where)
     _notify(ev, None, armory)
     return ev
+
+
+def heartbeat(db: Session) -> datetime:
+    """Avto-rejimda simulyatsiya qilingan obyektlar sinxron xabar yuboradi.
+
+    Faqat onlayn qurolxonalar, ularning ishlayotgan kontrollerlari va sog'lom qurilmalari
+    vaqt belgisini yangilaydi; oflayn yoki nosoz holatlar o'zgarmaydi. Hodisa yozilmaydi,
+    chunki bu operatsiya emas, aloqa belgisi."""
+    now = datetime.now().replace(microsecond=0)
+    online = select(Armory.id).where(Armory.online.is_(True), Armory.wan_ok.is_(True))
+    db.execute(update(Armory).where(Armory.id.in_(online)).values(last_sync=now))
+    db.execute(update(Cabinet).where(Cabinet.armory_id.in_(online), Cabinet.controller_online.is_(True)).values(last_seen=now))
+    db.execute(update(Device).where(Device.armory_id.in_(online), Device.status == "onlayn").values(last_seen=now))
+    return now
 
 
 def mode_start(db: Session, armory: Armory, kind: str, started_by: str, approver2: str = "", reason: str = "") -> Mode:

@@ -25,6 +25,12 @@ Maket tuzilmasi buzilmagan: 33 sahifaning birortasida ham sahifa darajasida gori
 - Jurnal › Yaxlitlik sahifasi "Yaxlitlik buzilishi aniqlandi — 7 nomuvofiq yozuv" ko'rsatadi (eski seed xatosi, README da hujjatlashtirilgan). Namoyish uchun yangi bazani seed qilish tavsiya etiladi.
 - Zaxira sahifasida kunlik/haftalik kartalar "—" bilan bo'sh (haqiqiy nusxa hali olinmagan).
 
+## Yangilanish (2026-09-14, kechqurun)
+
+- 1-kamchilik tuzatildi: `app/main.py` da umumiy xato ishlovchilari qo'shildi. Brauzer so'rovlari (`Accept: text/html`) uchun 401/403/404/405/409/410/422/500 kodlari `xato.html` (kirgan foydalanuvchi, panel qobig'i bilan, rol va vakolat ko'rsatiladi) yoki `auth/xato.html` (kirmagan) sahifasida chiqadi; API (`/api/*`), HTMX (`HX-Request`) va testlar uchun avvalgi JSON javob va sarlavhalar (`HX-Redirect`, 303 `Location`) saqlangan.
+- Namoyish ma'lumotlari: `scripts/demo_reset.py` joriy bazani `data/arxiv/` ga arxivlab yangi seed qiladi; simulyator avto-rejimi endi har intervalda onlayn obyektlarning `last_sync` / `last_seen` vaqtini yangilaydi (`services/sim.py::heartbeat`), shu sabab xarita 15 daqiqadan keyin "Eskirgan" holatga tushmaydi.
+- 2, 3, 5-kamchiliklar hali ochiq.
+
 ## Tavsiya
 
 1-kamchilik uchun `app/main.py` ga `HTTPException` va 404 uchun umumiy HTML handler (base.html asosida, kirill/lotin bilan) qo'shish; 2 uchun `signallar.css` ga 900 px dan past 2 ustun, 480 px dan past 1 ustun qoidasi; 3 uchun uchta shablonda `t()` va `i18n.py` da katta harfli so'zlar uchun istisno; 5 uchun seed da ism-familiya-otasining ismini jins bo'yicha juftlash.
